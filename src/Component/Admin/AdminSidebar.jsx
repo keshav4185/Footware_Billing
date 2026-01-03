@@ -5,10 +5,11 @@ const AdminSidebar = ({ activeSection, setActiveSection, isSidebarOpen, setIsSid
     { id: 'overview', icon: '📊', label: 'Dashboard', color: 'text-blue-600' },
     { id: 'create-invoice', icon: '📝', label: 'Create Invoice', color: 'text-indigo-600' },
     { id: 'customers', icon: '👥', label: 'Customers', color: 'text-green-600' },
-    { id: 'products', icon: '📦', label: 'Products', color: 'text-purple-600' },
+    // { id: 'products', icon: '📦', label: 'Products', color: 'text-purple-600' },
     { id: 'invoices', icon: '📄', label: 'Invoice List', color: 'text-orange-600' },
     { id: 'employees', icon: '👨‍💼', label: 'Employees', color: 'text-indigo-600' },
     { id: 'reports', icon: '📈', label: 'Reports', color: 'text-teal-600' },
+    { id: 'profile', icon: '👤', label: 'Profile', color: 'text-indigo-600' },
     { id: 'settings', icon: '⚙️', label: 'Settings', color: 'text-gray-600' }
   ];
 
@@ -65,15 +66,6 @@ const AdminSidebar = ({ activeSection, setActiveSection, isSidebarOpen, setIsSid
 
       {/* User Profile */}
       <div className="p-3 lg:p-4 border-t border-gray-200 flex-shrink-0">
-        <div className="flex items-center space-x-2 lg:space-x-3 p-2 lg:p-3 rounded-lg bg-gray-50">
-          <div className="bg-purple-600 text-white w-6 h-6 lg:w-8 lg:h-8 rounded-full flex items-center justify-center font-bold text-xs lg:text-sm">
-            K
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs lg:text-sm font-medium text-gray-800 truncate">Keshav</p>
-            <p className="text-xs text-gray-500 truncate">Administrator</p>
-          </div>
-        </div>
       </div>
       </div>
     </>

@@ -9,6 +9,7 @@ import InvoiceList from './InvoiceList';
 import CreateBill from '../Dashboard/CreateBill';
 import EmployeesManagement from './EmployeesManagement';
 import Reports from './Reports';
+import Profile from './Profile';
 import Settings from './Settings';
 
 const AdminDashboard = () => {
@@ -56,6 +57,8 @@ const AdminDashboard = () => {
         return <EmployeesManagement />;
       case 'reports':
         return <Reports bills={bills} customers={customers} products={products} />;
+      case 'profile':
+        return <Profile />;
       case 'settings':
         return <Settings />;
       default:
