@@ -119,9 +119,9 @@ const Navbar = () => {
                                 </>
                             ) : (
                                 <>
-                                    <a href="/Account">  <Button outline className="w-full hover:bg-indigo-400 " >Sign in</Button></a> 
+                                    <a href="/Account">  <Button outline className="w-full hover:bg-indigo-400 " >Start-Now</Button></a> 
                                     {/* <a href="trypage">   <Button outline className="try hover:bg-indigo-400  ">Try it free</Button> </a> */}
-                                    <a href="/Signup">   <Button outline className="try hover:bg-indigo-400  ">Sign up</Button> </a>
+                                    {/* <a href="/Signup">   <Button outline className="try hover:bg-indigo-400  ">Sign up</Button> </a> */}
 
                                 </>
                             )}
