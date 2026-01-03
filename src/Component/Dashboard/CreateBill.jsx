@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 
 const CreateBill = ({ isDarkMode, editingBill }) => {
   const [showCustomerPopup, setShowCustomerPopup] = React.useState(false);
@@ -19,6 +20,14 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
   const [balance, setBalance] = React.useState(0);
   const [paymentStatus, setPaymentStatus] = React.useState('Unpaid');
   const [showCompanyWatermark, setShowCompanyWatermark] = React.useState(false);
+  const [loggedInEmployee, setLoggedInEmployee] = React.useState('');
+  const [companyDetails, setCompanyDetails] = React.useState({
+    name: 'Smart Sales',
+    address: '123 Business Street, City - 400001',
+    phone: '+91 98765 43210',
+    gst: '27XXXXX1234X1ZX',
+    brands: 'RELAXO adidas Bata Paragon FILA campus'
+  });
 
   const validateBasicForm = () => {
     if (!products.some(p => p.name.trim())) {
@@ -36,6 +45,36 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
     return true;
   };
 
+  const sendInvoice = () => {
+    if (!customerFormData.phone) {
+      alert('Customer phone number is required to send invoice!');
+      return;
+    }
+    
+    const totals = calculateTotals();
+    const invoiceText = `🧾 *INVOICE FROM ${companyDetails.name.toUpperCase()}*\n\n` +
+      `📋 Invoice No: INV-${Date.now().toString().slice(-6)}\n` +
+      `📅 Date: ${new Date().toLocaleDateString()}\n` +
+      `👤 Customer: ${customerFormData.name}\n` +
+      `📞 Phone: ${customerFormData.phone}\n\n` +
+      `💰 *BILL SUMMARY:*\n` +
+      `Subtotal: ₹${totals.subtotal.toFixed(2)}\n` +
+      `Discount: ₹${totals.totalDiscount.toFixed(2)}\n` +
+      `${cgstEnabled ? `CGST (${cgstRate}%): ₹${totals.cgstAmount.toFixed(2)}\n` : ''}` +
+      `${sgstEnabled ? `SGST (${sgstRate}%): ₹${totals.sgstAmount.toFixed(2)}\n` : ''}` +
+      `*Total Amount: ₹${totals.grandTotal.toFixed(2)}*\n` +
+      `Advance: ₹${advance.toFixed(2)}\n` +
+      `*Balance: ₹${totals.balanceAmount.toFixed(2)}*\n\n` +
+      `👨💼 Salesperson: ${loggedInEmployee}\n` +
+      `🏢 ${companyDetails.name}\n` +
+      `📍 ${companyDetails.address}\n` +
+      `📞 ${companyDetails.phone}`;
+    
+    const whatsappUrl = `https://wa.me/91${customerFormData.phone}?text=${encodeURIComponent(invoiceText)}`;
+    window.open(whatsappUrl, '_blank');
+    alert('📱 Invoice sent via WhatsApp!');
+  };
+
   const handleAction = (action) => {
     if (!validateBasicForm()) return;
     if (!validateCustomerForm()) return;
@@ -43,7 +82,7 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
     if (action === 'print') openDirectPrintPreview();
     else if (action === 'preview') setShowPreview(true);
     else if (action === 'save') saveBill();
-    else if (action === 'send') alert('📧 Bill sent successfully!');
+    else if (action === 'send') sendInvoice();
   };
   
   const saveBill = () => {
@@ -54,7 +93,8 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
         products: products.filter(p => p.name.trim()),
         date: new Date().toISOString(),
         invoiceNumber: `INV-${Date.now().toString().slice(-6)}`,
-        paymentStatus: 'Unpaid'
+        paymentStatus: 'Unpaid',
+        salesperson: loggedInEmployee
       };
       
       const bills = JSON.parse(localStorage.getItem('bills') || '[]');
@@ -126,6 +166,10 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
   };
 
   React.useEffect(() => {
+    // Get logged in employee name
+    const employeeName = localStorage.getItem('loggedInEmployee') || 'Sales Person';
+    setLoggedInEmployee(employeeName);
+    
     if (editingBill) {
       setCustomerFormData({
         name: editingBill.customerName || '',
@@ -148,7 +192,18 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
     if (savedLogo) {
       setCompanyLogo(savedLogo);
     }
+    
+    // Load saved company details
+    const savedCompanyDetails = localStorage.getItem('companyDetails');
+    if (savedCompanyDetails) {
+      setCompanyDetails(JSON.parse(savedCompanyDetails));
+    }
   }, [editingBill]);
+
+  // Save company details to localStorage whenever they change
+  React.useEffect(() => {
+    localStorage.setItem('companyDetails', JSON.stringify(companyDetails));
+  }, [companyDetails]);
 
   const handleLogoUpload = (e) => {
     const file = e.target.files[0];
@@ -242,14 +297,14 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
       </head>
       <body onload="window.print()">
         <div class="invoice-container" style="position: relative;">
-          ${showCompanyWatermark ? '<div class="watermark company-watermark">SMART SALES</div>' : ''}
+          ${showCompanyWatermark ? `<div class="watermark company-watermark">${companyDetails.name.toUpperCase()}</div>` : ''}
           <div class="header-section">
             <div class="logo-section">
               <div class="logo-box">${companyLogo ? `<img src="${companyLogo}" alt="Logo" style="width:100%;height:100%;object-fit:contain;">` : 'YOUR<br>LOGO'}</div>
               <div class="company-info">
-                <div class="company-name">Smart Sales</div>
-                <div class="company-details">123 Business Street, City - 400001<br>Phone: +91 98765 43210<br>GST: 27XXXXX1234X1ZX</div>
-                <div class="brand-line">RELAXO adidas Bata Paragon FILA campus</div>
+                <div class="company-name">${companyDetails.name}</div>
+                <div class="company-details">${companyDetails.address}<br>Phone: ${companyDetails.phone}<br>GST: ${companyDetails.gst}</div>
+                <div class="brand-line">${companyDetails.brands}</div>
               </div>
             </div>
             <div class="invoice-title">INVOICE</div>
@@ -269,6 +324,7 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
               <table class="invoice-info-table">
                 <tr><td>Invoice No.:</td><td>INV-${Date.now().toString().slice(-6)}</td></tr>
                 <tr><td>Invoice Date:</td><td>${new Date().toLocaleDateString('en-GB')}</td></tr>
+                <tr><td>Salesperson:</td><td><strong>${loggedInEmployee}</strong></td></tr>
                 <tr><td>Payment Method:</td><td><span class="payment-method">💵 Cash</span></td></tr>
                 <tr><td>Payment Status:</td><td><span class="payment-status">${paymentStatus}</span></td></tr>
               </table>
@@ -397,15 +453,48 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
-              <input type="text" className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" defaultValue="Smart Sales" />
+              <input 
+                type="text" 
+                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
+                value={companyDetails.name}
+                onChange={(e) => setCompanyDetails({...companyDetails, name: e.target.value})}
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Company Address</label>
-              <textarea className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all resize-none" rows="3" defaultValue="123 Business Street, City - 400001"></textarea>
+              <textarea 
+                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all resize-none" 
+                rows="3" 
+                value={companyDetails.address}
+                onChange={(e) => setCompanyDetails({...companyDetails, address: e.target.value})}
+              ></textarea>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+              <input 
+                type="text" 
+                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
+                value={companyDetails.phone}
+                onChange={(e) => setCompanyDetails({...companyDetails, phone: e.target.value})}
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">GST Number</label>
-              <input type="text" className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" defaultValue="27XXXXX1234X1ZX" />
+              <input 
+                type="text" 
+                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
+                value={companyDetails.gst}
+                onChange={(e) => setCompanyDetails({...companyDetails, gst: e.target.value})}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Brand Names</label>
+              <input 
+                type="text" 
+                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
+                value={companyDetails.brands}
+                onChange={(e) => setCompanyDetails({...companyDetails, brands: e.target.value})}
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
@@ -466,6 +555,8 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
                     min="0" 
                     step="0.01"
                     onChange={(e) => updateProduct(product.id, 'price', parseFloat(e.target.value) || 0)}
+                    onFocus={(e) => { if(e.target.value == '0') e.target.select(); }}
+                    onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
                   />
                 </div>
                 <div>
@@ -477,6 +568,8 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
                     min="0" 
                     max="100"
                     onChange={(e) => updateProduct(product.id, 'tax', parseFloat(e.target.value) || 0)}
+                    onFocus={(e) => { if(e.target.value == '0') e.target.select(); }}
+                    onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
                   />
                 </div>
                 <div>
@@ -488,6 +581,8 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
                     min="0" 
                     max="100"
                     onChange={(e) => updateProduct(product.id, 'discount', parseFloat(e.target.value) || 0)}
+                    onFocus={(e) => { if(e.target.value == '0') e.target.select(); }}
+                    onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
                   />
                 </div>
               </div>
@@ -548,6 +643,8 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
                       min="0" 
                       step="0.01"
                       onChange={(e) => updateProduct(product.id, 'price', parseFloat(e.target.value) || 0)}
+                      onFocus={(e) => { if(e.target.value == '0') e.target.select(); }}
+                      onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
                     />
                   </td>
                   <td className="p-3 border-b text-center">
@@ -558,6 +655,8 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
                       min="0" 
                       max="100"
                       onChange={(e) => updateProduct(product.id, 'tax', parseFloat(e.target.value) || 0)}
+                      onFocus={(e) => { if(e.target.value == '0') e.target.select(); }}
+                      onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
                     />
                   </td>
                   <td className="p-3 border-b text-center">
@@ -568,6 +667,8 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
                       min="0" 
                       max="100"
                       onChange={(e) => updateProduct(product.id, 'discount', parseFloat(e.target.value) || 0)}
+                      onFocus={(e) => { if(e.target.value == '0') e.target.select(); }}
+                      onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
                     />
                   </td>
                   <td className="p-3 border-b text-center font-medium text-gray-700">
@@ -595,16 +696,16 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
           <span className="text-xl">💰</span> Bill Summary
         </h3>
         <div className="bg-white rounded-lg p-4 space-y-3">
-          <div className="flex justify-between items-center py-2 border-b border-gray-100">
-            <span className="text-sm text-gray-600">Untaxed Amount:</span>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b border-gray-100">
+            <span className="text-sm text-gray-600 mb-1 sm:mb-0">Untaxed Amount:</span>
             <span className="font-semibold text-gray-800">₹ {calculateTotals().subtotal.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between items-center py-2 border-b border-gray-100">
-            <span className="text-sm text-gray-600">Discount Amount:</span>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b border-gray-100">
+            <span className="text-sm text-gray-600 mb-1 sm:mb-0">Discount Amount:</span>
             <span className="font-semibold text-gray-800">₹ {calculateTotals().totalDiscount.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between items-center py-2 border-b border-gray-100">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b border-gray-100">
+            <div className="flex flex-wrap items-center gap-2 mb-1 sm:mb-0">
               <input 
                 type="checkbox" 
                 checked={cgstEnabled} 
@@ -619,12 +720,14 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
                 min="0" 
                 step="0.01"
                 onChange={(e) => setCgstRate(parseFloat(e.target.value) || 0)}
+                onFocus={(e) => { if(e.target.value == '0') e.target.select(); }}
+                onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
               />%
             </div>
             <span className="font-semibold text-gray-800">₹ {calculateTotals().cgstAmount.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between items-center py-2 border-b border-gray-100">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b border-gray-100">
+            <div className="flex flex-wrap items-center gap-2 mb-1 sm:mb-0">
               <input 
                 type="checkbox" 
                 checked={sgstEnabled} 
@@ -639,12 +742,14 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
                 min="0" 
                 step="0.01"
                 onChange={(e) => setSgstRate(parseFloat(e.target.value) || 0)}
+                onFocus={(e) => { if(e.target.value == '0') e.target.select(); }}
+                onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
               />%
             </div>
             <span className="font-semibold text-gray-800">₹ {calculateTotals().sgstAmount.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between items-center py-2 border-b border-gray-100">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b border-gray-100">
+            <div className="flex flex-wrap items-center gap-2 mb-1 sm:mb-0">
               <span className="text-sm text-gray-600">Advance Amount:</span>
               <input 
                 type="number" 
@@ -657,20 +762,22 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
                   setAdvance(advanceValue);
                   setBalance(calculateTotals().grandTotal - advanceValue);
                 }}
+                onFocus={(e) => { if(e.target.value == '0') e.target.select(); }}
+                onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
               />
             </div>
             <span className="font-semibold text-gray-800">₹ {advance.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between items-center py-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg px-4 border-2 border-blue-200">
-            <span className="text-lg font-bold text-blue-800">Total Amount:</span>
-            <span className="text-xl font-bold text-blue-800">₹ {calculateTotals().grandTotal.toFixed(2)}</span>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg px-4 border-2 border-blue-200">
+            <span className="text-base sm:text-lg font-bold text-blue-800 mb-1 sm:mb-0">Total Amount:</span>
+            <span className="text-lg sm:text-xl font-bold text-blue-800">₹ {calculateTotals().grandTotal.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between items-center py-3 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg px-4 border-2 border-orange-200 mt-2">
-            <span className="text-lg font-bold text-orange-800">Balance Amount:</span>
-            <span className="text-xl font-bold text-orange-800">₹ {calculateTotals().balanceAmount.toFixed(2)}</span>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg px-4 border-2 border-orange-200 mt-2">
+            <span className="text-base sm:text-lg font-bold text-orange-800 mb-1 sm:mb-0">Balance Amount:</span>
+            <span className="text-lg sm:text-xl font-bold text-orange-800">₹ {calculateTotals().balanceAmount.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between items-center py-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg px-4 border-2 border-gray-300 mt-2">
-            <span className="text-lg font-bold text-gray-800">Payment Status:</span>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg px-4 border-2 border-gray-300 mt-2">
+            <span className="text-base sm:text-lg font-bold text-gray-800 mb-2 sm:mb-0">Payment Status:</span>
             <button 
               onClick={() => setPaymentStatus(paymentStatus === 'Paid' ? 'Unpaid' : 'Paid')}
               className={`px-4 py-2 rounded-lg font-bold text-sm transition-all ${
@@ -696,9 +803,9 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
       </div>
 
       {/* Preview Modal */}
-      {showPreview && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 md:p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-y-auto">
+      {showPreview && createPortal(
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{zIndex: 999999}} onClick={() => setShowPreview(false)}>
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-y-auto m-2 md:m-4" onClick={(e) => e.stopPropagation()}>
             <div className="p-3 md:p-6">
               <div className="flex justify-between items-center mb-4 md:mb-6">
                 <h3 className="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2">
@@ -715,7 +822,7 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
                 {showCompanyWatermark && (
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-5 opacity-10">
                     <div className="transform rotate-45 text-4xl md:text-6xl font-bold text-gray-500">
-                      SMART SALES
+                      {companyDetails.name.toUpperCase()}
                     </div>
                   </div>
                 )}
@@ -726,13 +833,13 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
                       YOUR<br/>LOGO
                     </div>
                     <div className="flex-1">
-                      <h1 className="text-lg md:text-xl font-bold">Smart Sales</h1>
+                      <h1 className="text-lg md:text-xl font-bold">{companyDetails.name}</h1>
                       <p className="text-xs md:text-sm text-gray-600">
-                        123 Business Street, City - 400001<br/>
-                        Phone: +91 98765 43210<br/>
-                        GST: 27XXXXX1234X1ZX
+                        {companyDetails.address}<br/>
+                        Phone: {companyDetails.phone}<br/>
+                        GST: {companyDetails.gst}
                       </p>
-                      <p className="text-xs md:text-sm font-medium mt-2">RELAXO adidas Bata Paragon FILA campus</p>
+                      <p className="text-xs md:text-sm font-medium mt-2">{companyDetails.brands}</p>
                     </div>
                   </div>
                   <div className="text-left md:text-right w-full md:w-auto">
@@ -765,6 +872,10 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
                       <div className="flex justify-between">
                         <span className="font-bold">Invoice Date:</span>
                         <span>{new Date().toLocaleDateString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-bold">Salesperson:</span>
+                        <span className="font-semibold text-blue-600">{loggedInEmployee}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="font-bold">Payment Method:</span>
@@ -908,13 +1019,14 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Customer Details Popup */}
       {showCustomerPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{zIndex: 99999}} onClick={() => setShowCustomerPopup(false)}>
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto m-4" onClick={(e) => e.stopPropagation()}>
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">

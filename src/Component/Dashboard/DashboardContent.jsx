@@ -4,6 +4,7 @@ import CreateBill from './CreateBill';
 import BillingsList from './BillingsList';
 import CustomersList from './CustomersList';
 import DashboardHome from './DashboardHome';
+import EmployeeDashboard from './EmployeeDashboard';
 
 const DashboardContent = ({ activeSection, sidebarOpen, setSidebarOpen, setActiveSection }) => {
   const navigate = useNavigate();
@@ -62,6 +63,8 @@ const DashboardContent = ({ activeSection, sidebarOpen, setSidebarOpen, setActiv
         return <BillingsList isDarkMode={isDarkMode} onEditBill={handleEditBill} />;
       case 'customers':
         return <CustomersList isDarkMode={isDarkMode} />;
+      case 'analytics':
+        return <EmployeeDashboard isDarkMode={isDarkMode} />;
       case 'products':
         return (
           <div className="p-4 md:p-6">

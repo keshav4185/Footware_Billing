@@ -1,9 +1,13 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 
 const BillingsList = ({ isDarkMode, onEditBill }) => {
   const [billSearchTerm, setBillSearchTerm] = React.useState('');
   const [showPreview, setShowPreview] = React.useState(false);
   const [selectedBill, setSelectedBill] = React.useState(null);
+  const [showExchange, setShowExchange] = React.useState(false);
+  const [exchangeBill, setExchangeBill] = React.useState(null);
+  const [openDropdown, setOpenDropdown] = React.useState(null);
 
   const togglePaymentStatus = (billId) => {
     const bills = JSON.parse(localStorage.getItem('billings') || '[]');
@@ -172,6 +176,27 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
       setBillSearchTerm(prev => prev.trim());
     }
   };
+
+  const handleExchange = (bill) => {
+    setExchangeBill(bill);
+    setShowExchange(true);
+    setOpenDropdown(null);
+  };
+
+  const toggleDropdown = (billId) => {
+    setOpenDropdown(openDropdown === billId ? null : billId);
+  };
+
+  // Close dropdown when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.dropdown-container')) {
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
   const savedBills = JSON.parse(localStorage.getItem('billings') || '[]');
   const filteredBills = savedBills.filter(bill => 
     bill.invoiceNo.toLowerCase().includes(billSearchTerm.toLowerCase()) ||
@@ -248,27 +273,41 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                           {bill.paymentStatus || 'Unpaid'}
                         </button>
                       </td>
-                      <td className="p-4 text-center">
-                        <div className="flex gap-2 justify-center">
-                          <button 
-                            className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition-colors"
-                            onClick={() => viewBill(bill)}
-                          >
-                            👁️ View
-                          </button>
-                          <button 
-                            className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 transition-colors"
-                            onClick={() => printBill(bill)}
-                          >
-                            🖨️ Print
-                          </button>
-                          <button 
-                            className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors"
-                            onClick={() => deleteBill(bill.id)}
-                          >
-                            🗑️ Delete
-                          </button>
-                        </div>
+                      <td className="p-4 text-center relative dropdown-container">
+                        <button 
+                          className="bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 mx-auto"
+                          onClick={() => toggleDropdown(bill.id)}
+                        >
+                          Actions ⋮
+                        </button>
+                        {openDropdown === bill.id && (
+                          <div className="absolute right-4 top-12 bg-white border border-gray-200 rounded-lg shadow-lg min-w-32" style={{zIndex: 1000}}>
+                            <button 
+                              className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2"
+                              onClick={() => { viewBill(bill); setOpenDropdown(null); }}
+                            >
+                              👁️ View
+                            </button>
+                            <button 
+                              className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2"
+                              onClick={() => { printBill(bill); setOpenDropdown(null); }}
+                            >
+                              🖨️ Print
+                            </button>
+                            <button 
+                              className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2"
+                              onClick={() => { handleExchange(bill); }}
+                            >
+                              🔄 Exchange
+                            </button>
+                            <button 
+                              className="w-full text-left px-4 py-2 hover:bg-red-50 text-sm flex items-center gap-2 text-red-600 border-t"
+                              onClick={() => { deleteBill(bill.id); setOpenDropdown(null); }}
+                            >
+                              🗑️ Delete
+                            </button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -320,6 +359,12 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                       🖨️ Print
                     </button>
                     <button 
+                      className="flex-1 bg-orange-500 text-white py-2 rounded text-sm hover:bg-orange-600 transition-colors"
+                      onClick={() => handleExchange(bill)}
+                    >
+                      🔄 Exchange
+                    </button>
+                    <button 
                       className="flex-1 bg-red-500 text-white py-2 rounded text-sm hover:bg-red-600 transition-colors"
                       onClick={() => deleteBill(bill.id)}
                     >
@@ -333,10 +378,98 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
         )}
       </div>
 
+      {/* Exchange Modal */}
+      {showExchange && exchangeBill && createPortal(
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{zIndex: 999999}} onClick={() => setShowExchange(false)}>
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[95vh] overflow-y-auto m-2 md:m-4" onClick={(e) => e.stopPropagation()}>
+            <div className="p-4 md:p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                  <span className="text-2xl">🔄</span> Exchange Product
+                </h3>
+                <button onClick={() => setShowExchange(false)} className="text-gray-500 hover:text-gray-700 text-2xl">
+                  ×
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Original Bill Info */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h4 className="font-bold mb-3 text-gray-800">Original Bill</h4>
+                  <div className="space-y-2 text-sm">
+                    <p><strong>Invoice No:</strong> {exchangeBill.invoiceNo}</p>
+                    <p><strong>Customer:</strong> {exchangeBill.customerName}</p>
+                    <p><strong>Phone:</strong> {exchangeBill.customerPhone}</p>
+                    <p><strong>Date:</strong> {exchangeBill.date}</p>
+                    <p><strong>Amount:</strong> ₹{exchangeBill.amount.toFixed(2)}</p>
+                  </div>
+                </div>
+                
+                {/* Exchange Form */}
+                <div className="space-y-4">
+                  <h4 className="font-bold text-gray-800">Exchange Details</h4>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Exchange Product</label>
+                    <input 
+                      type="text" 
+                      placeholder="Enter new product name"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">New Amount</label>
+                    <input 
+                      type="number" 
+                      placeholder="Enter new amount"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Exchange Reason</label>
+                    <textarea 
+                      placeholder="Reason for exchange"
+                      rows="3"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    ></textarea>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Difference Amount</label>
+                    <input 
+                      type="number" 
+                      placeholder="Amount difference (+/-)"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex gap-3 mt-6">
+                <button 
+                  onClick={() => setShowExchange(false)}
+                  className="flex-1 bg-gray-500 text-white py-3 rounded-lg font-medium hover:bg-gray-600 transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  className="flex-1 bg-orange-500 text-white py-3 rounded-lg font-medium hover:bg-orange-600 transition-all"
+                >
+                  Process Exchange
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
       {/* Preview Modal */}
-      {showPreview && selectedBill && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 md:p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-y-auto">
+      {showPreview && selectedBill && createPortal(
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{zIndex: 999999}} onClick={() => setShowPreview(false)}>
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-y-auto m-2 md:m-4" onClick={(e) => e.stopPropagation()}>
             <div className="p-3 md:p-6">
               <div className="flex justify-between items-center mb-4 md:mb-6">
                 <h3 className="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2">
@@ -509,7 +642,8 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
