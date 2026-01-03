@@ -1,6 +1,6 @@
 import React from 'react';
 
-const CreateBill = ({ isDarkMode }) => {
+const CreateBill = ({ isDarkMode, editingBill }) => {
   const [showCustomerPopup, setShowCustomerPopup] = React.useState(false);
   const [pendingAction, setPendingAction] = React.useState(null);
   const [customerFormData, setCustomerFormData] = React.useState({
@@ -14,10 +14,15 @@ const CreateBill = ({ isDarkMode }) => {
   const [cgstRate, setCgstRate] = React.useState(9);
   const [sgstRate, setSgstRate] = React.useState(9);
   const [showPreview, setShowPreview] = React.useState(false);
+  const [companyLogo, setCompanyLogo] = React.useState(null);
+  const [advance, setAdvance] = React.useState(0);
+  const [balance, setBalance] = React.useState(0);
+  const [paymentStatus, setPaymentStatus] = React.useState('Unpaid');
+  const [showCompanyWatermark, setShowCompanyWatermark] = React.useState(false);
 
   const validateBasicForm = () => {
     if (!products.some(p => p.name.trim())) {
-      alert('कृपया कमीत कमी एक product add करा!');
+      alert('Please add at least one product!');
       return false;
     }
     return true;
@@ -25,27 +30,20 @@ const CreateBill = ({ isDarkMode }) => {
   
   const validateCustomerForm = () => {
     if (!customerFormData.name.trim()) {
-      alert('Customer name आवश्यक आहे!');
+      alert('Customer name is required!');
       return false;
     }
     return true;
   };
 
-  const showCustomerDetailsPopup = (action) => {
-    setPendingAction(action);
-    setShowCustomerPopup(true);
-  };
-
-  const executeAction = () => {
+  const handleAction = (action) => {
+    if (!validateBasicForm()) return;
     if (!validateCustomerForm()) return;
     
-    if (pendingAction === 'print') openDirectPrintPreview();
-    else if (pendingAction === 'preview') setShowPreview(true);
-    else if (pendingAction === 'save') saveBill();
-    else if (pendingAction === 'send') alert('📧 Bill sent successfully!');
-    
-    setShowCustomerPopup(false);
-    setPendingAction(null);
+    if (action === 'print') openDirectPrintPreview();
+    else if (action === 'preview') setShowPreview(true);
+    else if (action === 'save') saveBill();
+    else if (action === 'send') alert('📧 Bill sent successfully!');
   };
   
   const saveBill = () => {
@@ -122,8 +120,47 @@ const CreateBill = ({ isDarkMode }) => {
     const cgstAmount = cgstEnabled ? taxableAmount * cgstRate / 100 : 0;
     const sgstAmount = sgstEnabled ? taxableAmount * sgstRate / 100 : 0;
     const grandTotal = taxableAmount + cgstAmount + sgstAmount;
+    const balanceAmount = grandTotal - advance;
     
-    return { subtotal, totalDiscount, taxableAmount, cgstAmount, sgstAmount, grandTotal };
+    return { subtotal, totalDiscount, taxableAmount, cgstAmount, sgstAmount, grandTotal, balanceAmount };
+  };
+
+  React.useEffect(() => {
+    if (editingBill) {
+      setCustomerFormData({
+        name: editingBill.customerName || '',
+        phone: editingBill.customerPhone || '',
+        gst: editingBill.customerGst || '',
+        address: editingBill.customerAddress || ''
+      });
+      setProducts([{
+        id: 1,
+        name: 'Service',
+        qty: 1,
+        price: editingBill.amount || 0,
+        tax: 0,
+        discount: 0
+      }]);
+    }
+    
+    // Load saved logo
+    const savedLogo = localStorage.getItem('companyLogo');
+    if (savedLogo) {
+      setCompanyLogo(savedLogo);
+    }
+  }, [editingBill]);
+
+  const handleLogoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const logoData = event.target.result;
+        setCompanyLogo(logoData);
+        localStorage.setItem('companyLogo', logoData);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const convertToWords = (num) => {
@@ -177,6 +214,9 @@ const CreateBill = ({ isDarkMode }) => {
         .invoice-info-table td { padding: 8px 5px; font-size: 13px; border-bottom: 1px solid #eee; }
         .invoice-info-table td:first-child { font-weight: bold; color: #000; }
         .payment-status { color: #dc2626; font-weight: bold; background: #fef2f2; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+        .payment-status.paid { color: #16a34a; background: #f0fdf4; }
+        .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(45deg); font-size: 120px; font-weight: bold; opacity: 0.1; z-index: 1; pointer-events: none; }
+        .company-watermark { color: #6b7280; opacity: 0.1; font-size: 80px; top: 40%; }
         .payment-method { background: #16a34a; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
         .products-table { width: 100%; border-collapse: collapse; border: 3px solid #000; }
         .products-table th { background: #f5f5f5; padding: 12px 8px; text-align: center; font-size: 13px; font-weight: bold; border: 1px solid #000; color: #000; }
@@ -201,10 +241,11 @@ const CreateBill = ({ isDarkMode }) => {
       </style>
       </head>
       <body onload="window.print()">
-        <div class="invoice-container">
+        <div class="invoice-container" style="position: relative;">
+          ${showCompanyWatermark ? '<div class="watermark company-watermark">SMART SALES</div>' : ''}
           <div class="header-section">
             <div class="logo-section">
-              <div class="logo-box">YOUR<br>LOGO</div>
+              <div class="logo-box">${companyLogo ? `<img src="${companyLogo}" alt="Logo" style="width:100%;height:100%;object-fit:contain;">` : 'YOUR<br>LOGO'}</div>
               <div class="company-info">
                 <div class="company-name">Smart Sales</div>
                 <div class="company-details">123 Business Street, City - 400001<br>Phone: +91 98765 43210<br>GST: 27XXXXX1234X1ZX</div>
@@ -229,7 +270,7 @@ const CreateBill = ({ isDarkMode }) => {
                 <tr><td>Invoice No.:</td><td>INV-${Date.now().toString().slice(-6)}</td></tr>
                 <tr><td>Invoice Date:</td><td>${new Date().toLocaleDateString('en-GB')}</td></tr>
                 <tr><td>Payment Method:</td><td><span class="payment-method">💵 Cash</span></td></tr>
-                <tr><td>Payment Status:</td><td><span class="payment-status">Unpaid</span></td></tr>
+                <tr><td>Payment Status:</td><td><span class="payment-status">${paymentStatus}</span></td></tr>
               </table>
             </div>
           </div>
@@ -247,7 +288,9 @@ const CreateBill = ({ isDarkMode }) => {
               <div class="amount-row"><span>Discount:</span><span>₹${totals.totalDiscount.toFixed(2)}</span></div>
               ${cgstEnabled ? `<div class="amount-row"><span>CGST (${cgstRate}%):</span><span>₹${totals.cgstAmount.toFixed(2)}</span></div>` : ''}
               ${sgstEnabled ? `<div class="amount-row"><span>SGST (${sgstRate}%):</span><span>₹${totals.sgstAmount.toFixed(2)}</span></div>` : ''}
-              <div class="amount-row total-amount"><span>Total Amount:</span><span>₹${totals.grandTotal.toFixed(2)}</span></div>
+              <div className="amount-row total-amount"><span>Total Amount:</span><span>₹${totals.grandTotal.toFixed(2)} ${paymentStatus === 'Paid' ? '✅' : '❌'}</span></div>
+              <div class="amount-row"><span>Advance Amount:</span><span>₹${advance.toFixed(2)}</span></div>
+              <div class="amount-row" style="background: #fef3cd; border-top: 2px solid #f59e0b;"><span style="color: #92400e; font-weight: bold;">Balance Amount:</span><span style="color: #92400e; font-weight: bold;">₹${totals.balanceAmount.toFixed(2)}</span></div>
             </div>
           </div>
           <div class="signatures">
@@ -268,15 +311,15 @@ const CreateBill = ({ isDarkMode }) => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
             <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-              <span className="text-2xl">📝</span> Create New Bill
+              <span className="text-2xl">📝</span> {editingBill ? 'Edit Bill' : 'Create New Bill'}
             </h2>
-            <p className="text-sm text-gray-600">Generate professional invoices</p>
+            <p className="text-sm text-gray-600">{editingBill ? `Editing Invoice: ${editingBill.invoiceNo}` : 'Generate professional invoices'}</p>
           </div>
           <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-            <button className="flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-blue-800 transition-all shadow-md" onClick={() => validateBasicForm() && showCustomerDetailsPopup('send')}>📤 Send</button>
-            <button className="flex-1 sm:flex-none bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-green-700 hover:to-green-800 transition-all shadow-md" onClick={() => validateBasicForm() && showCustomerDetailsPopup('print')}>🖨️ Print</button>
-            <button className="flex-1 sm:flex-none bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-purple-700 hover:to-purple-800 transition-all shadow-md" onClick={() => validateBasicForm() && showCustomerDetailsPopup('save')}>💾 Save</button>
-            <button className="flex-1 sm:flex-none bg-gradient-to-r from-orange-600 to-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-orange-700 hover:to-orange-800 transition-all shadow-md" onClick={() => validateBasicForm() && showCustomerDetailsPopup('preview')}>👁️ Preview</button>
+            <button className="flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-blue-800 transition-all shadow-md" onClick={() => handleAction('send')}>📤 Send</button>
+            <button className="flex-1 sm:flex-none bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-green-700 hover:to-green-800 transition-all shadow-md" onClick={() => handleAction('print')}>🖨️ Print</button>
+            <button className="flex-1 sm:flex-none bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-purple-700 hover:to-purple-800 transition-all shadow-md" onClick={() => handleAction('save')}>💾 Save</button>
+            <button className="flex-1 sm:flex-none bg-gradient-to-r from-orange-600 to-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-orange-700 hover:to-orange-800 transition-all shadow-md" onClick={() => handleAction('preview')}>👁️ Preview</button>
           </div>
         </div>
       </div>
@@ -291,19 +334,44 @@ const CreateBill = ({ isDarkMode }) => {
           <div className="customer-details space-y-4">
             <div>
               <label className="block text-sm font-medium text-red-600 mb-1">Customer Name *</label>
-              <input type="text" className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" placeholder="Enter customer name" />
+              <input 
+                type="text" 
+                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
+                placeholder="Enter customer name"
+                value={customerFormData.name}
+                onChange={(e) => setCustomerFormData({...customerFormData, name: e.target.value})}
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-red-600 mb-1">Phone Number *</label>
-              <input type="tel" className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" placeholder="Enter phone number" pattern="[0-9]*" onInput={(e) => e.target.value = e.target.value.replace(/[^0-9]/g, '')} />
+              <input 
+                type="tel" 
+                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
+                placeholder="Enter phone number" 
+                pattern="[0-9]*"
+                value={customerFormData.phone}
+                onChange={(e) => setCustomerFormData({...customerFormData, phone: e.target.value.replace(/[^0-9]/g, '')})}
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-red-600 mb-1">GST Number *</label>
-              <input type="text" className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" placeholder="Enter GST number" />
+              <input 
+                type="text" 
+                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
+                placeholder="Enter GST number"
+                value={customerFormData.gst}
+                onChange={(e) => setCustomerFormData({...customerFormData, gst: e.target.value})}
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-red-600 mb-1">Invoice Address *</label>
-              <textarea className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all resize-none" rows="3" placeholder="Enter complete address"></textarea>
+              <textarea 
+                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all resize-none" 
+                rows="3" 
+                placeholder="Enter complete address"
+                value={customerFormData.address}
+                onChange={(e) => setCustomerFormData({...customerFormData, address: e.target.value})}
+              ></textarea>
             </div>
           </div>
         </div>
@@ -317,10 +385,14 @@ const CreateBill = ({ isDarkMode }) => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Company Logo</label>
               <div className="flex items-center gap-3 flex-wrap">
-                <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-3 rounded-lg text-xs font-bold text-center min-w-20">SMART<br/>SALES</div>
-                <input type="file" id="logo-upload" accept="image/*" className="hidden" />
+                {companyLogo ? (
+                  <img src={companyLogo} alt="Company Logo" className="w-16 h-16 object-contain border rounded" />
+                ) : (
+                  <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-3 rounded-lg text-xs font-bold text-center min-w-20">SMART<br/>SALES</div>
+                )}
+                <input type="file" id="logo-upload" accept="image/*" className="hidden" onChange={handleLogoUpload} />
                 <label htmlFor="logo-upload" className="bg-gray-600 text-white px-3 py-2 rounded-lg text-xs cursor-pointer hover:bg-gray-700 transition-colors">📁 Choose File</label>
-                <span className="text-xs text-gray-500">No file chosen</span>
+                <span className="text-xs text-gray-500">{companyLogo ? 'Logo uploaded' : 'No file chosen'}</span>
               </div>
             </div>
             <div>
@@ -571,68 +643,121 @@ const CreateBill = ({ isDarkMode }) => {
             </div>
             <span className="font-semibold text-gray-800">₹ {calculateTotals().sgstAmount.toFixed(2)}</span>
           </div>
+          <div className="flex justify-between items-center py-2 border-b border-gray-100">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">Advance Amount:</span>
+              <input 
+                type="number" 
+                className="w-20 p-1 border border-gray-300 rounded text-xs text-center" 
+                value={advance} 
+                min="0" 
+                step="0.01"
+                onChange={(e) => {
+                  const advanceValue = parseFloat(e.target.value) || 0;
+                  setAdvance(advanceValue);
+                  setBalance(calculateTotals().grandTotal - advanceValue);
+                }}
+              />
+            </div>
+            <span className="font-semibold text-gray-800">₹ {advance.toFixed(2)}</span>
+          </div>
           <div className="flex justify-between items-center py-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg px-4 border-2 border-blue-200">
             <span className="text-lg font-bold text-blue-800">Total Amount:</span>
             <span className="text-xl font-bold text-blue-800">₹ {calculateTotals().grandTotal.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between items-center py-3 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg px-4 border-2 border-orange-200 mt-2">
+            <span className="text-lg font-bold text-orange-800">Balance Amount:</span>
+            <span className="text-xl font-bold text-orange-800">₹ {calculateTotals().balanceAmount.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between items-center py-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg px-4 border-2 border-gray-300 mt-2">
+            <span className="text-lg font-bold text-gray-800">Payment Status:</span>
+            <button 
+              onClick={() => setPaymentStatus(paymentStatus === 'Paid' ? 'Unpaid' : 'Paid')}
+              className={`px-4 py-2 rounded-lg font-bold text-sm transition-all ${
+                paymentStatus === 'Paid' 
+                  ? 'bg-green-500 text-white hover:bg-green-600' 
+                  : 'bg-red-500 text-white hover:bg-red-600'
+              }`}
+            >
+              {paymentStatus}
+            </button>
+          </div>
+          <div className="flex items-center gap-2 mt-2">
+            <input 
+              type="checkbox" 
+              id="companyWatermark" 
+              checked={showCompanyWatermark} 
+              onChange={(e) => setShowCompanyWatermark(e.target.checked)}
+              className="rounded" 
+            />
+            <label htmlFor="companyWatermark" className="text-sm text-gray-600">Show Company Watermark</label>
           </div>
         </div>
       </div>
 
       {/* Preview Modal */}
       {showPreview && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                  <span className="text-2xl">👁️</span> Invoice Preview
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 md:p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-y-auto">
+            <div className="p-3 md:p-6">
+              <div className="flex justify-between items-center mb-4 md:mb-6">
+                <h3 className="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2">
+                  <span className="text-xl md:text-2xl">👁️</span> Invoice Preview
                 </h3>
-                <button onClick={() => setShowPreview(false)} className="text-gray-500 hover:text-gray-700 text-2xl">
+                <button onClick={() => setShowPreview(false)} className="text-gray-500 hover:text-gray-700 text-xl md:text-2xl">
                   ×
                 </button>
               </div>
               
               {/* Invoice Preview Content */}
-              <div className="border-2 border-gray-300 rounded-lg p-6 bg-white">
+              <div className="border border-gray-300 md:border-2 rounded-lg p-3 md:p-6 bg-white text-xs md:text-sm relative overflow-hidden">
+                {/* Company Watermark */}
+                {showCompanyWatermark && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-5 opacity-10">
+                    <div className="transform rotate-45 text-4xl md:text-6xl font-bold text-gray-500">
+                      SMART SALES
+                    </div>
+                  </div>
+                )}
                 {/* Header */}
-                <div className="flex justify-between items-start mb-6 pb-4 border-b-2 border-black">
-                  <div className="flex items-start">
-                    <div className="w-16 h-16 border-2 border-black flex items-center justify-center text-xs font-bold mr-4 bg-gray-100">
+                <div className="flex flex-col md:flex-row justify-between items-start mb-4 md:mb-6 pb-3 md:pb-4 border-b border-black md:border-b-2">
+                  <div className="flex items-start w-full md:w-auto mb-3 md:mb-0">
+                    <div className="w-12 h-12 md:w-16 md:h-16 border border-black md:border-2 flex items-center justify-center text-xs font-bold mr-3 md:mr-4 bg-gray-100">
                       YOUR<br/>LOGO
                     </div>
-                    <div>
-                      <h1 className="text-xl font-bold">Smart Sales</h1>
-                      <p className="text-sm text-gray-600">
+                    <div className="flex-1">
+                      <h1 className="text-lg md:text-xl font-bold">Smart Sales</h1>
+                      <p className="text-xs md:text-sm text-gray-600">
                         123 Business Street, City - 400001<br/>
                         Phone: +91 98765 43210<br/>
                         GST: 27XXXXX1234X1ZX
                       </p>
-                      <p className="text-sm font-medium mt-2">RELAXO adidas Bata Paragon FILA campus</p>
+                      <p className="text-xs md:text-sm font-medium mt-2">RELAXO adidas Bata Paragon FILA campus</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <h2 className="text-2xl font-bold">INVOICE</h2>
+                  <div className="text-left md:text-right w-full md:w-auto">
+                    <h2 className="text-xl md:text-2xl font-bold">INVOICE</h2>
                   </div>
                 </div>
                 
                 {/* Tax Invoice Header */}
-                <div className="bg-black text-white text-center py-2 mb-4 font-bold text-lg">
+                <div className="bg-black text-white text-center py-2 mb-4 font-bold text-sm md:text-lg">
                   TAX INVOICE
                 </div>
                 
                 {/* Bill Details */}
-                <div className="grid grid-cols-2 gap-6 mb-6">
-                  <div className="bg-gray-50 p-4 rounded">
-                    <h3 className="font-bold mb-3 border-b pb-2">BILL TO:</h3>
-                    <div className="text-sm space-y-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
+                  <div className="bg-gray-50 p-3 md:p-4 rounded">
+                    <h3 className="font-bold mb-2 md:mb-3 border-b pb-1 md:pb-2">BILL TO:</h3>
+                    <div className="text-xs md:text-sm space-y-1">
                       <p><strong>Name:</strong> {customerFormData.name}</p>
                       <p><strong>Phone:</strong> {customerFormData.phone}</p>
                       <p><strong>GST:</strong> {customerFormData.gst}</p>
                       <p><strong>Address:</strong> {customerFormData.address}</p>
                     </div>
                   </div>
-                  <div className="p-4">
-                    <div className="space-y-2 text-sm">
+                  <div className="p-3 md:p-4">
+                    <div className="space-y-2 text-xs md:text-sm">
                       <div className="flex justify-between">
                         <span className="font-bold">Invoice No.:</span>
                         <span>INV-{Date.now().toString().slice(-6)}</span>
@@ -647,14 +772,39 @@ const CreateBill = ({ isDarkMode }) => {
                       </div>
                       <div className="flex justify-between">
                         <span className="font-bold">Payment Status:</span>
-                        <span className="bg-red-100 text-red-600 px-2 py-1 rounded text-xs font-bold">Unpaid</span>
+                        <span className={`px-2 py-1 rounded text-xs font-bold ${
+                          paymentStatus === 'Paid' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                        }`}>{paymentStatus}</span>
                       </div>
                     </div>
                   </div>
                 </div>
                 
-                {/* Products Table */}
-                <div className="mb-6">
+                {/* Products Table - Mobile Cards */}
+                <div className="md:hidden mb-4">
+                  <h4 className="font-bold mb-2">Products:</h4>
+                  {products.map((product, index) => {
+                    if (product.name) {
+                      return (
+                        <div key={index} className="bg-gray-50 p-3 mb-2 rounded border">
+                          <div className="flex justify-between items-start mb-2">
+                            <span className="font-medium">{index + 1}. {product.name}</span>
+                            <span className="font-bold">₹{calculateRowAmount(product).toFixed(2)}</span>
+                          </div>
+                          <div className="grid grid-cols-3 gap-2 text-xs text-gray-600">
+                            <span>Qty: {product.qty}</span>
+                            <span>Rate: ₹{product.price.toFixed(2)}</span>
+                            <span>Disc: {product.discount}%</span>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+                
+                {/* Products Table - Desktop */}
+                <div className="hidden md:block mb-6">
                   <table className="w-full border-collapse border-2 border-black">
                     <thead>
                       <tr className="bg-gray-100">
@@ -689,13 +839,13 @@ const CreateBill = ({ isDarkMode }) => {
                 </div>
                 
                 {/* Totals */}
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="bg-gray-50 p-4 rounded">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  <div className="bg-gray-50 p-3 md:p-4 rounded">
                     <strong className="block mb-2">Total in words:</strong>
-                    <div className="font-bold text-gray-700">{convertToWords(Math.round(calculateTotals().grandTotal))}</div>
+                    <div className="font-bold text-gray-700 text-xs md:text-sm">{convertToWords(Math.round(calculateTotals().grandTotal))}</div>
                   </div>
                   <div>
-                    <div className="space-y-2 text-sm">
+                    <div className="space-y-2 text-xs md:text-sm">
                       <div className="flex justify-between py-1 border-b">
                         <span>Taxable Amount:</span>
                         <span>₹{calculateTotals().taxableAmount.toFixed(2)}</span>
@@ -716,29 +866,42 @@ const CreateBill = ({ isDarkMode }) => {
                           <span>₹{calculateTotals().sgstAmount.toFixed(2)}</span>
                         </div>
                       )}
-                      <div className="flex justify-between py-2 bg-gray-100 px-3 font-bold text-lg border-2 border-black">
+                      <div className="flex justify-between py-2 bg-gray-100 px-3 font-bold text-sm md:text-lg border border-black md:border-2">
                         <span>Total Amount:</span>
-                        <span>₹{calculateTotals().grandTotal.toFixed(2)}</span>
+                        <div className="flex items-center gap-2">
+                          <span>₹{calculateTotals().grandTotal.toFixed(2)}</span>
+                          <span className={`text-lg ${paymentStatus === 'Paid' ? 'text-green-600' : 'text-red-600'}`}>
+                            {paymentStatus === 'Paid' ? '✅' : '❌'}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between py-1 border-b">
+                        <span>Advance Amount:</span>
+                        <span>₹{advance.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between py-2 bg-orange-100 px-3 font-bold text-sm md:text-lg border border-orange-300">
+                        <span>Balance Amount:</span>
+                        <span>₹{calculateTotals().balanceAmount.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
                 </div>
                 
                 {/* Signatures */}
-                <div className="grid grid-cols-2 gap-6 mt-8 pt-8 border-t-2 border-black">
+                <div className="grid grid-cols-2 gap-4 md:gap-6 mt-6 md:mt-8 pt-6 md:pt-8 border-t border-black md:border-t-2">
                   <div className="text-center">
-                    <div className="border-t border-black mt-12 pt-2 font-bold">Owner Signature</div>
+                    <div className="border-t border-black mt-8 md:mt-12 pt-2 font-bold text-xs md:text-sm">Owner Signature</div>
                   </div>
                   <div className="text-center">
-                    <div className="border-t border-black mt-12 pt-2 font-bold">Customer Signature</div>
+                    <div className="border-t border-black mt-8 md:mt-12 pt-2 font-bold text-xs md:text-sm">Customer Signature</div>
                   </div>
                 </div>
               </div>
               
-              <div className="flex gap-3 mt-6">
+              <div className="flex gap-3 mt-4 md:mt-6">
                 <button 
                   onClick={() => setShowPreview(false)}
-                  className="flex-1 bg-gray-500 text-white py-3 rounded-lg font-medium hover:bg-gray-600 transition-all"
+                  className="flex-1 bg-gray-500 text-white py-2 md:py-3 rounded-lg font-medium hover:bg-gray-600 transition-all text-sm md:text-base"
                 >
                   Close Preview
                 </button>

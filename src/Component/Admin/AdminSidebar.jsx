@@ -3,9 +3,11 @@ import React from 'react';
 const AdminSidebar = ({ activeSection, setActiveSection, isSidebarOpen, setIsSidebarOpen }) => {
   const menuItems = [
     { id: 'overview', icon: '📊', label: 'Dashboard', color: 'text-blue-600' },
+    { id: 'create-invoice', icon: '📝', label: 'Create Invoice', color: 'text-indigo-600' },
     { id: 'customers', icon: '👥', label: 'Customers', color: 'text-green-600' },
     { id: 'products', icon: '📦', label: 'Products', color: 'text-purple-600' },
     { id: 'invoices', icon: '📄', label: 'Invoice List', color: 'text-orange-600' },
+    { id: 'employees', icon: '👨‍💼', label: 'Employees', color: 'text-indigo-600' },
     { id: 'reports', icon: '📈', label: 'Reports', color: 'text-teal-600' },
     { id: 'settings', icon: '⚙️', label: 'Settings', color: 'text-gray-600' }
   ];

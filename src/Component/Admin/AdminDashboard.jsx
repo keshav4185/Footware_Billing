@@ -6,6 +6,8 @@ import DashboardOverview from './DashboardOverview';
 import CustomersManagement from './CustomersManagement';
 import ProductsManagement from './ProductsManagement';
 import InvoiceList from './InvoiceList';
+import CreateBill from '../Dashboard/CreateBill';
+import EmployeesManagement from './EmployeesManagement';
 import Reports from './Reports';
 import Settings from './Settings';
 
@@ -42,12 +44,16 @@ const AdminDashboard = () => {
     switch(activeSection) {
       case 'overview':
         return <DashboardOverview bills={bills} customers={customers} products={products} />;
+      case 'create-invoice':
+        return <CreateBill isDarkMode={false} />;
       case 'customers':
         return <CustomersManagement customers={customers} setCustomers={setCustomers} />;
       case 'products':
         return <ProductsManagement products={products} setProducts={setProducts} />;
       case 'invoices':
         return <InvoiceList bills={bills} setBills={setBills} />;
+      case 'employees':
+        return <EmployeesManagement />;
       case 'reports':
         return <Reports bills={bills} customers={customers} products={products} />;
       case 'settings':

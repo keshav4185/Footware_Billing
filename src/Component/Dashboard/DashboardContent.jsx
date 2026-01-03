@@ -9,6 +9,7 @@ const DashboardContent = ({ activeSection, sidebarOpen, setSidebarOpen, setActiv
   const navigate = useNavigate();
   const [isDarkMode, setIsDarkMode] = React.useState(false);
   const [currentTime, setCurrentTime] = React.useState(new Date());
+  const [editingBill, setEditingBill] = React.useState(null);
 
   // Update time every minute
   React.useEffect(() => {
@@ -44,15 +45,21 @@ const DashboardContent = ({ activeSection, sidebarOpen, setSidebarOpen, setActiv
   };
 
   const handleCreateBill = () => {
+    setEditingBill(null);
+    setActiveSection('create-bill');
+  };
+
+  const handleEditBill = (bill) => {
+    setEditingBill(bill);
     setActiveSection('create-bill');
   };
 
   const renderContent = () => {
     switch(activeSection) {
       case 'create-bill':
-        return <CreateBill isDarkMode={isDarkMode} />;
+        return <CreateBill isDarkMode={isDarkMode} editingBill={editingBill} />;
       case 'billings':
-        return <BillingsList isDarkMode={isDarkMode} />;
+        return <BillingsList isDarkMode={isDarkMode} onEditBill={handleEditBill} />;
       case 'customers':
         return <CustomersList isDarkMode={isDarkMode} />;
       case 'products':
