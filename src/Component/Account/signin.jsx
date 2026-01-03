@@ -139,9 +139,9 @@ const Signin = () => {
                         </div>
                         {loginType === 'user' && (
                             <div className="text-right mt-1">
-                                <a href="/Resetpassword" className="text-sm text-purple-main hover:underline">
+                                {/* <a href="/Resetpassword" className="text-sm text-purple-main hover:underline">
                                     Reset Password
-                                </a>
+                                </a> */}
                             </div>
                         )}
                     </div>
@@ -160,9 +160,9 @@ const Signin = () => {
 
                 {loginType === 'user' && (
                     <div className="text-center mt-6">
-                        <a href="/Signup" className="text-sm text-teal-highlight hover:underline">
+                        {/* <a href="/Signup" className="text-sm text-teal-highlight hover:underline">
                             Don't have an account?
-                        </a>
+                        </a> */}
                     </div>
                 )}
                 
