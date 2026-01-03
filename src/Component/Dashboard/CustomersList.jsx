@@ -3,12 +3,28 @@ import React from 'react';
 const CustomersList = ({ isDarkMode }) => {
   const [customerSearchTerm, setCustomerSearchTerm] = React.useState('');
   const [editingCustomer, setEditingCustomer] = React.useState(null);
+  const [showAddModal, setShowAddModal] = React.useState(false);
   const [customerFormData, setCustomerFormData] = React.useState({
     name: '',
     phone: '',
     gst: '',
     address: ''
   });
+
+  const addNewCustomer = () => {
+    const customers = JSON.parse(localStorage.getItem('customers') || '[]');
+    const newCustomer = {
+      id: Date.now(),
+      ...customerFormData,
+      totalBills: 0,
+      lastBillDate: 'Never'
+    };
+    customers.push(newCustomer);
+    localStorage.setItem('customers', JSON.stringify(customers));
+    setShowAddModal(false);
+    setCustomerFormData({ name: '', phone: '', gst: '', address: '' });
+    alert('Customer added successfully!');
+  };
 
   const editCustomer = (customer) => {
     setEditingCustomer(customer);
@@ -45,6 +61,7 @@ const CustomersList = ({ isDarkMode }) => {
 
   const closeCustomerEdit = () => {
     setEditingCustomer(null);
+    setShowAddModal(false);
     setCustomerFormData({ name: '', phone: '', gst: '', address: '' });
   };
 
@@ -157,7 +174,7 @@ const CustomersList = ({ isDarkMode }) => {
             <div className="text-center">
               <button 
                 className="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all shadow-md"
-                onClick={() => setActiveSection('create-bill')}
+                onClick={() => setShowAddModal(true)}
               >
                 ➕ Add New Customer
               </button>
@@ -166,13 +183,15 @@ const CustomersList = ({ isDarkMode }) => {
         )}
       </div>
       
-      {/* Customer Edit Modal */}
-      {editingCustomer && (
+      {/* Customer Edit/Add Modal */}
+      {(editingCustomer || showAddModal) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-gray-800">Edit Customer Details</h3>
+                <h3 className="text-xl font-bold text-gray-800">
+                  {editingCustomer ? 'Edit Customer Details' : 'Add New Customer'}
+                </h3>
                 <button onClick={closeCustomerEdit} className="text-gray-500 hover:text-gray-700 text-2xl">×</button>
               </div>
               <div className="space-y-4">
@@ -215,10 +234,10 @@ const CustomersList = ({ isDarkMode }) => {
               </div>
               <div className="flex gap-3 mt-6">
                 <button 
-                  onClick={saveCustomerEdit} 
+                  onClick={editingCustomer ? saveCustomerEdit : addNewCustomer} 
                   className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-all"
                 >
-                  Save Changes
+                  {editingCustomer ? 'Save Changes' : 'Add Customer'}
                 </button>
                 <button 
                   onClick={closeCustomerEdit} 

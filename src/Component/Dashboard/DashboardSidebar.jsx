@@ -15,10 +15,11 @@ const DashboardSidebar = ({ activeSection, setActiveSection, sidebarOpen, setSid
   };
 
   const menuItems = [
+    { id: 'analytics', icon: '📊', label: 'Dashboard' },
     { id: 'create-bill', icon: '➕', label: 'Create Bill' },
     { id: 'billings', icon: '📄', label: 'My Billings' },
     { id: 'customers', icon: '👥', label: 'Customers' },
-    { id: 'products', icon: '📦', label: 'Products' }
+    // { id: 'products', icon: '📦', label: 'Products' }
   ];
 
   return (

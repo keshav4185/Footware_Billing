@@ -19,7 +19,9 @@ const Signin = () => {
 
     const handleUserLogin = (e) => {
         e.preventDefault();
+        const employeeName = e.target.employeeName.value;
         localStorage.setItem('isSignedIn', 'true');
+        localStorage.setItem('loggedInEmployee', employeeName);
         window.location.href = '/dashboard';
     };
 
@@ -107,6 +109,20 @@ const Signin = () => {
                 </div>
                 
                 <form onSubmit={loginType === 'user' ? handleUserLogin : handleAdminLogin} className="space-y-6">
+                    {loginType === 'user' && (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Employee Name
+                            </label>
+                            <input
+                                type="text"
+                                name="employeeName"
+                                placeholder="Enter your full name"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-purple-main focus:border-purple-main transition duration-150"
+                                required
+                            />
+                        </div>
+                    )}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             {loginType === 'user' ? 'Email' : 'Username'}
