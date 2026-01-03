@@ -201,55 +201,6 @@ const DashboardOverview = ({ bills, customers, products }) => {
             </div>
           </div>
 
-          {/* Low Stock Alert */}
-          {lowStockProducts.length > 0 && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-              <div className="flex items-center space-x-2 mb-4">
-                <span className="text-red-500 text-lg">⚠️</span>
-                <h3 className="text-lg font-semibold text-gray-900">Low Stock Alert</h3>
-              </div>
-              <div className="space-y-3">
-                {lowStockProducts.slice(0, 3).map((product) => (
-                  <div key={product.id} className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
-                    <div>
-                      <p className="font-medium text-gray-900">{product.name}</p>
-                      <p className="text-sm text-gray-500">{product.category}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-red-600 font-semibold">{product.stock} left</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Performance Summary */}
-          <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl p-6 text-white">
-            <h3 className="text-lg font-semibold mb-4">This Month</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-blue-100">Revenue</span>
-                <span className="font-semibold">₹{bills.filter(bill => {
-                  const billDate = new Date(bill.date);
-                  const currentMonth = new Date().getMonth();
-                  return billDate.getMonth() === currentMonth;
-                }).reduce((total, bill) => total + (bill.grandTotal || 0), 0).toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-blue-100">Invoices</span>
-                <span className="font-semibold">{bills.filter(bill => {
-                  const billDate = new Date(bill.date);
-                  const currentMonth = new Date().getMonth();
-                  return billDate.getMonth() === currentMonth;
-                }).length}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-blue-100">Growth</span>
-                <span className="font-semibold text-green-300">+{getMonthlyGrowth()}%</span>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
