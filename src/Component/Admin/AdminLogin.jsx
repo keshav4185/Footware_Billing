@@ -2,20 +2,42 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const AdminLogin = () => {
-  const [credentials, setCredentials] = useState({ username: '', password: '' });
+  const [credentials, setCredentials] = useState({
+    username: '',
+    password: ''
+  });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (credentials.username === 'admin' && credentials.password === 'admin123') {
-      localStorage.setItem('adminLoggedIn', 'true');
-      navigate('/admin/dashboard');
-    } else {
-      setError('Invalid credentials');
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:8080/api/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(credentials)
+      });
+
+      if (response.ok) {
+        localStorage.setItem('adminLoggedIn', 'true');
+        navigate('/admin/dashboard');
+      } else {
+        const msg = await response.text();
+        setError(msg || 'Invalid credentials');
+      }
+    } catch (err) {
+      setError('Server not reachable');
+    } finally {
+      setLoading(false);
     }
   };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 to-purple-900 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
