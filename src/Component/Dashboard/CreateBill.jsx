@@ -487,15 +487,7 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
                 onChange={(e) => setCompanyDetails({...companyDetails, gst: e.target.value})}
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Brand Names</label>
-              <input 
-                type="text" 
-                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
-                value={companyDetails.brands}
-                onChange={(e) => setCompanyDetails({...companyDetails, brands: e.target.value})}
-              />
-            </div>
+           
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
               <select className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all">
