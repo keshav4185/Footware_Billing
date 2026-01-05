@@ -1,4 +1,7 @@
 import React from 'react';
+import axios from 'axios';
+
+const API = 'http://localhost:8080/api/employees';
 
 const EmployeesManagement = () => {
   const [employees, setEmployees] = React.useState([]);
@@ -8,23 +11,19 @@ const EmployeesManagement = () => {
     name: '', phone: '', email: '', password: '', empId: ''
   });
 
+  // LOAD EMPLOYEES
   React.useEffect(() => {
-    const savedEmployees = JSON.parse(localStorage.getItem('employees') || '[]');
-    if (savedEmployees.length === 0) {
-      const sampleEmployees = [
-        { id: 1, name: 'John Doe', phone: '9876543210', email: 'john@company.com', empId: 'EMP001', status: 'Active' },
-        { id: 2, name: 'Jane Smith', phone: '9876543211', email: 'jane@company.com', empId: 'EMP002', status: 'Active' }
-      ];
-      localStorage.setItem('employees', JSON.stringify(sampleEmployees));
-      setEmployees(sampleEmployees);
-    } else {
-      setEmployees(savedEmployees);
-    }
+    fetchEmployees();
   }, []);
 
+  const fetchEmployees = async () => {
+    const res = await axios.get(API);
+    setEmployees(res.data);
+  };
+
   const generateEmpId = () => {
-    const lastEmp = employees.sort((a, b) => b.id - a.id)[0];
-    const lastNum = lastEmp ? parseInt(lastEmp.empId.slice(3)) : 0;
+    const lastEmp = employees[employees.length - 1];
+    const lastNum = lastEmp ? parseInt(lastEmp.empId?.slice(3)) : 0;
     return `EMP${String(lastNum + 1).padStart(3, '0')}`;
   };
 
@@ -39,50 +38,35 @@ const EmployeesManagement = () => {
     });
     setShowAddForm(true);
   };
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!formData.name || !formData.phone || !formData.email) {
-      alert('Please fill all required fields!');
-      return;
-    }
+  if (editingEmployee) {
+    await axios.put(`${API}/${editingEmployee.id}`, {
+      ...formData,
+      password: formData.password || null
+    });
+    alert('Employee updated successfully!');
+  } else {
+    await axios.post(API, {
+      ...formData,
+      empId: formData.empId || generateEmpId(),
+      status: 'Active'
+    });
+    alert('Employee added successfully!');
+  }
 
-    if (editingEmployee) {
-      const updatedEmployees = employees.map(emp => 
-        emp.id === editingEmployee.id 
-          ? { ...emp, ...formData, password: formData.password || emp.password }
-          : emp
-      );
-      setEmployees(updatedEmployees);
-      localStorage.setItem('employees', JSON.stringify(updatedEmployees));
-      alert('Employee updated successfully!');
-    } else {
-      if (!formData.password) {
-        alert('Password is required for new employee!');
-        return;
-      }
-      const newEmployee = {
-        id: Date.now(),
-        ...formData,
-        empId: formData.empId || generateEmpId(),
-        status: 'Active'
-      };
-      const updatedEmployees = [...employees, newEmployee];
-      setEmployees(updatedEmployees);
-      localStorage.setItem('employees', JSON.stringify(updatedEmployees));
-      alert('Employee added successfully!');
-    }
-    
-    setFormData({ name: '', phone: '', email: '', password: '', empId: '' });
-    setEditingEmployee(null);
-    setShowAddForm(false);
-  };
+  fetchEmployees();
+  setFormData({ name: '', phone: '', email: '', password: '', empId: '' });
+  setEditingEmployee(null);
+  setShowAddForm(false);
+};
 
-  const deleteEmployee = (id) => {
-    if (confirm('Are you sure you want to delete this employee?')) {
-      const updatedEmployees = employees.filter(emp => emp.id !== id);
-      setEmployees(updatedEmployees);
-      localStorage.setItem('employees', JSON.stringify(updatedEmployees));
+
+  const deleteEmployee = async (id) => {
+    if (window.confirm('Are you sure you want to delete this employee?')) {
+      await axios.delete(`${API}/${id}`);
+      fetchEmployees();
       alert('Employee deleted successfully!');
     }
   };
