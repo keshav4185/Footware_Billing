@@ -1,6 +1,6 @@
 import React from 'react';
 
-const CustomersList = ({ isDarkMode }) => {
+const CustomersList = ({ isDarkMode, onCreateInvoice }) => {
   const [customerSearchTerm, setCustomerSearchTerm] = React.useState('');
   const [editingCustomer, setEditingCustomer] = React.useState(null);
   const [showAddModal, setShowAddModal] = React.useState(false);
@@ -155,6 +155,12 @@ const CustomersList = ({ isDarkMode }) => {
                     </div>
                   </div>
                   <div className="flex gap-2">
+                    <button 
+                      className="flex-1 bg-green-500 text-white py-2 rounded text-sm hover:bg-green-600 transition-colors"
+                      onClick={() => onCreateInvoice && onCreateInvoice(customer)}
+                    >
+                      📄 Create Invoice
+                    </button>
                     <button 
                       className="flex-1 bg-blue-500 text-white py-2 rounded text-sm hover:bg-blue-600 transition-colors"
                       onClick={() => editCustomer(customer)}
