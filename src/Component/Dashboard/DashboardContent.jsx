@@ -11,6 +11,7 @@ const DashboardContent = ({ activeSection, sidebarOpen, setSidebarOpen, setActiv
   const [isDarkMode, setIsDarkMode] = React.useState(false);
   const [currentTime, setCurrentTime] = React.useState(new Date());
   const [editingBill, setEditingBill] = React.useState(null);
+  const [selectedCustomer, setSelectedCustomer] = React.useState(null);
 
   // Update time every minute
   React.useEffect(() => {
@@ -47,6 +48,13 @@ const DashboardContent = ({ activeSection, sidebarOpen, setSidebarOpen, setActiv
 
   const handleCreateBill = () => {
     setEditingBill(null);
+    setSelectedCustomer(null);
+    setActiveSection('create-bill');
+  };
+
+  const handleCreateInvoiceForCustomer = (customer) => {
+    setSelectedCustomer(customer);
+    setEditingBill(null);
     setActiveSection('create-bill');
   };
 
@@ -58,11 +66,11 @@ const DashboardContent = ({ activeSection, sidebarOpen, setSidebarOpen, setActiv
   const renderContent = () => {
     switch(activeSection) {
       case 'create-bill':
-        return <CreateBill isDarkMode={isDarkMode} editingBill={editingBill} />;
+        return <CreateBill isDarkMode={isDarkMode} editingBill={editingBill} selectedCustomer={selectedCustomer} />;
       case 'billings':
         return <BillingsList isDarkMode={isDarkMode} onEditBill={handleEditBill} />;
       case 'customers':
-        return <CustomersList isDarkMode={isDarkMode} />;
+        return <CustomersList isDarkMode={isDarkMode} onCreateInvoice={handleCreateInvoiceForCustomer} />;
       case 'analytics':
         return <EmployeeDashboard isDarkMode={isDarkMode} />;
       case 'products':

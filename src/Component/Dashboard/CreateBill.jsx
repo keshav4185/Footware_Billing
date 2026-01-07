@@ -1,7 +1,8 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
+import { customerAPI, productAPI, invoiceAPI, paymentAPI, companyAPI } from '../../services/api';
 
-const CreateBill = ({ isDarkMode, editingBill }) => {
+const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   const [showCustomerPopup, setShowCustomerPopup] = React.useState(false);
   const [pendingAction, setPendingAction] = React.useState(null);
   const [customerFormData, setCustomerFormData] = React.useState({
@@ -21,6 +22,10 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
   const [paymentStatus, setPaymentStatus] = React.useState('Unpaid');
   const [showCompanyWatermark, setShowCompanyWatermark] = React.useState(false);
   const [loggedInEmployee, setLoggedInEmployee] = React.useState('');
+  const [customers, setCustomers] = React.useState([]);
+  const [apiProducts, setApiProducts] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+  const [companyId, setCompanyId] = React.useState(null);
   const [companyDetails, setCompanyDetails] = React.useState({
     name: 'Smart Sales',
     address: '123 Business Street, City - 400001',
@@ -81,10 +86,179 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
     
     if (action === 'print') openDirectPrintPreview();
     else if (action === 'preview') setShowPreview(true);
-    else if (action === 'save') saveBill();
+    else if (action === 'save') saveBillToAPI();
     else if (action === 'send') sendInvoice();
   };
   
+  // Save company details to backend
+  const saveCompanyToAPI = async () => {
+    try {
+      const companyData = {
+        name: companyDetails.name,
+        address: companyDetails.address,
+        phone: companyDetails.phone,
+        gst: companyDetails.gst,
+        brands: companyDetails.brands
+      };
+      
+      const response = await companyAPI.create(companyData);
+      setCompanyId(response.data.id);
+      console.log('Company saved to backend:', response.data);
+    } catch (error) {
+      console.error('Error saving company:', error);
+    }
+  };
+
+  // Load data from API
+  const loadCustomers = async () => {
+    try {
+      const response = await customerAPI.getAll();
+      setCustomers(response.data);
+    } catch (error) {
+      console.error('Error loading customers:', error);
+    }
+  };
+
+  const loadProducts = async () => {
+    try {
+      const response = await productAPI.getAll();
+      setApiProducts(response.data);
+    } catch (error) {
+      console.error('Error loading products:', error);
+    }
+  };
+
+  const loadCompanyDetails = async () => {
+    try {
+      const response = await companyAPI.getAll();
+      if (response.data && response.data.length > 0) {
+        const latestCompany = response.data[response.data.length - 1];
+        setCompanyDetails({
+          name: latestCompany.name || 'Smart Sales',
+          address: latestCompany.address || '123 Business Street, City - 400001',
+          phone: latestCompany.phone || '+91 98765 43210',
+          gst: latestCompany.gst || '27XXXXX1234X1ZX',
+          brands: latestCompany.brands || 'RELAXO adidas Bata Paragon FILA campus'
+        });
+        setCompanyId(latestCompany.id);
+      }
+    } catch (error) {
+      console.error('Error loading company details:', error);
+    }
+  };
+
+  const saveBillToAPI = async () => {
+    setLoading(true);
+    try {
+      // Create company first
+      const companyResponse = await companyAPI.create({
+        name: companyDetails.name,
+        address: companyDetails.address,
+        phone: companyDetails.phone,
+        gst: companyDetails.gst,
+        brands: companyDetails.brands
+      });
+      const companyId = companyResponse.data.id;
+      console.log('Company created with ID:', companyId);
+
+      // Create customer
+      const customerResponse = await customerAPI.create({
+        name: customerFormData.name,
+        phone: customerFormData.phone,
+        gst: customerFormData.gst,
+        address: customerFormData.address
+      });
+      const customerId = customerResponse.data.id;
+      console.log('Customer created with ID:', customerId);
+
+      // Prepare invoice items from products
+      const items = products.filter(p => p.name.trim()).map(product => ({
+        productName: product.name,
+        quantity: product.qty,
+        price: product.price,
+        tax: product.tax,
+        discount: product.discount,
+        amount: calculateRowAmount(product)
+      }));
+
+      // Create or find products for each item
+      const itemsWithProducts = [];
+      for (const item of items) {
+        try {
+          // Try to create a product with the entered name
+          const productResponse = await productAPI.create({
+            name: item.productName,
+            price: item.price,
+            tax: item.tax
+          });
+          
+          itemsWithProducts.push({
+             itemName: item.productName,
+            product: { id: productResponse.data.id },
+            quantity: item.quantity,
+            price: item.price,
+            tax: item.tax,
+            discount: item.discount,
+            rowTotal: item.amount
+          });
+        } catch (error) {
+          console.error('Error creating product:', error);
+          // If product creation fails, use a default product ID or create without product reference
+          itemsWithProducts.push({
+             itemName: item.productName,
+            product: null, // or { id: 1 } if you have a default product
+            quantity: item.quantity,
+            price: item.price,
+            tax: item.tax,
+            discount: item.discount,
+            rowTotal: item.amount
+          });
+        }
+      }
+
+      const totals = calculateTotals();
+      const invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
+
+      // Create invoice
+      const invoiceData = {
+        invoiceNumber: invoiceNumber,
+        company: { id: companyId },
+        customer: { id: customerId },
+        items: itemsWithProducts,
+        subTotal: totals.subtotal,
+        totalAmount: totals.grandTotal,
+        advanceAmount: advance,
+        balanceAmount: totals.balanceAmount,
+        paymentStatus: paymentStatus === 'Paid' ? 'PAID' : 'UNPAID'
+      };
+
+      const invoiceResponse = await invoiceAPI.create(invoiceData);
+      console.log('Invoice created with ID:', invoiceResponse.data.id);
+      
+      // Create payment if advance amount is provided
+      if (advance > 0) {
+        await paymentAPI.create({
+          paymentMethod: 'CASH',
+          amount: advance,
+          paymentDate: new Date().toISOString(),
+          invoice: { id: invoiceResponse.data.id }
+        });
+        console.log('Payment created for advance amount');
+      }
+
+      alert('💾 Bill saved to database successfully!');
+      saveBill();
+      
+    } catch (error) {
+      console.error('Error saving to API:', error);
+      console.log('Error response:', error.response?.data);
+      console.log('Error status:', error.response?.status);
+      alert('Error saving to database: ' + (error.response?.data?.message || error.message) + '. Saved locally instead.');
+      saveBill();
+    } finally {
+      setLoading(false);
+    }
+  };
   const saveBill = () => {
     try {
       const billData = {
@@ -93,7 +267,7 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
         products: products.filter(p => p.name.trim()),
         date: new Date().toISOString(),
         invoiceNumber: `INV-${Date.now().toString().slice(-6)}`,
-        paymentStatus: 'Unpaid',
+        paymentStatus: paymentStatus,
         salesperson: loggedInEmployee
       };
       
@@ -130,8 +304,34 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
     }]);
   };
 
-  const updateProduct = (id, field, value) => {
+  // Save product to backend when name is entered
+  const saveProductToAPI = async (productName, price = 0, tax = 0) => {
+    try {
+      const productData = {
+        name: productName,
+        price: price,
+        tax: tax
+      };
+      
+      const response = await productAPI.create(productData);
+      console.log('Product saved to backend:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error saving product:', error);
+      return null;
+    }
+  };
+
+  const updateProduct = async (id, field, value) => {
     setProducts(products.map(p => p.id === id ? { ...p, [field]: value } : p));
+    
+    // Auto-save product when name is entered and has at least 2 characters
+    if (field === 'name' && value.trim().length >= 2) {
+      const product = products.find(p => p.id === id);
+      if (product) {
+        await saveProductToAPI(value.trim(), product.price, product.tax);
+      }
+    }
   };
 
   const deleteRow = (id) => {
@@ -170,6 +370,21 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
     const employeeName = localStorage.getItem('loggedInEmployee') || 'Sales Person';
     setLoggedInEmployee(employeeName);
     
+    // Load API data
+    loadCustomers();
+    loadProducts();
+    loadCompanyDetails();
+    
+    // Handle selectedCustomer from CustomersList
+    if (selectedCustomer) {
+      setCustomerFormData({
+        name: selectedCustomer.name || '',
+        phone: selectedCustomer.phone || '',
+        gst: selectedCustomer.gst || '',
+        address: selectedCustomer.address || ''
+      });
+    }
+    
     if (editingBill) {
       setCustomerFormData({
         name: editingBill.customerName || '',
@@ -179,7 +394,7 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
       });
       setProducts([{
         id: 1,
-        name: 'Service',
+        name: editingBill.productName || '',
         qty: 1,
         price: editingBill.amount || 0,
         tax: 0,
@@ -198,11 +413,15 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
     if (savedCompanyDetails) {
       setCompanyDetails(JSON.parse(savedCompanyDetails));
     }
-  }, [editingBill]);
+  }, [editingBill, selectedCustomer]);
 
   // Save company details to localStorage whenever they change
   React.useEffect(() => {
     localStorage.setItem('companyDetails', JSON.stringify(companyDetails));
+    // Also save to backend when company details change
+    if (companyDetails.name && companyDetails.address && companyDetails.phone && companyDetails.gst) {
+      saveCompanyToAPI();
+    }
   }, [companyDetails]);
 
   const handleLogoUpload = (e) => {
@@ -330,10 +549,10 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
               </table>
             </div>
           </div>
-          <table class="products-table">
-            <thead><tr><th>Sr. No.</th><th>Name of Product/Service</th><th>HSN/SAC</th><th>Qty</th><th>Rate</th><th>Disc. (%)</th><th>Total</th></tr></thead>
-            <tbody>${productsHTML}</tbody>
-          </table>
+          // <table class="products-table">
+          //   // <thead><tr><th>Sr. No.</th><th>Name of Product/Service</th><th>HSN/SAC</th><th>Qty</th><th>Rate</th><th>Disc. (%)</th><th>Total</th></tr></thead>
+          //   <tbody>${productsHTML}</tbody>
+          // </table>
           <div class="totals-section">
             <div class="words-section">
               <strong>Total in words:</strong><br>
@@ -374,7 +593,9 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
           <div className="flex flex-wrap gap-2 w-full sm:w-auto">
             <button className="flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-blue-800 transition-all shadow-md" onClick={() => handleAction('send')}>📤 Send</button>
             <button className="flex-1 sm:flex-none bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-green-700 hover:to-green-800 transition-all shadow-md" onClick={() => handleAction('print')}>🖨️ Print</button>
-            <button className="flex-1 sm:flex-none bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-purple-700 hover:to-purple-800 transition-all shadow-md" onClick={() => handleAction('save')}>💾 Save</button>
+            <button className="flex-1 sm:flex-none bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-purple-700 hover:to-purple-800 transition-all shadow-md" onClick={() => handleAction('save')} disabled={loading}>
+              {loading ? '⏳ Saving...' : '💾 Save'}
+            </button>
             <button className="flex-1 sm:flex-none bg-gradient-to-r from-orange-600 to-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-orange-700 hover:to-orange-800 transition-all shadow-md" onClick={() => handleAction('preview')}>👁️ Preview</button>
           </div>
         </div>
@@ -921,7 +1142,7 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
                       <tr className="bg-gray-100">
                         <th className="border border-black p-2 text-sm">Sr. No.</th>
                         <th className="border border-black p-2 text-sm">Name of Product/Service</th>
-                        <th className="border border-black p-2 text-sm">HSN/SAC</th>
+                        {/* <th className="border border-black p-2 text-sm">HSN/SAC</th> */}
                         <th className="border border-black p-2 text-sm">Qty</th>
                         <th className="border border-black p-2 text-sm">Rate</th>
                         <th className="border border-black p-2 text-sm">Disc. (%)</th>
@@ -935,7 +1156,7 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
                             <tr key={index}>
                               <td className="border border-black p-2 text-center text-sm">{index + 1}</td>
                               <td className="border border-black p-2 text-sm">{product.name}</td>
-                              <td className="border border-black p-2 text-center text-sm">-</td>
+                              {/* <td className="border border-black p-2 text-center text-sm">-</td> */}
                               <td className="border border-black p-2 text-center text-sm">{product.qty}</td>
                               <td className="border border-black p-2 text-center text-sm">₹{product.price.toFixed(2)}</td>
                               <td className="border border-black p-2 text-center text-sm">{product.discount}%</td>
@@ -1106,3 +1327,4 @@ const CreateBill = ({ isDarkMode, editingBill }) => {
 };
 
 export default CreateBill;
+

@@ -4,17 +4,93 @@ const EmployeeDashboard = ({ isDarkMode }) => {
   const [dateRange, setDateRange] = React.useState('today');
   const [bills, setBills] = React.useState([]);
   const [loggedInEmployee, setLoggedInEmployee] = React.useState('');
+  const [dashboardData, setDashboardData] = React.useState({
+    totalSales: 0,
+    totalBills: 0,
+    totalInvoices: 0,
+    paidBills: 0,
+    avgSale: 0,
+    topCustomers: [],
+    recentBills: [],
+    dailySales: []
+  });
+  const [loading, setLoading] = React.useState(false);
+
+  // Fetch dashboard summary from API
+  const fetchDashboardSummary = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`http://localhost:8080/api/billing/dashboard/summary?period=${dateRange}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Dashboard API Response:', data);
+      
+      // Fetch recent invoices separately
+      const invoicesResponse = await fetch('http://localhost:8080/api/billing/invoices', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      let recentInvoices = [];
+      let paidBillsCount = 0;
+      if (invoicesResponse.ok) {
+        const invoicesText = await invoicesResponse.text();
+        const invoicesData = JSON.parse(invoicesText);
+        recentInvoices = invoicesData.slice(-5).map(invoice => ({
+          id: invoice.id,
+          invoiceNo: invoice.invoiceNumber,
+          customerName: invoice.customer?.name,
+          date: invoice.invoiceDate,
+          amount: invoice.totalAmount,
+          paymentStatus: invoice.paymentStatus === 'PAID' ? 'Paid' : 'Unpaid'
+        }));
+        paidBillsCount = invoicesData.filter(invoice => invoice.paymentStatus === 'PAID').length;
+      }
+      
+      // Calculate average sale
+      const avgSale = data.totalInvoices > 0 ? data.totalSales / data.totalInvoices : 0;
+      
+      setDashboardData({
+        totalSales: data.totalSales || 0,
+        totalInvoices: data.totalInvoices || 0,
+        paidBills: paidBillsCount,
+        avgSale: avgSale,
+        topCustomers: data.topCustomers || [],
+        recentBills: recentInvoices,
+        dailySales: data.dailySales || []
+      });
+    } catch (error) {
+      console.error('Error fetching dashboard summary:', error);
+      // Fallback to localStorage calculation
+      const savedBills = JSON.parse(localStorage.getItem('billings') || '[]');
+      setBills(savedBills);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   React.useEffect(() => {
-    const savedBills = JSON.parse(localStorage.getItem('billings') || '[]');
-    setBills(savedBills);
-    
     // Get logged in employee name
     const employeeName = localStorage.getItem('loggedInEmployee') || 'Employee';
     setLoggedInEmployee(employeeName);
-  }, []);
+    
+    // Fetch dashboard data
+    fetchDashboardSummary();
+  }, [dateRange]);
 
   const getFilteredBills = () => {
+    // This is now handled by the API, but keeping for fallback
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     
@@ -37,22 +113,6 @@ const EmployeeDashboard = ({ isDarkMode }) => {
   };
 
   const filteredBills = getFilteredBills();
-  const totalSales = filteredBills.reduce((sum, bill) => sum + bill.amount, 0);
-  const totalBills = filteredBills.length;
-  const paidBills = filteredBills.filter(bill => bill.paymentStatus === 'Paid').length;
-  const avgSale = totalBills > 0 ? totalSales / totalBills : 0;
-
-  const topCustomers = bills.reduce((acc, bill) => {
-    const existing = acc.find(c => c.name === bill.customerName);
-    if (existing) {
-      existing.amount += bill.amount;
-      existing.bills += 1;
-    } else {
-      acc.push({ name: bill.customerName, amount: bill.amount, bills: 1 });
-    }
-    return acc;
-  }, []).sort((a, b) => b.amount - a.amount).slice(0, 5);
-
   const salesByDay = filteredBills.reduce((acc, bill) => {
     const day = new Date(bill.date).toLocaleDateString();
     acc[day] = (acc[day] || 0) + bill.amount;
@@ -89,7 +149,7 @@ const EmployeeDashboard = ({ isDarkMode }) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-blue-100 text-sm">Total Sales</p>
-              <p className="text-2xl font-bold">₹{totalSales.toFixed(2)}</p>
+              <p className="text-2xl font-bold">₹{dashboardData.totalSales.toFixed(2)}</p>
             </div>
             <span className="text-3xl">💰</span>
           </div>
@@ -98,8 +158,8 @@ const EmployeeDashboard = ({ isDarkMode }) => {
         <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-green-100 text-sm">Total Bills</p>
-              <p className="text-2xl font-bold">{totalBills}</p>
+              <p className="text-green-100 text-sm">Total Invoices</p>
+              <p className="text-2xl font-bold">{dashboardData.totalInvoices}</p>
             </div>
             <span className="text-3xl">📄</span>
           </div>
@@ -109,7 +169,7 @@ const EmployeeDashboard = ({ isDarkMode }) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-purple-100 text-sm">Paid Bills</p>
-              <p className="text-2xl font-bold">{paidBills}</p>
+              <p className="text-2xl font-bold">{dashboardData.paidBills}</p>
             </div>
             <span className="text-3xl">✅</span>
           </div>
@@ -119,7 +179,7 @@ const EmployeeDashboard = ({ isDarkMode }) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-orange-100 text-sm">Avg Sale</p>
-              <p className="text-2xl font-bold">₹{avgSale.toFixed(2)}</p>
+              <p className="text-2xl font-bold">₹{dashboardData.avgSale.toFixed(2)}</p>
             </div>
             <span className="text-3xl">📈</span>
           </div>
@@ -131,23 +191,40 @@ const EmployeeDashboard = ({ isDarkMode }) => {
         {/* Daily Sales */}
         <div className="bg-white rounded-xl shadow-lg p-6">
           <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span className="text-xl">📊</span> Daily Sales
+            <span className="text-xl">📊</span> Daily Sales ({dateRange === 'today' ? 'Today' : dateRange === 'week' ? 'Last 7 Days' : dateRange === 'month' ? 'Last 30 Days' : 'All Time'})
           </h3>
           <div className="space-y-3">
-            {Object.entries(salesByDay).slice(-7).map(([date, amount]) => (
-              <div key={date} className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">{date}</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-32 bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-blue-500 h-2 rounded-full" 
-                      style={{width: `${Math.min((amount / Math.max(...Object.values(salesByDay))) * 100, 100)}%`}}
-                    ></div>
+            {dashboardData.dailySales.length > 0 ? (
+              dashboardData.dailySales.map((dayData, index) => (
+                <div key={dayData.date || index} className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">{dayData.date}</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-32 bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-blue-500 h-2 rounded-full" 
+                        style={{width: `${Math.min((dayData.amount / Math.max(...dashboardData.dailySales.map(d => d.amount))) * 100, 100)}%`}}
+                      ></div>
+                    </div>
+                    <span className="text-sm font-semibold text-gray-800">₹{(dayData.amount || 0).toFixed(2)}</span>
                   </div>
-                  <span className="text-sm font-semibold text-gray-800">₹{amount.toFixed(2)}</span>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              Object.entries(salesByDay).slice(-7).map(([date, amount]) => (
+                <div key={date} className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">{date}</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-32 bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-blue-500 h-2 rounded-full" 
+                        style={{width: `${Math.min((amount / Math.max(...Object.values(salesByDay))) * 100, 100)}%`}}
+                      ></div>
+                    </div>
+                    <span className="text-sm font-semibold text-gray-800">₹{amount.toFixed(2)}</span>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
@@ -157,18 +234,18 @@ const EmployeeDashboard = ({ isDarkMode }) => {
             <span className="text-xl">👥</span> Top Customers
           </h3>
           <div className="space-y-3">
-            {topCustomers.map((customer, index) => (
-              <div key={customer.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            {dashboardData.topCustomers.map((customer, index) => (
+              <div key={customer.name || index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
                     {index + 1}
                   </div>
                   <div>
-                    <p className="font-medium text-gray-800">{customer.name}</p>
-                    <p className="text-xs text-gray-500">{customer.bills} bills</p>
+                    <p className="font-medium text-gray-800">{customer.name || 'N/A'}</p>
+                    <p className="text-xs text-gray-500">{customer.bills || 0} bills</p>
                   </div>
                 </div>
-                <span className="font-bold text-green-600">₹{customer.amount.toFixed(2)}</span>
+                <span className="font-bold text-green-600">₹{(customer.amount || 0).toFixed(2)}</span>
               </div>
             ))}
           </div>
@@ -192,12 +269,12 @@ const EmployeeDashboard = ({ isDarkMode }) => {
               </tr>
             </thead>
             <tbody>
-              {filteredBills.slice(-10).reverse().map(bill => (
-                <tr key={bill.id} className="border-b hover:bg-gray-50">
-                  <td className="p-3 text-sm font-medium text-blue-600">{bill.invoiceNo}</td>
-                  <td className="p-3 text-sm text-gray-800">{bill.customerName}</td>
-                  <td className="p-3 text-sm text-gray-600">{bill.date}</td>
-                  <td className="p-3 text-sm font-semibold text-green-600">₹{bill.amount.toFixed(2)}</td>
+              {dashboardData.recentBills.map((bill, index) => (
+                <tr key={bill.id || index} className="border-b hover:bg-gray-50">
+                  <td className="p-3 text-sm font-medium text-blue-600">{bill.invoiceNo || 'N/A'}</td>
+                  <td className="p-3 text-sm text-gray-800">{bill.customerName || 'N/A'}</td>
+                  <td className="p-3 text-sm text-gray-600">{bill.date || 'N/A'}</td>
+                  <td className="p-3 text-sm font-semibold text-green-600">₹{(bill.amount || 0).toFixed(2)}</td>
                   <td className="p-3">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       bill.paymentStatus === 'Paid' 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
+import { invoiceAPI } from '../../services/api';
 
 const BillingsList = ({ isDarkMode, onEditBill }) => {
   const [billSearchTerm, setBillSearchTerm] = React.useState('');
@@ -8,21 +9,247 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
   const [showExchange, setShowExchange] = React.useState(false);
   const [exchangeBill, setExchangeBill] = React.useState(null);
   const [openDropdown, setOpenDropdown] = React.useState(null);
+  const [invoices, setInvoices] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+  const [showUpdateModal, setShowUpdateModal] = React.useState(false);
+  const [updateBill, setUpdateBill] = React.useState(null);
+
+  // Fetch complete invoice data with all related entities
+  const fetchCompleteInvoiceData = async (invoiceId) => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/billing/invoices/${invoiceId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const invoice = await response.json();
+      
+      // Fetch company details separately using company ID
+      let companyDetails = {
+        name: 'Smart Sales',
+        address: '123 Business Street, City - 400001',
+        phone: '+91 98765 43210',
+        gst: '27XXXXX1234X1ZX',
+        brands: 'RELAXO adidas Bata Paragon FILA campus'
+      };
+      
+      if (invoice.company?.id) {
+        try {
+          const companyResponse = await fetch(`http://localhost:8080/api/billing/company/${invoice.company.id}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (companyResponse.ok) {
+            const company = await companyResponse.json();
+            companyDetails = {
+              id: company.id,
+              name: company.name || 'Smart Sales',
+              address: company.address || '123 Business Street, City - 400001',
+              phone: company.phone || '+91 98765 43210',
+              gst: company.gst || '27XXXXX1234X1ZX',
+              brands: company.brands || 'RELAXO adidas Bata Paragon FILA campus'
+            };
+          }
+        } catch (companyError) {
+          console.error('Error fetching company details:', companyError);
+        }
+      }
+      
+      return {
+        id: invoice.id,
+        invoiceNo: invoice.invoiceNumber || `INV-${invoice.id}`,
+        customerName: invoice.customer?.name || 'N/A',
+        customerPhone: invoice.customer?.phone || 'N/A',
+        customerGst: invoice.customer?.gst || 'N/A',
+        customerAddress: invoice.customer?.address || 'N/A',
+        date: invoice.invoiceDate ? new Date(invoice.invoiceDate).toLocaleDateString() : new Date().toLocaleDateString(),
+        amount: invoice.totalAmount || 0,
+        status: 'Completed',
+        paymentStatus: (invoice.paymentStatus === 'PAID' || (invoice.balanceAmount || 0) === 0) ? 'Paid' : 'Unpaid',
+        items: invoice.items || [],
+        totals: {
+          subtotal: invoice.subTotal || 0,
+          grandTotal: invoice.totalAmount || 0,
+          balanceAmount: invoice.balanceAmount || 0,
+          advanceAmount: invoice.advanceAmount || 0,
+          cgstAmount: invoice.cgstAmount || 0,
+          sgstAmount: invoice.sgstAmount || 0,
+          totalDiscount: invoice.totalDiscount || 0
+        },
+        company: companyDetails,
+        employeeName: invoice.employee?.name || 'Sales Person'
+      };
+    } catch (error) {
+      console.error('Error fetching complete invoice data:', error);
+      return null;
+    }
+  };
+
+  const fetchInvoices = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('http://localhost:8080/api/billing/invoices', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const responseText = await response.text();
+      console.log('Raw response:', responseText);
+      
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError);
+        console.error('Response text:', responseText);
+        throw new Error('Invalid JSON response from server');
+      }
+      
+      console.log('Parsed data:', data);
+      
+      // Handle different response formats
+      let invoicesArray = [];
+      if (Array.isArray(data)) {
+        invoicesArray = data;
+      } else if (data && Array.isArray(data.content)) {
+        invoicesArray = data.content;
+      } else if (data && Array.isArray(data.invoices)) {
+        invoicesArray = data.invoices;
+      } else {
+        console.error('Unexpected response format:', data);
+        invoicesArray = [];
+      }
+      
+      // Fetch company details for each invoice
+      const apiInvoices = await Promise.all(invoicesArray.map(async (invoice) => {
+        let companyDetails = {
+          name: 'Smart Sales',
+          address: '123 Business Street, City - 400001',
+          phone: '+91 98765 43210',
+          gst: '27XXXXX1234X1ZX',
+          brands: 'RELAXO adidas Bata Paragon FILA campus'
+        };
+        
+        // Fetch company details if company ID exists
+        if (invoice.company?.id) {
+          try {
+            const companyResponse = await fetch(`http://localhost:8080/api/billing/company/${invoice.company.id}`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+            
+            if (companyResponse.ok) {
+              const company = await companyResponse.json();
+              companyDetails = {
+                id: company.id,
+                name: company.name || 'Smart Sales',
+                address: company.address || '123 Business Street, City - 400001',
+                phone: company.phone || '+91 98765 43210',
+                gst: company.gst || '27XXXXX1234X1ZX',
+                brands: company.brands || 'RELAXO adidas Bata Paragon FILA campus'
+              };
+            }
+          } catch (companyError) {
+            console.error('Error fetching company details for invoice:', invoice.id, companyError);
+          }
+        }
+        
+        return {
+          id: invoice.id,
+          invoiceNo: invoice.invoiceNumber || `INV-${invoice.id}`,
+          customerName: invoice.customer?.name || 'N/A',
+          customerPhone: invoice.customer?.phone || 'N/A',
+          customerGst: invoice.customer?.gst || 'N/A',
+          customerAddress: invoice.customer?.address || 'N/A',
+          date: invoice.invoiceDate ? new Date(invoice.invoiceDate).toLocaleDateString() : new Date().toLocaleDateString(),
+          amount: invoice.totalAmount || 0,
+          status: 'Completed',
+          paymentStatus: (invoice.paymentStatus === 'PAID' || (invoice.balanceAmount || 0) === 0) ? 'Paid' : 'Unpaid',
+          items: invoice.items || [],
+          totals: {
+            subtotal: invoice.subTotal || 0,
+            grandTotal: invoice.totalAmount || 0,
+            balanceAmount: invoice.balanceAmount || 0,
+            advanceAmount: invoice.advanceAmount || 0
+          },
+          companyId: invoice.company?.id,
+          customerId: invoice.customer?.id,
+          company: companyDetails,
+          employeeName: invoice.employee?.name || 'N/A'
+        };
+      }));
+      
+      console.log('Mapped invoices with company details:', apiInvoices);
+      setInvoices(apiInvoices);
+    } catch (error) {
+      console.error('Error fetching invoices:', error);
+      // Fallback to localStorage
+      const savedBills = JSON.parse(localStorage.getItem('billings') || '[]');
+      setInvoices(savedBills);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update invoice
+  const handleUpdateBill = (bill) => {
+    setUpdateBill(bill);
+    setShowUpdateModal(true);
+    setOpenDropdown(null);
+  };
+
+  const updateInvoice = async (updatedData) => {
+    try {
+      await invoiceAPI.update(updateBill.id, {
+        invoiceNumber: updatedData.invoiceNumber,
+        company: { id: updatedData.companyId },
+        customer: { id: updatedData.customerId },
+        items: updatedData.items,
+        totals: updatedData.totals
+      });
+      alert('Invoice updated successfully!');
+      fetchInvoices();
+      setShowUpdateModal(false);
+    } catch (error) {
+      console.error('Error updating invoice:', error);
+      alert('Error updating invoice: ' + (error.response?.data?.message || error.message));
+    }
+  };
 
   const togglePaymentStatus = (billId) => {
-    const bills = JSON.parse(localStorage.getItem('billings') || '[]');
-    const updatedBills = bills.map(bill => 
+    const updatedInvoices = invoices.map(bill => 
       bill.id === billId 
         ? { ...bill, paymentStatus: bill.paymentStatus === 'Paid' ? 'Unpaid' : 'Paid' }
         : bill
     );
-    localStorage.setItem('billings', JSON.stringify(updatedBills));
-    setBillSearchTerm(prev => prev + ' ');
-    setBillSearchTerm(prev => prev.trim());
+    setInvoices(updatedInvoices);
   };
 
-  const viewBill = (bill) => {
-    setSelectedBill(bill);
+  // Load invoices on component mount
+  React.useEffect(() => {
+    fetchInvoices();
+  }, []);
+
+  const viewBill = async (bill) => {
+    const completeData = await fetchCompleteInvoiceData(bill.id);
+    setSelectedBill(completeData || bill);
     setShowPreview(true);
   };
 
@@ -43,7 +270,33 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
     return words.trim() + ' RUPEES ONLY';
   };
 
-  const printBill = (bill) => {
+  const printBill = async (bill) => {
+    const completeData = await fetchCompleteInvoiceData(bill.id);
+    const billData = completeData || bill;
+    
+    // Generate products HTML from actual items
+    const productsHTML = billData.items && billData.items.length > 0 
+      ? billData.items.map((item, index) => 
+          `<tr>
+            <td class="border border-black p-2 text-center text-sm">${index + 1}</td>
+            <td class="border border-black p-2 text-sm">${item.product?.name || 'Product'}</td>
+            <td class="border border-black p-2 text-center text-sm">-</td>
+            <td class="border border-black p-2 text-center text-sm">${item.quantity || 1}</td>
+            <td class="border border-black p-2 text-center text-sm">₹${(item.price || 0).toFixed(2)}</td>
+            <td class="border border-black p-2 text-center text-sm">${item.discount || 0}%</td>
+            <td class="border border-black p-2 text-center text-sm">₹${(item.rowTotal || 0).toFixed(2)}</td>
+          </tr>`
+        ).join('')
+      : `<tr>
+          <td class="border border-black p-2 text-center text-sm">1</td>
+          <td class="border border-black p-2 text-sm">Service</td>
+          <td class="border border-black p-2 text-center text-sm">-</td>
+          <td class="border border-black p-2 text-center text-sm">1</td>
+          <td class="border border-black p-2 text-center text-sm">₹${billData.amount.toFixed(2)}</td>
+          <td class="border border-black p-2 text-center text-sm">0%</td>
+          <td class="border border-black p-2 text-center text-sm">₹${billData.amount.toFixed(2)}</td>
+        </tr>`;
+
     const printTab = window.open('', '_blank');
     printTab.document.write(`
       <!DOCTYPE html>
@@ -101,9 +354,9 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
             <div class="logo-section">
               <div class="logo-box">YOUR<br>LOGO</div>
               <div class="company-info">
-                <div class="company-name">Smart Sales</div>
-                <div class="company-details">123 Business Street, City - 400001<br>Phone: +91 98765 43210<br>GST: 27XXXXX1234X1ZX</div>
-                <div class="brand-line">RELAXO adidas Bata Paragon FILA campus</div>
+                <div class="company-name">${billData.company?.name || 'Smart Sales'}</div>
+                <div class="company-details">${billData.company?.address || '123 Business Street, City - 400001'}<br>Phone: ${billData.company?.phone || '+91 98765 43210'}<br>GST: ${billData.company?.gst || '27XXXXX1234X1ZX'}</div>
+                <div class="brand-line">${billData.company?.brands || 'RELAXO adidas Bata Paragon FILA campus'}</div>
               </div>
             </div>
             <div class="invoice-title">INVOICE</div>
@@ -113,46 +366,39 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
             <div class="bill-to">
               <h3>BILL TO:</h3>
               <div class="customer-details">
-                <strong>Name:</strong> ${bill.customerName}<br>
-                <strong>Phone:</strong> ${bill.customerPhone}<br>
-                <strong>GST:</strong> ${bill.customerGst || 'N/A'}<br>
-                <strong>Address:</strong> ${bill.customerAddress || 'N/A'}
+                <strong>Name:</strong> ${billData.customerName}<br>
+                <strong>Phone:</strong> ${billData.customerPhone}<br>
+                <strong>GST:</strong> ${billData.customerGst || 'N/A'}<br>
+                <strong>Address:</strong> ${billData.customerAddress || 'N/A'}
               </div>
             </div>
             <div class="invoice-info">
               <table class="invoice-info-table">
-                <tr><td>Invoice No.:</td><td>${bill.invoiceNo}</td></tr>
-                <tr><td>Invoice Date:</td><td>${bill.date}</td></tr>
+                <tr><td>Invoice No.:</td><td>${billData.invoiceNo}</td></tr>
+                <tr><td>Invoice Date:</td><td>${billData.date}</td></tr>
+                <tr><td>Salesperson:</td><td><strong>${billData.employeeName || 'Sales Person'}</strong></td></tr>
                 <tr><td>Payment Method:</td><td><span class="payment-method">💵 Cash</span></td></tr>
-                <tr><td>Payment Status:</td><td><span class="payment-status">${bill.paymentStatus || 'Unpaid'}</span></td></tr>
+                <tr><td>Payment Status:</td><td><span class="payment-status">${billData.paymentStatus || 'Unpaid'}</span></td></tr>
               </table>
             </div>
           </div>
           <table class="products-table">
             <thead><tr><th>Sr. No.</th><th>Name of Product/Service</th><th>HSN/SAC</th><th>Qty</th><th>Rate</th><th>Disc. (%)</th><th>Total</th></tr></thead>
-            <tbody>
-              <tr>
-                <td>1</td>
-                <td class="product-name">Service</td>
-                <td>-</td>
-                <td>1</td>
-                <td>${bill.amount.toFixed(2)}</td>
-                <td>0</td>
-                <td>${bill.amount.toFixed(2)}</td>
-              </tr>
-            </tbody>
+            <tbody>${productsHTML}</tbody>
           </table>
           <div class="totals-section">
             <div class="words-section">
               <strong>Total in words:</strong><br>
-              <div class="words-text">${convertToWords(Math.round(bill.amount))}</div>
+              <div class="words-text">${convertToWords(Math.round(billData.totals?.grandTotal || billData.amount))}</div>
             </div>
             <div class="amounts-section">
-              <div class="amount-row"><span>Taxable Amount:</span><span>₹${bill.amount.toFixed(2)}</span></div>
-              <div class="amount-row"><span>Discount:</span><span>₹0.00</span></div>
-              <div class="amount-row"><span>CGST (9%):</span><span>₹0.00</span></div>
-              <div class="amount-row"><span>SGST (9%):</span><span>₹0.00</span></div>
-              <div class="amount-row total-amount"><span>Total Amount:</span><span>₹${bill.amount.toFixed(2)}</span></div>
+              <div class="amount-row"><span>Taxable Amount:</span><span>₹${(billData.totals?.subtotal || billData.amount).toFixed(2)}</span></div>
+              <div class="amount-row"><span>Discount:</span><span>₹${(billData.totals?.totalDiscount || 0).toFixed(2)}</span></div>
+              <div class="amount-row"><span>CGST (9%):</span><span>₹${(billData.totals?.cgstAmount || 0).toFixed(2)}</span></div>
+              <div class="amount-row"><span>SGST (9%):</span><span>₹${(billData.totals?.sgstAmount || 0).toFixed(2)}</span></div>
+              <div class="amount-row total-amount"><span>Total Amount:</span><span>₹${(billData.totals?.grandTotal || billData.amount).toFixed(2)}</span></div>
+              <div class="amount-row"><span>Advance Amount:</span><span>₹${(billData.totals?.advanceAmount || 0).toFixed(2)}</span></div>
+              <div class="amount-row" style="background: #fef3cd; border-top: 2px solid #f59e0b;"><span style="color: #92400e; font-weight: bold;">Balance Amount:</span><span style="color: #92400e; font-weight: bold;">₹${(billData.totals?.balanceAmount || 0).toFixed(2)}</span></div>
             </div>
           </div>
           <div class="signatures">
@@ -166,14 +412,17 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
     printTab.document.close();
   };
 
-  const deleteBill = (billId) => {
+  const deleteBill = async (billId) => {
     if (confirm('Are you sure you want to delete this bill?')) {
-      const bills = JSON.parse(localStorage.getItem('billings') || '[]');
-      const updatedBills = bills.filter(bill => bill.id !== billId);
-      localStorage.setItem('billings', JSON.stringify(updatedBills));
-      alert('Bill deleted successfully!');
-      setBillSearchTerm(prev => prev + ' ');
-      setBillSearchTerm(prev => prev.trim());
+      try {
+        await invoiceAPI.delete(billId);
+        const updatedInvoices = invoices.filter(bill => bill.id !== billId);
+        setInvoices(updatedInvoices);
+        alert('Bill deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting invoice:', error);
+        alert('Error deleting invoice: ' + (error.response?.data?.message || error.message));
+      }
     }
   };
 
@@ -197,7 +446,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-  const savedBills = JSON.parse(localStorage.getItem('billings') || '[]');
+  const savedBills = invoices;
   const filteredBills = savedBills.filter(bill => 
     bill.invoiceNo.toLowerCase().includes(billSearchTerm.toLowerCase()) ||
     bill.customerName.toLowerCase().includes(billSearchTerm.toLowerCase()) ||
@@ -227,7 +476,12 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
           </div>
         </div>
         
-        {filteredBills.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-12 text-gray-500">
+            <div className="text-6xl mb-4">⏳</div>
+            <p className="text-lg">Loading invoices...</p>
+          </div>
+        ) : filteredBills.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
             <div className="text-6xl mb-4">📋</div>
             <p className="text-lg">{billSearchTerm ? 'No bills found matching your search.' : 'No bills found. Create your first bill!'}</p>
@@ -282,6 +536,12 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                         </button>
                         {openDropdown === bill.id && (
                           <div className="absolute right-4 top-12 bg-white border border-gray-200 rounded-lg shadow-lg min-w-32" style={{zIndex: 1000}}>
+                            <button 
+                              className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2"
+                              onClick={() => { handleUpdateBill(bill); }}
+                            >
+                              ✏️ Update
+                            </button>
                             <button 
                               className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2"
                               onClick={() => { viewBill(bill); setOpenDropdown(null); }}
@@ -347,6 +607,12 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                   </div>
                   <div className="flex gap-2">
                     <button 
+                      className="flex-1 bg-orange-500 text-white py-2 rounded text-sm hover:bg-orange-600 transition-colors"
+                      onClick={() => handleUpdateBill(bill)}
+                    >
+                      ✏️ Update
+                    </button>
+                    <button 
                       className="flex-1 bg-blue-500 text-white py-2 rounded text-sm hover:bg-blue-600 transition-colors"
                       onClick={() => viewBill(bill)}
                     >
@@ -357,12 +623,6 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                       onClick={() => printBill(bill)}
                     >
                       🖨️ Print
-                    </button>
-                    <button 
-                      className="flex-1 bg-orange-500 text-white py-2 rounded text-sm hover:bg-orange-600 transition-colors"
-                      onClick={() => handleExchange(bill)}
-                    >
-                      🔄 Exchange
                     </button>
                     <button 
                       className="flex-1 bg-red-500 text-white py-2 rounded text-sm hover:bg-red-600 transition-colors"
@@ -466,6 +726,98 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
         document.body
       )}
 
+      {/* Update Modal */}
+      {showUpdateModal && updateBill && createPortal(
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{zIndex: 999999}} onClick={() => setShowUpdateModal(false)}>
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[95vh] overflow-y-auto m-2 md:m-4" onClick={(e) => e.stopPropagation()}>
+            <div className="p-4 md:p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                  <span className="text-2xl">✏️</span> Update Invoice
+                </h3>
+                <button onClick={() => setShowUpdateModal(false)} className="text-gray-500 hover:text-gray-700 text-2xl">
+                  ×
+                </button>
+              </div>
+              
+              <div className="space-y-4 update-form">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Invoice Number</label>
+                  <input 
+                    name="invoiceNumber"
+                    type="text" 
+                    defaultValue={updateBill.invoiceNo}
+                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
+                    placeholder="Invoice number" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Customer Name</label>
+                  <input 
+                    name="customerName"
+                    type="text" 
+                    defaultValue={updateBill.customerName}
+                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
+                    placeholder="Customer name" 
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Amount</label>
+                  <input 
+                    name="amount"
+                    type="number" 
+                    defaultValue={updateBill.amount}
+                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
+                    placeholder="Amount" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Payment Status</label>
+                  <select 
+                    name="paymentStatus"
+                    defaultValue={updateBill.paymentStatus}
+                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                  >
+                    <option value="Paid">Paid</option>
+                    <option value="Unpaid">Unpaid</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className="flex gap-3 mt-6">
+                <button 
+                  onClick={() => setShowUpdateModal(false)}
+                  className="flex-1 bg-gray-500 text-white py-3 rounded-lg font-medium hover:bg-gray-600 transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={() => {
+                    const formData = new FormData(event.target.closest('.update-form'));
+                    const updatedData = {
+                      invoiceNumber: formData.get('invoiceNumber'),
+                      companyId: updateBill.companyId,
+                      customerId: updateBill.customerId,
+                      items: updateBill.items,
+                      totals: {
+                        ...updateBill.totals,
+                        grandTotal: parseFloat(formData.get('amount')) || updateBill.amount
+                      }
+                    };
+                    updateInvoice(updatedData);
+                  }}
+                  className="flex-1 bg-blue-500 text-white py-3 rounded-lg font-medium hover:bg-blue-600 transition-all"
+                >
+                  Update Invoice
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
       {/* Preview Modal */}
       {showPreview && selectedBill && createPortal(
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{zIndex: 999999}} onClick={() => setShowPreview(false)}>
@@ -489,13 +841,13 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                       YOUR<br/>LOGO
                     </div>
                     <div className="flex-1">
-                      <h1 className="text-lg md:text-xl font-bold">Smart Sales</h1>
+                      <h1 className="text-lg md:text-xl font-bold">{selectedBill.company?.name || 'Smart Sales'}</h1>
                       <p className="text-xs md:text-sm text-gray-600">
-                        123 Business Street, City - 400001<br/>
-                        Phone: +91 98765 43210<br/>
-                        GST: 27XXXXX1234X1ZX
+                        {selectedBill.company?.address || '123 Business Street, City - 400001'}<br/>
+                        Phone: {selectedBill.company?.phone || '+91 98765 43210'}<br/>
+                        GST: {selectedBill.company?.gst || '27XXXXX1234X1ZX'}
                       </p>
-                      <p className="text-xs md:text-sm font-medium mt-2">RELAXO adidas Bata Paragon FILA campus</p>
+                      <p className="text-xs md:text-sm font-medium mt-2">{selectedBill.company?.brands || 'RELAXO adidas Bata Paragon FILA campus'}</p>
                     </div>
                   </div>
                   <div className="text-left md:text-right w-full md:w-auto">
@@ -530,6 +882,10 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                         <span>{selectedBill.date}</span>
                       </div>
                       <div className="flex justify-between">
+                        <span className="font-bold">Salesperson:</span>
+                        <span className="font-semibold text-blue-600">{selectedBill.employeeName || 'Sales Person'}</span>
+                      </div>
+                      <div className="flex justify-between">
                         <span className="font-bold">Payment Method:</span>
                         <span className="bg-green-500 text-white px-2 py-1 rounded text-xs">💵 Cash</span>
                       </div>
@@ -548,17 +904,33 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                 {/* Products - Mobile Card */}
                 <div className="md:hidden mb-4">
                   <h4 className="font-bold mb-2">Products:</h4>
-                  <div className="bg-gray-50 p-3 mb-2 rounded border">
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="font-medium">1. Service</span>
-                      <span className="font-bold">₹{selectedBill.amount.toFixed(2)}</span>
+                  {selectedBill.items && selectedBill.items.length > 0 ? (
+                    selectedBill.items.map((item, index) => (
+                      <div key={index} className="bg-gray-50 p-3 mb-2 rounded border">
+                        <div className="flex justify-between items-start mb-2">
+                          <span className="font-medium">{index + 1}. {item.product?.name || 'Product'}</span>
+                          <span className="font-bold">₹{(item.rowTotal || 0).toFixed(2)}</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 text-xs text-gray-600">
+                          <span>Qty: {item.quantity || 1}</span>
+                          <span>Rate: ₹{(item.price || 0).toFixed(2)}</span>
+                          <span>Disc: {item.discount || 0}%</span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="bg-gray-50 p-3 mb-2 rounded border">
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="font-medium">1. Service</span>
+                        <span className="font-bold">₹{selectedBill.amount.toFixed(2)}</span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 text-xs text-gray-600">
+                        <span>Qty: 1</span>
+                        <span>Rate: ₹{selectedBill.amount.toFixed(2)}</span>
+                        <span>Disc: 0%</span>
+                      </div>
                     </div>
-                    <div className="grid grid-cols-3 gap-2 text-xs text-gray-600">
-                      <span>Qty: 1</span>
-                      <span>Rate: ₹{selectedBill.amount.toFixed(2)}</span>
-                      <span>Disc: 0%</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
                 
                 {/* Products Table - Desktop */}
@@ -576,15 +948,29 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td className="border border-black p-2 text-center text-sm">1</td>
-                        <td className="border border-black p-2 text-sm">Service</td>
-                        <td className="border border-black p-2 text-center text-sm">-</td>
-                        <td className="border border-black p-2 text-center text-sm">1</td>
-                        <td className="border border-black p-2 text-center text-sm">₹{selectedBill.amount.toFixed(2)}</td>
-                        <td className="border border-black p-2 text-center text-sm">0%</td>
-                        <td className="border border-black p-2 text-center text-sm">₹{selectedBill.amount.toFixed(2)}</td>
-                      </tr>
+                      {selectedBill.items && selectedBill.items.length > 0 ? (
+                        selectedBill.items.map((item, index) => (
+                          <tr key={index}>
+                            <td className="border border-black p-2 text-center text-sm">{index + 1}</td>
+                            <td className="border border-black p-2 text-sm">{item.product?.name || 'Product'}</td>
+                            <td className="border border-black p-2 text-center text-sm">-</td>
+                            <td className="border border-black p-2 text-center text-sm">{item.quantity || 1}</td>
+                            <td className="border border-black p-2 text-center text-sm">₹{(item.price || 0).toFixed(2)}</td>
+                            <td className="border border-black p-2 text-center text-sm">{item.discount || 0}%</td>
+                            <td className="border border-black p-2 text-center text-sm">₹{(item.rowTotal || 0).toFixed(2)}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td className="border border-black p-2 text-center text-sm">1</td>
+                          <td className="border border-black p-2 text-sm">Service</td>
+                          <td className="border border-black p-2 text-center text-sm">-</td>
+                          <td className="border border-black p-2 text-center text-sm">1</td>
+                          <td className="border border-black p-2 text-center text-sm">₹{selectedBill.amount.toFixed(2)}</td>
+                          <td className="border border-black p-2 text-center text-sm">0%</td>
+                          <td className="border border-black p-2 text-center text-sm">₹{selectedBill.amount.toFixed(2)}</td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -593,29 +979,37 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <div className="bg-gray-50 p-3 md:p-4 rounded">
                     <strong className="block mb-2">Total in words:</strong>
-                    <div className="font-bold text-gray-700 text-xs md:text-sm">{convertToWords(Math.round(selectedBill.amount))}</div>
+                    <div className="font-bold text-gray-700 text-xs md:text-sm">{convertToWords(Math.round(selectedBill.totals?.grandTotal || selectedBill.amount))}</div>
                   </div>
                   <div>
                     <div className="space-y-2 text-xs md:text-sm">
                       <div className="flex justify-between py-1 border-b">
                         <span>Taxable Amount:</span>
-                        <span>₹{selectedBill.amount.toFixed(2)}</span>
+                        <span>₹{(selectedBill.totals?.subtotal || selectedBill.amount).toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between py-1 border-b">
                         <span>Discount:</span>
-                        <span>₹0.00</span>
+                        <span>₹{(selectedBill.totals?.totalDiscount || 0).toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between py-1 border-b">
                         <span>CGST (9%):</span>
-                        <span>₹0.00</span>
+                        <span>₹{(selectedBill.totals?.cgstAmount || 0).toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between py-1 border-b">
                         <span>SGST (9%):</span>
-                        <span>₹0.00</span>
+                        <span>₹{(selectedBill.totals?.sgstAmount || 0).toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between py-2 bg-gray-100 px-3 font-bold text-sm md:text-lg border border-black md:border-2">
                         <span>Total Amount:</span>
-                        <span>₹{selectedBill.amount.toFixed(2)}</span>
+                        <span>₹{(selectedBill.totals?.grandTotal || selectedBill.amount).toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between py-1 border-b">
+                        <span>Advance Amount:</span>
+                        <span>₹{(selectedBill.totals?.advanceAmount || 0).toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between py-2 bg-orange-100 px-3 font-bold text-sm md:text-lg border border-orange-300">
+                        <span>Balance Amount:</span>
+                        <span>₹{(selectedBill.totals?.balanceAmount || 0).toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
