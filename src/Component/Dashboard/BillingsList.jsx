@@ -253,6 +253,40 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
     setShowPreview(true);
   };
 
+  // Calculation functions from CreateBill
+  const calculateRowAmount = (product) => {
+    const subtotal = product.quantity * product.price;
+    const afterDiscount = subtotal * (1 - (product.discount || 0)/100);
+    return afterDiscount;
+  };
+
+  const calculateTotals = (items, cgstRate = 9, sgstRate = 9, advanceAmount = 0) => {
+    let subtotal = 0, totalDiscount = 0;
+    
+    items.forEach(item => {
+      const itemSubtotal = item.quantity * item.price;
+      const itemDiscount = itemSubtotal * (item.discount || 0) / 100;
+      subtotal += itemSubtotal;
+      totalDiscount += itemDiscount;
+    });
+    
+    const taxableAmount = subtotal - totalDiscount;
+    const cgstAmount = taxableAmount * cgstRate / 100;
+    const sgstAmount = taxableAmount * sgstRate / 100;
+    const grandTotal = taxableAmount + cgstAmount + sgstAmount;
+    const balanceAmount = grandTotal - advanceAmount;
+    
+    return { 
+      subtotal, 
+      totalDiscount, 
+      taxableAmount, 
+      cgstAmount, 
+      sgstAmount, 
+      grandTotal, 
+      balanceAmount 
+    };
+  };
+
   const convertToWords = (num) => {
     const ones = ['', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 'TEN', 'ELEVEN', 'TWELVE', 'THIRTEEN', 'FOURTEEN', 'FIFTEEN', 'SIXTEEN', 'SEVENTEEN', 'EIGHTEEN', 'NINETEEN'];
     const tens = ['', '', 'TWENTY', 'THIRTY', 'FORTY', 'FIFTY', 'SIXTY', 'SEVENTY', 'EIGHTY', 'NINETY'];
@@ -274,23 +308,34 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
     const completeData = await fetchCompleteInvoiceData(bill.id);
     const billData = completeData || bill;
     
+    // Calculate proper totals using the items
+    const calculatedTotals = billData.items && billData.items.length > 0 
+      ? calculateTotals(billData.items, 9, 9, billData.totals?.advanceAmount || 0)
+      : {
+          subtotal: billData.amount,
+          totalDiscount: 0,
+          taxableAmount: billData.amount,
+          cgstAmount: 0,
+          sgstAmount: 0,
+          grandTotal: billData.amount,
+          balanceAmount: billData.amount - (billData.totals?.advanceAmount || 0)
+        };
+    
     // Generate products HTML from actual items
     const productsHTML = billData.items && billData.items.length > 0 
       ? billData.items.map((item, index) => 
           `<tr>
             <td class="border border-black p-2 text-center text-sm">${index + 1}</td>
             <td class="border border-black p-2 text-sm">${item.product?.name || 'Product'}</td>
-            <td class="border border-black p-2 text-center text-sm">-</td>
             <td class="border border-black p-2 text-center text-sm">${item.quantity || 1}</td>
             <td class="border border-black p-2 text-center text-sm">₹${(item.price || 0).toFixed(2)}</td>
             <td class="border border-black p-2 text-center text-sm">${item.discount || 0}%</td>
-            <td class="border border-black p-2 text-center text-sm">₹${(item.rowTotal || 0).toFixed(2)}</td>
+            <td class="border border-black p-2 text-center text-sm">₹${calculateRowAmount(item).toFixed(2)}</td>
           </tr>`
         ).join('')
       : `<tr>
           <td class="border border-black p-2 text-center text-sm">1</td>
           <td class="border border-black p-2 text-sm">Service</td>
-          <td class="border border-black p-2 text-center text-sm">-</td>
           <td class="border border-black p-2 text-center text-sm">1</td>
           <td class="border border-black p-2 text-center text-sm">₹${billData.amount.toFixed(2)}</td>
           <td class="border border-black p-2 text-center text-sm">0%</td>
@@ -383,22 +428,22 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
             </div>
           </div>
           <table class="products-table">
-            <thead><tr><th>Sr. No.</th><th>Name of Product/Service</th><th>HSN/SAC</th><th>Qty</th><th>Rate</th><th>Disc. (%)</th><th>Total</th></tr></thead>
+            <thead><tr><th>Sr. No.</th><th>Name of Product/Service</th><th>Qty</th><th>Rate</th><th>Disc. (%)</th><th>Total</th></tr></thead>
             <tbody>${productsHTML}</tbody>
           </table>
           <div class="totals-section">
             <div class="words-section">
               <strong>Total in words:</strong><br>
-              <div class="words-text">${convertToWords(Math.round(billData.totals?.grandTotal || billData.amount))}</div>
+              <div class="words-text">${convertToWords(Math.round(calculatedTotals.grandTotal))}</div>
             </div>
             <div class="amounts-section">
-              <div class="amount-row"><span>Taxable Amount:</span><span>₹${(billData.totals?.subtotal || billData.amount).toFixed(2)}</span></div>
-              <div class="amount-row"><span>Discount:</span><span>₹${(billData.totals?.totalDiscount || 0).toFixed(2)}</span></div>
-              <div class="amount-row"><span>CGST (9%):</span><span>₹${(billData.totals?.cgstAmount || 0).toFixed(2)}</span></div>
-              <div class="amount-row"><span>SGST (9%):</span><span>₹${(billData.totals?.sgstAmount || 0).toFixed(2)}</span></div>
-              <div class="amount-row total-amount"><span>Total Amount:</span><span>₹${(billData.totals?.grandTotal || billData.amount).toFixed(2)}</span></div>
+              <div class="amount-row"><span>Taxable Amount:</span><span>₹${calculatedTotals.taxableAmount.toFixed(2)}</span></div>
+              <div class="amount-row"><span>Discount:</span><span>₹${calculatedTotals.totalDiscount.toFixed(2)}</span></div>
+              <div class="amount-row"><span>CGST (9%):</span><span>₹${calculatedTotals.cgstAmount.toFixed(2)}</span></div>
+              <div class="amount-row"><span>SGST (9%):</span><span>₹${calculatedTotals.sgstAmount.toFixed(2)}</span></div>
+              <div class="amount-row total-amount"><span>Total Amount:</span><span>₹${calculatedTotals.grandTotal.toFixed(2)}</span></div>
               <div class="amount-row"><span>Advance Amount:</span><span>₹${(billData.totals?.advanceAmount || 0).toFixed(2)}</span></div>
-              <div class="amount-row" style="background: #fef3cd; border-top: 2px solid #f59e0b;"><span style="color: #92400e; font-weight: bold;">Balance Amount:</span><span style="color: #92400e; font-weight: bold;">₹${(billData.totals?.balanceAmount || 0).toFixed(2)}</span></div>
+              <div class="amount-row" style="background: #fef3cd; border-top: 2px solid #f59e0b;"><span style="color: #92400e; font-weight: bold;">Balance Amount:</span><span style="color: #92400e; font-weight: bold;">₹${calculatedTotals.balanceAmount.toFixed(2)}</span></div>
             </div>
           </div>
           <div class="signatures">
@@ -455,8 +500,15 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
   );
 
   return (
-    <div className="p-4 md:p-6">
-      <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 mb-6">
+    <div className="p-4 md:p-6 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 right-10 w-32 h-32 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-10 animate-pulse-slow"></div>
+        <div className="absolute bottom-10 left-20 w-24 h-24 bg-gradient-to-r from-green-400 to-blue-400 rounded-full opacity-15 animate-bounce-slow"></div>
+        <div className="absolute top-1/2 left-10 w-16 h-16 bg-gradient-to-r from-pink-400 to-red-400 rounded-full opacity-20 animate-float"></div>
+      </div>
+      
+      <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 mb-6 backdrop-blur-sm bg-white/90 hover:shadow-2xl hover:shadow-blue-200/50 transition-all duration-500 transform hover:scale-[1.01] border border-gray-100 relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div>
             <h2 className="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2">
@@ -489,7 +541,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
         ) : (
           <>
             {/* Desktop Table */}
-            <div className="hidden md:block overflow-x-auto">
+            <div className="hidden md:block overflow-x-auto backdrop-blur-sm bg-white/50 rounded-lg p-4 hover:bg-white/70 transition-all duration-300">
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-gray-50 border-b">
@@ -577,8 +629,8 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
             
             {/* Mobile Cards */}
             <div className="md:hidden space-y-4">
-              {filteredBills.map(bill => (
-                <div key={bill.id} className="bg-gray-50 rounded-lg p-4 border">
+              {filteredBills.map((bill, index) => (
+                <div key={bill.id} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] hover:shadow-blue-200/30 animate-slideInUp group" style={{animationDelay: `${index * 0.1}s`}}>
                   <div className="flex justify-between items-start mb-3">
                     <div>
                       <h3 className="font-bold text-blue-600 cursor-pointer hover:text-blue-800 hover:underline" onClick={() => onEditBill(bill)}>{bill.invoiceNo}</h3>
@@ -607,25 +659,25 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                   </div>
                   <div className="flex gap-2">
                     <button 
-                      className="flex-1 bg-orange-500 text-white py-2 rounded text-sm hover:bg-orange-600 transition-colors"
+                      className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 text-white py-2 rounded text-sm hover:from-orange-600 hover:to-orange-700 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
                       onClick={() => handleUpdateBill(bill)}
                     >
                       ✏️ Update
                     </button>
                     <button 
-                      className="flex-1 bg-blue-500 text-white py-2 rounded text-sm hover:bg-blue-600 transition-colors"
+                      className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 rounded text-sm hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
                       onClick={() => viewBill(bill)}
                     >
                       👁️ View
                     </button>
                     <button 
-                      className="flex-1 bg-green-500 text-white py-2 rounded text-sm hover:bg-green-600 transition-colors"
+                      className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-2 rounded text-sm hover:from-green-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
                       onClick={() => printBill(bill)}
                     >
                       🖨️ Print
                     </button>
                     <button 
-                      className="flex-1 bg-red-500 text-white py-2 rounded text-sm hover:bg-red-600 transition-colors"
+                      className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white py-2 rounded text-sm hover:from-red-600 hover:to-red-700 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
                       onClick={() => deleteBill(bill.id)}
                     >
                       🗑️ Delete
@@ -909,7 +961,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                       <div key={index} className="bg-gray-50 p-3 mb-2 rounded border">
                         <div className="flex justify-between items-start mb-2">
                           <span className="font-medium">{index + 1}. {item.product?.name || 'Product'}</span>
-                          <span className="font-bold">₹{(item.rowTotal || 0).toFixed(2)}</span>
+                          <span className="font-bold">₹{calculateRowAmount(item).toFixed(2)}</span>
                         </div>
                         <div className="grid grid-cols-3 gap-2 text-xs text-gray-600">
                           <span>Qty: {item.quantity || 1}</span>
@@ -940,7 +992,6 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                       <tr className="bg-gray-100">
                         <th className="border border-black p-2 text-sm">Sr. No.</th>
                         <th className="border border-black p-2 text-sm">Name of Product/Service</th>
-                        <th className="border border-black p-2 text-sm">HSN/SAC</th>
                         <th className="border border-black p-2 text-sm">Qty</th>
                         <th className="border border-black p-2 text-sm">Rate</th>
                         <th className="border border-black p-2 text-sm">Disc. (%)</th>
@@ -953,18 +1004,16 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                           <tr key={index}>
                             <td className="border border-black p-2 text-center text-sm">{index + 1}</td>
                             <td className="border border-black p-2 text-sm">{item.product?.name || 'Product'}</td>
-                            <td className="border border-black p-2 text-center text-sm">-</td>
                             <td className="border border-black p-2 text-center text-sm">{item.quantity || 1}</td>
                             <td className="border border-black p-2 text-center text-sm">₹{(item.price || 0).toFixed(2)}</td>
                             <td className="border border-black p-2 text-center text-sm">{item.discount || 0}%</td>
-                            <td className="border border-black p-2 text-center text-sm">₹{(item.rowTotal || 0).toFixed(2)}</td>
+                            <td className="border border-black p-2 text-center text-sm">₹{calculateRowAmount(item).toFixed(2)}</td>
                           </tr>
                         ))
                       ) : (
                         <tr>
                           <td className="border border-black p-2 text-center text-sm">1</td>
                           <td className="border border-black p-2 text-sm">Service</td>
-                          <td className="border border-black p-2 text-center text-sm">-</td>
                           <td className="border border-black p-2 text-center text-sm">1</td>
                           <td className="border border-black p-2 text-center text-sm">₹{selectedBill.amount.toFixed(2)}</td>
                           <td className="border border-black p-2 text-center text-sm">0%</td>
@@ -979,38 +1028,61 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <div className="bg-gray-50 p-3 md:p-4 rounded">
                     <strong className="block mb-2">Total in words:</strong>
-                    <div className="font-bold text-gray-700 text-xs md:text-sm">{convertToWords(Math.round(selectedBill.totals?.grandTotal || selectedBill.amount))}</div>
+                    <div className="font-bold text-gray-700 text-xs md:text-sm">
+                      {selectedBill.items && selectedBill.items.length > 0 
+                        ? convertToWords(Math.round(calculateTotals(selectedBill.items, 9, 9, selectedBill.totals?.advanceAmount || 0).grandTotal))
+                        : convertToWords(Math.round(selectedBill.amount))
+                      }
+                    </div>
                   </div>
                   <div>
                     <div className="space-y-2 text-xs md:text-sm">
-                      <div className="flex justify-between py-1 border-b">
-                        <span>Taxable Amount:</span>
-                        <span>₹{(selectedBill.totals?.subtotal || selectedBill.amount).toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between py-1 border-b">
-                        <span>Discount:</span>
-                        <span>₹{(selectedBill.totals?.totalDiscount || 0).toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between py-1 border-b">
-                        <span>CGST (9%):</span>
-                        <span>₹{(selectedBill.totals?.cgstAmount || 0).toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between py-1 border-b">
-                        <span>SGST (9%):</span>
-                        <span>₹{(selectedBill.totals?.sgstAmount || 0).toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between py-2 bg-gray-100 px-3 font-bold text-sm md:text-lg border border-black md:border-2">
-                        <span>Total Amount:</span>
-                        <span>₹{(selectedBill.totals?.grandTotal || selectedBill.amount).toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between py-1 border-b">
-                        <span>Advance Amount:</span>
-                        <span>₹{(selectedBill.totals?.advanceAmount || 0).toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between py-2 bg-orange-100 px-3 font-bold text-sm md:text-lg border border-orange-300">
-                        <span>Balance Amount:</span>
-                        <span>₹{(selectedBill.totals?.balanceAmount || 0).toFixed(2)}</span>
-                      </div>
+                      {(() => {
+                        const calculatedTotals = selectedBill.items && selectedBill.items.length > 0 
+                          ? calculateTotals(selectedBill.items, 9, 9, selectedBill.totals?.advanceAmount || 0)
+                          : {
+                              subtotal: selectedBill.amount,
+                              totalDiscount: 0,
+                              taxableAmount: selectedBill.amount,
+                              cgstAmount: 0,
+                              sgstAmount: 0,
+                              grandTotal: selectedBill.amount,
+                              balanceAmount: selectedBill.amount - (selectedBill.totals?.advanceAmount || 0)
+                            };
+                        return (
+                          <>
+                            <div className="flex justify-between py-1 border-b">
+                              <span>Taxable Amount:</span>
+                              <span>₹{calculatedTotals.taxableAmount.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between py-1 border-b">
+                              <span>Discount:</span>
+                              <span>₹{calculatedTotals.totalDiscount.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between py-1 border-b">
+                              <span>CGST (9%):</span>
+                              <span>₹{calculatedTotals.cgstAmount.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between py-1 border-b">
+                              <span>SGST (9%):</span>
+                              <span>₹{calculatedTotals.sgstAmount.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between py-2 bg-gray-100 px-3 font-bold text-sm md:text-lg border border-black md:border-2">
+                              <span>Total Amount:</span>
+                              <span>₹{calculatedTotals.grandTotal.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between py-1 border-b">
+                              <span>Advance Amount:</span>
+                              <span>₹{(selectedBill.totals?.advanceAmount || 0).toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between py-2 bg-orange-100 px-3 font-bold text-sm md:text-lg border border-orange-300">
+                              <span>Balance Amount:</span>
+                              <span>₹{calculatedTotals.balanceAmount.toFixed(2)}</span>
+                            </div>
+                          </>
+                        );
+                      })()
+                      }
                     </div>
                   </div>
                 </div>
