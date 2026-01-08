@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { 
+  FaChartBar, 
+  FaPlus, 
+  FaFileInvoice, 
+  FaUsers, 
+  FaBox, 
+  FaSignOutAlt 
+} from 'react-icons/fa';
 
 const DashboardSidebar = ({ activeSection, setActiveSection, sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
@@ -15,11 +23,11 @@ const DashboardSidebar = ({ activeSection, setActiveSection, sidebarOpen, setSid
   };
 
   const menuItems = [
-    { id: 'analytics', icon: '📊', label: 'Dashboard' },
-    { id: 'create-bill', icon: '➕', label: 'Create Bill' },
-    { id: 'billings', icon: '📄', label: 'My Billings' },
-    { id: 'customers', icon: '👥', label: 'Customers' },
-    // { id: 'products', icon: '📦', label: 'Products' }
+    { id: 'analytics', icon: <FaChartBar />, label: 'Dashboard' },
+    { id: 'create-bill', icon: <FaPlus />, label: 'Create Bill' },
+    { id: 'billings', icon: <FaFileInvoice />, label: 'My Billings' },
+    { id: 'customers', icon: <FaUsers />, label: 'Customers' },
+    // { id: 'products', icon: <FaBox />, label: 'Products' }
   ];
 
   return (
@@ -39,7 +47,9 @@ const DashboardSidebar = ({ activeSection, setActiveSection, sidebarOpen, setSid
       `}>
         <div className="mb-8">
           <div className="flex items-center gap-2 font-bold text-lg">
-            <span className="bg-green-600 text-white p-2 rounded-lg">📊</span>
+            <span className="bg-green-600 text-white p-2 rounded-lg">
+              <FaChartBar />
+            </span>
             <span>SMART SALES</span>
           </div>
         </div>
@@ -63,7 +73,7 @@ const DashboardSidebar = ({ activeSection, setActiveSection, sidebarOpen, setSid
         
         <div className="mt-auto">
           <div className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-gray-100" onClick={handleLogout}>
-            <span>🚪</span>
+            <FaSignOutAlt />
             Logout
           </div>
         </div>

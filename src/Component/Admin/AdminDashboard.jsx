@@ -67,17 +67,28 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 flex relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 right-20 w-64 h-64 bg-gradient-to-r from-blue-300/20 to-purple-300/20 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute bottom-20 left-20 w-48 h-48 bg-gradient-to-r from-green-300/20 to-blue-300/20 rounded-full blur-2xl animate-float"></div>
+        <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-gradient-to-r from-pink-300/15 to-yellow-300/15 rounded-full blur-xl animate-bounce-slow"></div>
+        <div className="absolute top-10 left-10 w-20 h-20 border-4 border-blue-200/30 rounded-full animate-spin-slow"></div>
+        <div className="absolute bottom-10 right-10 w-16 h-16 border-4 border-purple-200/30 rotate-45 animate-pulse-slow"></div>
+      </div>
+      
       {/* Sidebar */}
-      <AdminSidebar 
-        activeSection={activeSection} 
-        setActiveSection={setActiveSection}
-        isSidebarOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
-      />
+      <div className="relative z-10">
+        <AdminSidebar 
+          activeSection={activeSection} 
+          setActiveSection={setActiveSection}
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+        />
+      </div>
       
       {/* Main Content */}
-      <div className="flex-1 flex flex-col ml-0 sm:ml-64 lg:ml-72">
+      <div className="flex-1 flex flex-col ml-0 sm:ml-64 lg:ml-72 relative z-10">
         {/* Header */}
         <AdminHeader 
           isSidebarOpen={isSidebarOpen}
@@ -85,8 +96,10 @@ const AdminDashboard = () => {
         />
         
         {/* Content */}
-        <main className="flex-1 p-3 sm:p-4 lg:p-8 overflow-y-auto">
-          {renderContent()}
+        <main className="flex-1 p-3 sm:p-4 lg:p-8 overflow-y-auto backdrop-blur-sm">
+          <div className="animate-fadeInUp">
+            {renderContent()}
+          </div>
         </main>
       </div>
     </div>

@@ -1,6 +1,19 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { customerAPI, productAPI, invoiceAPI, paymentAPI, companyAPI } from '../../services/api';
+import { 
+  FaFileInvoice, 
+  FaPaperPlane, 
+  FaPrint, 
+  FaSave, 
+  FaEye, 
+  FaUser, 
+  FaBuilding, 
+  FaBox, 
+  FaCalculator,
+  FaPlus,
+  FaTimes
+} from 'react-icons/fa';
 
 const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   const [showCustomerPopup, setShowCustomerPopup] = React.useState(false);
@@ -9,7 +22,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
     name: '', phone: '', gst: '', address: ''
   });
   const [products, setProducts] = React.useState([
-    { id: 1, name: '', qty: 1, price: 0, tax: 0, discount: 0 }
+    { id: 1, name: '', qty: 1, price: 0, discount: 0 }
   ]);
   const [cgstEnabled, setCgstEnabled] = React.useState(true);
   const [sgstEnabled, setSgstEnabled] = React.useState(true);
@@ -291,7 +304,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       alert('💾 Bill saved successfully!');
       
       setCustomerFormData({ name: '', phone: '', gst: '', address: '' });
-      setProducts([{ id: 1, name: '', qty: 1, price: 0, tax: 0, discount: 0 }]);
+      setProducts([{ id: 1, name: '', qty: 1, price: 0, discount: 0 }]);
     } catch (error) {
       alert('Error saving bill: ' + error.message);
     }
@@ -300,7 +313,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   const addNewRow = () => {
     setProducts([...products, {
       id: products.length + 1,
-      name: '', qty: 1, price: 0, tax: 0, discount: 0
+      name: '', qty: 1, price: 0, discount: 0
     }]);
   };
 
@@ -343,7 +356,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   const calculateRowAmount = (product) => {
     const subtotal = product.qty * product.price;
     const afterDiscount = subtotal * (1 - product.discount/100);
-    return afterDiscount * (1 + product.tax/100);
+    return afterDiscount;
   };
 
   const calculateTotals = () => {
@@ -397,7 +410,6 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
         name: editingBill.productName || '',
         qty: 1,
         price: editingBill.amount || 0,
-        tax: 0,
         discount: 0
       }]);
     }
@@ -580,23 +592,37 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-2 md:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-2 md:p-6 animate-fadeIn relative overflow-hidden">
+      {/* Floating Particles Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-10 left-10 w-4 h-4 bg-blue-400 rounded-full opacity-30 animate-float"></div>
+        <div className="absolute top-32 right-20 w-6 h-6 bg-purple-400 rounded-full opacity-20 animate-float-delayed"></div>
+        <div className="absolute bottom-20 left-1/4 w-3 h-3 bg-pink-400 rounded-full opacity-40 animate-bounce-slow"></div>
+        <div className="absolute top-1/2 right-10 w-5 h-5 bg-indigo-400 rounded-full opacity-25 animate-pulse-slow"></div>
+        <div className="absolute bottom-32 right-1/3 w-4 h-4 bg-green-400 rounded-full opacity-30 animate-float"></div>
+      </div>
       {/* Mobile Header */}
-      <div className="bg-white rounded-xl shadow-lg p-4 mb-4">
+      <div className="bg-white rounded-xl shadow-xl p-4 mb-4 transform hover:scale-[1.02] transition-all duration-300 border border-gray-100 backdrop-blur-sm bg-white/90 hover:shadow-2xl hover:shadow-blue-200/50">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <div>
+          <div className="animate-slideInLeft">
             <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-              <span className="text-2xl">📝</span> {editingBill ? 'Edit Bill' : 'Create New Bill'}
+              <FaFileInvoice className="text-2xl text-blue-600 animate-pulse" /> {editingBill ? 'Edit Bill' : 'Create New Bill'}
             </h2>
             <p className="text-sm text-gray-600">{editingBill ? `Editing Invoice: ${editingBill.invoiceNo}` : 'Generate professional invoices'}</p>
           </div>
-          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-            <button className="flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-blue-800 transition-all shadow-md" onClick={() => handleAction('send')}>📤 Send</button>
-            <button className="flex-1 sm:flex-none bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-green-700 hover:to-green-800 transition-all shadow-md" onClick={() => handleAction('print')}>🖨️ Print</button>
-            <button className="flex-1 sm:flex-none bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-purple-700 hover:to-purple-800 transition-all shadow-md" onClick={() => handleAction('save')} disabled={loading}>
-              {loading ? '⏳ Saving...' : '💾 Save'}
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto animate-slideInRight">
+            <button className="flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-blue-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('send')}>
+              <FaPaperPlane className="animate-bounce" /> Send
             </button>
-            <button className="flex-1 sm:flex-none bg-gradient-to-r from-orange-600 to-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-orange-700 hover:to-orange-800 transition-all shadow-md" onClick={() => handleAction('preview')}>👁️ Preview</button>
+            <button className="flex-1 sm:flex-none bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-green-700 hover:to-green-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('print')}>
+              <FaPrint className="hover:animate-spin" /> Print
+            </button>
+            <button className="flex-1 sm:flex-none bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-purple-700 hover:to-purple-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('save')} disabled={loading}>
+              {loading ? <FaTimes className="animate-spin" /> : <FaSave className="hover:animate-pulse" />} {loading ? 'Saving...' : 'Save'}
+            </button>
+            <button className="flex-1 sm:flex-none bg-gradient-to-r from-orange-600 to-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-orange-700 hover:to-orange-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('preview')}>
+              <FaEye className="hover:animate-pulse" /> Preview
+            </button>
           </div>
         </div>
       </div>
@@ -604,46 +630,46 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       {/* Customer & Company Details */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         {/* Customer Details Card */}
-        <div className="bg-white rounded-xl shadow-lg p-4 md:p-6">
+        <div className="bg-white rounded-xl shadow-xl p-4 md:p-6 transform hover:scale-[1.02] transition-all duration-300 border border-gray-100 animate-slideInLeft backdrop-blur-sm bg-white/95 hover:shadow-2xl hover:shadow-blue-200/30 group">
           <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <span className="text-xl">👤</span> Customer Details
+            <FaUser className="text-xl text-blue-600 animate-pulse" /> Customer Details
           </h3>
           <div className="customer-details space-y-4">
-            <div>
+            <div className="animate-fadeInUp" style={{animationDelay: '0.1s'}}>
               <label className="block text-sm font-medium text-red-600 mb-1">Customer Name *</label>
               <input 
                 type="text" 
-                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
+                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 hover:border-blue-300 hover:shadow-md" 
                 placeholder="Enter customer name"
                 value={customerFormData.name}
                 onChange={(e) => setCustomerFormData({...customerFormData, name: e.target.value})}
               />
             </div>
-            <div>
+            <div className="animate-fadeInUp" style={{animationDelay: '0.2s'}}>
               <label className="block text-sm font-medium text-red-600 mb-1">Phone Number *</label>
               <input 
                 type="tel" 
-                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
+                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 hover:border-blue-300 hover:shadow-md" 
                 placeholder="Enter phone number" 
                 pattern="[0-9]*"
                 value={customerFormData.phone}
                 onChange={(e) => setCustomerFormData({...customerFormData, phone: e.target.value.replace(/[^0-9]/g, '')})}
               />
             </div>
-            <div>
+            <div className="animate-fadeInUp" style={{animationDelay: '0.3s'}}>
               <label className="block text-sm font-medium text-red-600 mb-1">GST Number *</label>
               <input 
                 type="text" 
-                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
+                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 hover:border-blue-300 hover:shadow-md" 
                 placeholder="Enter GST number"
                 value={customerFormData.gst}
                 onChange={(e) => setCustomerFormData({...customerFormData, gst: e.target.value})}
               />
             </div>
-            <div>
+            <div className="animate-fadeInUp" style={{animationDelay: '0.4s'}}>
               <label className="block text-sm font-medium text-red-600 mb-1">Invoice Address *</label>
               <textarea 
-                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all resize-none" 
+                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 resize-none hover:border-blue-300 hover:shadow-md" 
                 rows="3" 
                 placeholder="Enter complete address"
                 value={customerFormData.address}
@@ -654,9 +680,9 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
         </div>
 
         {/* Company Details Card */}
-        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-lg p-4 md:p-6 border">
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-xl p-4 md:p-6 border transform hover:scale-[1.02] transition-all duration-300 animate-slideInRight backdrop-blur-sm hover:shadow-2xl hover:shadow-green-200/30 group">
           <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <span className="text-xl">🏢</span> Company Details
+            <FaBuilding className="text-xl text-green-600 animate-pulse" /> Company Details
           </h3>
           <div className="company-details space-y-4">
             <div>
@@ -722,26 +748,26 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       </div>
 
       {/* Products Section */}
-      <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 mb-6">
+      <div className="bg-white rounded-xl shadow-xl p-4 md:p-6 mb-6 transform hover:scale-[1.01] transition-all duration-300 border border-gray-100 animate-fadeInUp backdrop-blur-sm bg-white/95 hover:shadow-2xl hover:shadow-purple-200/30 group">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-            <span className="text-xl">📦</span> Products & Services
+            <FaBox className="text-xl text-purple-600 animate-pulse" /> Products & Services
           </h3>
-          <button className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-green-600 hover:to-green-700 transition-all shadow-md flex items-center gap-2" onClick={addNewRow}>
-            <span className="text-lg">+</span> Add Product
+          <button className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-green-600 hover:to-green-700 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2" onClick={addNewRow}>
+            <FaPlus className="animate-bounce" /> Add Product
           </button>
         </div>
         
         {/* Mobile-Optimized Product List */}
         <div className="space-y-3 md:hidden" id="mobile-products">
           {products.map((product) => (
-            <div key={product.id} className="bg-gray-50 rounded-lg p-4 border-2 border-dashed border-gray-300">
+            <div key={product.id} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border-2 border-dashed border-gray-300 hover:border-blue-400 hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300 animate-slideInUp">
               <div className="grid grid-cols-2 gap-3 mb-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Product Name</label>
                   <input 
                     type="text" 
-                    className="w-full p-2 border border-gray-300 rounded text-sm" 
+                    className="w-full p-2 border border-gray-300 rounded text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-300 hover:shadow-md" 
                     placeholder="Product name"
                     value={product.name}
                     onChange={(e) => updateProduct(product.id, 'name', e.target.value)}
@@ -751,19 +777,19 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
                   <label className="block text-xs font-medium text-gray-600 mb-1">Quantity</label>
                   <input 
                     type="number" 
-                    className="w-full p-2 border border-gray-300 rounded text-sm text-center" 
+                    className="w-full p-2 border border-gray-300 rounded text-sm text-center focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-300 hover:shadow-md" 
                     value={product.qty} 
                     min="1"
                     onChange={(e) => updateProduct(product.id, 'qty', parseInt(e.target.value) || 1)}
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-2 mb-3">
+              <div className="grid grid-cols-2 gap-2 mb-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Price (₹)</label>
                   <input 
                     type="number" 
-                    className="w-full p-2 border border-gray-300 rounded text-sm text-center" 
+                    className="w-full p-2 border border-gray-300 rounded text-sm text-center focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-300 hover:shadow-md" 
                     value={product.price} 
                     min="0" 
                     step="0.01"
@@ -773,23 +799,10 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Tax %</label>
-                  <input 
-                    type="number" 
-                    className="w-full p-2 border border-gray-300 rounded text-sm text-center" 
-                    value={product.tax} 
-                    min="0" 
-                    max="100"
-                    onChange={(e) => updateProduct(product.id, 'tax', parseFloat(e.target.value) || 0)}
-                    onFocus={(e) => { if(e.target.value == '0') e.target.select(); }}
-                    onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
-                  />
-                </div>
-                <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Disc %</label>
                   <input 
                     type="number" 
-                    className="w-full p-2 border border-gray-300 rounded text-sm text-center" 
+                    className="w-full p-2 border border-gray-300 rounded text-sm text-center focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-300 hover:shadow-md" 
                     value={product.discount} 
                     min="0" 
                     max="100"
@@ -800,9 +813,9 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
                 </div>
               </div>
               <div className="flex justify-between items-center">
-                <div className="text-sm font-semibold text-gray-700">Amount: ₹ <span>{calculateRowAmount(product).toFixed(2)}</span></div>
+                <div className="text-sm font-semibold text-gray-700 animate-pulse">Amount: ₹ <span className="text-green-600">{calculateRowAmount(product).toFixed(2)}</span></div>
                 <button 
-                  className="bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm hover:bg-red-600 transition-colors"
+                  className="bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm hover:bg-red-600 hover:scale-110 transition-all duration-300 shadow-md"
                   onClick={() => deleteRow(product.id)}
                   disabled={products.length === 1}
                 >
@@ -821,7 +834,6 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
                 <th className="p-3 text-left font-semibold text-gray-700 border-b">Product</th>
                 <th className="p-3 text-center font-semibold text-gray-700 border-b">Qty</th>
                 <th className="p-3 text-center font-semibold text-gray-700 border-b">Price</th>
-                <th className="p-3 text-center font-semibold text-gray-700 border-b">Tax%</th>
                 <th className="p-3 text-center font-semibold text-gray-700 border-b">Disc%</th>
                 <th className="p-3 text-center font-semibold text-gray-700 border-b">Amount</th>
                 <th className="p-3 text-center font-semibold text-gray-700 border-b">Action</th>
@@ -904,18 +916,18 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       </div>
 
       {/* Bill Summary */}
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl shadow-lg p-4 md:p-6">
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl shadow-xl p-4 md:p-6 transform hover:scale-[1.01] transition-all duration-300 border border-blue-200 animate-fadeInUp backdrop-blur-sm hover:shadow-2xl hover:shadow-indigo-200/40 group">
         <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-          <span className="text-xl">💰</span> Bill Summary
+          <FaCalculator className="text-xl text-green-600 animate-pulse" /> Bill Summary
         </h3>
-        <div className="bg-white rounded-lg p-4 space-y-3">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b border-gray-100">
+        <div className="bg-white rounded-lg p-4 space-y-3 shadow-inner">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b border-gray-100 hover:bg-gray-50 transition-all duration-300 rounded px-2">
             <span className="text-sm text-gray-600 mb-1 sm:mb-0">Untaxed Amount:</span>
-            <span className="font-semibold text-gray-800">₹ {calculateTotals().subtotal.toFixed(2)}</span>
+            <span className="font-semibold text-gray-800 animate-pulse">₹ {calculateTotals().subtotal.toFixed(2)}</span>
           </div>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b border-gray-100">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b border-gray-100 hover:bg-gray-50 transition-all duration-300 rounded px-2">
             <span className="text-sm text-gray-600 mb-1 sm:mb-0">Discount Amount:</span>
-            <span className="font-semibold text-gray-800">₹ {calculateTotals().totalDiscount.toFixed(2)}</span>
+            <span className="font-semibold text-gray-800 animate-pulse">₹ {calculateTotals().totalDiscount.toFixed(2)}</span>
           </div>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b border-gray-100">
             <div className="flex flex-wrap items-center gap-2 mb-1 sm:mb-0">

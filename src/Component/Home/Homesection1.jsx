@@ -236,10 +236,10 @@ const Homesection1 = () => {
 
             {/* Action Buttons */}
             <div className="flex space-x-4 mb-4">
-               <a href="/Account"> <Button className="start shadow-lg hover:shadow-xl transform hover:scale-105  transition-all duration-200 hover:bg-indigo-400 hover:text-white" outline>
+               <a href="/Account"> <Button className="start shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:text-white btn-ripple animate-pulse-glow" outline>
                     Start now - It's free
                 </Button></a>
-                <Button outline className="text-base py-3 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 hover:bg-indigo-400  hover:text-white">
+                <Button outline className="text-base py-3 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-500 hover:to-indigo-600 hover:text-white btn-ripple">
                     Meet an advisor ▾
                 </Button>
             </div>

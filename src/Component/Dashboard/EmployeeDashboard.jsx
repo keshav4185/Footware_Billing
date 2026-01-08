@@ -120,9 +120,17 @@ const EmployeeDashboard = ({ isDarkMode }) => {
   }, {});
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="p-4 md:p-6 space-y-6 relative overflow-hidden">
+      {/* Dynamic Wave Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-0 w-full h-full">
+          <div className="absolute top-10 left-10 w-64 h-64 bg-gradient-to-r from-blue-200 to-purple-200 rounded-full opacity-10 animate-pulse-slow blur-3xl"></div>
+          <div className="absolute bottom-20 right-20 w-48 h-48 bg-gradient-to-r from-green-200 to-blue-200 rounded-full opacity-15 animate-float blur-2xl"></div>
+          <div className="absolute top-1/2 left-1/3 w-32 h-32 bg-gradient-to-r from-pink-200 to-orange-200 rounded-full opacity-20 animate-bounce-slow blur-xl"></div>
+        </div>
+      </div>
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-lg p-4 md:p-6">
+      <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 backdrop-blur-sm bg-white/90 hover:shadow-2xl hover:shadow-blue-200/50 transition-all duration-500 transform hover:scale-[1.01] border border-gray-100 relative z-10 group">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
@@ -144,52 +152,52 @@ const EmployeeDashboard = ({ isDarkMode }) => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6 transform hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-blue-300/50 animate-slideInLeft group hover:rotate-1">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-blue-100 text-sm">Total Sales</p>
-              <p className="text-2xl font-bold">₹{dashboardData.totalSales.toFixed(2)}</p>
+              <p className="text-2xl font-bold animate-pulse">₹{dashboardData.totalSales.toFixed(2)}</p>
             </div>
-            <span className="text-3xl">💰</span>
+            <span className="text-3xl animate-bounce group-hover:animate-spin">💰</span>
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6">
+        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6 transform hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-green-300/50 animate-slideInUp group hover:-rotate-1" style={{animationDelay: '0.1s'}}>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-green-100 text-sm">Total Invoices</p>
-              <p className="text-2xl font-bold">{dashboardData.totalInvoices}</p>
+              <p className="text-2xl font-bold animate-pulse">{dashboardData.totalInvoices}</p>
             </div>
-            <span className="text-3xl">📄</span>
+            <span className="text-3xl animate-pulse group-hover:animate-bounce">📄</span>
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl p-6">
+        <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl p-6 transform hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-purple-300/50 animate-slideInUp group hover:rotate-1" style={{animationDelay: '0.2s'}}>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-purple-100 text-sm">Paid Bills</p>
-              <p className="text-2xl font-bold">{dashboardData.paidBills}</p>
+              <p className="text-2xl font-bold animate-pulse">{dashboardData.paidBills}</p>
             </div>
-            <span className="text-3xl">✅</span>
+            <span className="text-3xl animate-spin group-hover:animate-pulse">✅</span>
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl p-6">
+        <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl p-6 transform hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-orange-300/50 animate-slideInRight group hover:-rotate-1" style={{animationDelay: '0.3s'}}>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-orange-100 text-sm">Avg Sale</p>
-              <p className="text-2xl font-bold">₹{dashboardData.avgSale.toFixed(2)}</p>
+              <p className="text-2xl font-bold animate-pulse">₹{dashboardData.avgSale.toFixed(2)}</p>
             </div>
-            <span className="text-3xl">📈</span>
+            <span className="text-3xl animate-bounce group-hover:animate-spin">📈</span>
           </div>
         </div>
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10">
         {/* Daily Sales */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="bg-white rounded-xl shadow-lg p-6 backdrop-blur-sm bg-white/90 hover:shadow-2xl hover:shadow-blue-200/50 transition-all duration-500 transform hover:scale-[1.02] border border-gray-100 group">
           <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
             <span className="text-xl">📊</span> Daily Sales ({dateRange === 'today' ? 'Today' : dateRange === 'week' ? 'Last 7 Days' : dateRange === 'month' ? 'Last 30 Days' : 'All Time'})
           </h3>
@@ -229,13 +237,13 @@ const EmployeeDashboard = ({ isDarkMode }) => {
         </div>
 
         {/* Top Customers */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="bg-white rounded-xl shadow-lg p-6 backdrop-blur-sm bg-white/90 hover:shadow-2xl hover:shadow-purple-200/50 transition-all duration-500 transform hover:scale-[1.02] border border-gray-100 group">
           <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
             <span className="text-xl">👥</span> Top Customers
           </h3>
           <div className="space-y-3">
             {dashboardData.topCustomers.map((customer, index) => (
-              <div key={customer.name || index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div key={customer.name || index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg transform hover:scale-[1.02] transition-all duration-300 hover:shadow-md hover:shadow-purple-200/30 animate-slideInUp group" style={{animationDelay: `${index * 0.1}s`}}>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
                     {index + 1}
@@ -253,7 +261,7 @@ const EmployeeDashboard = ({ isDarkMode }) => {
       </div>
 
       {/* Recent Bills */}
-      <div className="bg-white rounded-xl shadow-lg p-6">
+      <div className="bg-white rounded-xl shadow-lg p-6 backdrop-blur-sm bg-white/90 hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 transform hover:scale-[1.01] border border-gray-100 relative z-10">
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
           <span className="text-xl">📋</span> Recent Bills
         </h3>
