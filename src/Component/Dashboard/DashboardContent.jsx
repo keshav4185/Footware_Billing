@@ -170,7 +170,7 @@ const DashboardContent = ({ activeSection, sidebarOpen, setSidebarOpen, setActiv
               </button>
             </div>
             <p className={`${getGreeting().color} font-medium flex items-center gap-2`}>
-              {getGreeting().text}, John! 
+              {getGreeting().text}, {localStorage.getItem('loggedInEmployee') || JSON.parse(localStorage.getItem('employee') || '{}').name || 'Employee'}! 
               <span className="text-sm opacity-75">
                 {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>

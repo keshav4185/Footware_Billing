@@ -81,8 +81,9 @@ const EmployeeDashboard = ({ isDarkMode }) => {
   };
 
   React.useEffect(() => {
-    // Get logged in employee name
-    const employeeName = localStorage.getItem('loggedInEmployee') || 'Employee';
+    // Get logged in employee data from localStorage
+    const employeeData = JSON.parse(localStorage.getItem('employee') || '{}');
+    const employeeName = localStorage.getItem('loggedInEmployee') || employeeData.name || 'Employee';
     setLoggedInEmployee(employeeName);
     
     // Fetch dashboard data

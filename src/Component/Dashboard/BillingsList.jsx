@@ -308,6 +308,9 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
     const completeData = await fetchCompleteInvoiceData(bill.id);
     const billData = completeData || bill;
     
+    // Get logged-in employee data
+    const employeeName = localStorage.getItem('loggedInEmployee') || billData.employeeName || 'Sales Person';
+    
     // Calculate proper totals using the items
     const calculatedTotals = billData.items && billData.items.length > 0 
       ? calculateTotals(billData.items, 9, 9, billData.totals?.advanceAmount || 0)
@@ -421,7 +424,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
               <table class="invoice-info-table">
                 <tr><td>Invoice No.:</td><td>${billData.invoiceNo}</td></tr>
                 <tr><td>Invoice Date:</td><td>${billData.date}</td></tr>
-                <tr><td>Salesperson:</td><td><strong>${billData.employeeName || 'Sales Person'}</strong></td></tr>
+                <tr><td>Salesperson:</td><td><strong>${employeeName}</strong></td></tr>
                 <tr><td>Payment Method:</td><td><span class="payment-method">💵 Cash</span></td></tr>
                 <tr><td>Payment Status:</td><td><span class="payment-status">${billData.paymentStatus || 'Unpaid'}</span></td></tr>
               </table>
@@ -935,7 +938,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                       </div>
                       <div className="flex justify-between">
                         <span className="font-bold">Salesperson:</span>
-                        <span className="font-semibold text-blue-600">{selectedBill.employeeName || 'Sales Person'}</span>
+                        <span className="font-semibold text-blue-600">{localStorage.getItem('loggedInEmployee') || selectedBill.employeeName || 'Sales Person'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="font-bold">Payment Method:</span>
