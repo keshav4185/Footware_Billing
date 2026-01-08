@@ -32,8 +32,14 @@ const Signin = () => {
         { empId, email, password }
       );
 
+      // Store employee data in localStorage
+      const employeeData = res.data;
       localStorage.setItem('isSignedIn', 'true');
-      localStorage.setItem('employee', JSON.stringify(res.data));
+      localStorage.setItem('employee', JSON.stringify(employeeData));
+      localStorage.setItem('loggedInEmployee', employeeData.name || employeeData.empId);
+      localStorage.setItem('employeeId', empId); // Store the empId from login form
+      localStorage.setItem('employeeEmail', employeeData.email);
+      
       window.location.href = '/dashboard';
 
     } catch (err) {

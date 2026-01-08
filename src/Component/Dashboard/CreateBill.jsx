@@ -163,6 +163,15 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   const saveBillToAPI = async () => {
     setLoading(true);
     try {
+      // Get logged-in employee ID directly from localStorage
+      // const employeeId = localStorage.getItem('employeeId'); // This is the empId from login
+      // const employeeName = localStorage.getItem('loggedInEmployee') || 'Sales Person';
+      const employee = JSON.parse(localStorage.getItem("employee"));
+      const employeeId = employee?.empId;   // OR employee?.id (based on backend)
+      const employeeName = employee?.name;
+      
+      console.log('Employee ID being sent:', employeeId); // Debug log
+      
       // Create company first
       const companyResponse = await companyAPI.create({
         name: companyDetails.name,
@@ -232,11 +241,13 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       const totals = calculateTotals();
       const invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
 
-      // Create invoice
+      // Create invoice with employee ID
       const invoiceData = {
         invoiceNumber: invoiceNumber,
         company: { id: companyId },
         customer: { id: customerId },
+        employeeId: employeeId, // Send employee ID to backend
+        salesperson: employeeName,
         items: itemsWithProducts,
         subTotal: totals.subtotal,
         totalAmount: totals.grandTotal,
@@ -244,6 +255,8 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
         balanceAmount: totals.balanceAmount,
         paymentStatus: paymentStatus === 'Paid' ? 'PAID' : 'UNPAID'
       };
+      
+      console.log('Invoice data being sent:', invoiceData); // Debug log
 
       const invoiceResponse = await invoiceAPI.create(invoiceData);
       console.log('Invoice created with ID:', invoiceResponse.data.id);
@@ -274,6 +287,16 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   };
   const saveBill = () => {
     try {
+      // Get logged-in employee data
+      // const employeeName = localStorage.getItem('loggedInEmployee') || 'Sales Person';
+      // const employeeId = localStorage.getItem('employeeId') || null;
+
+      const employee = JSON.parse(localStorage.getItem("employee"));
+
+        const employeeName = employee?.name || "Sales Person";
+        const employeeId = employee?.empId || null;
+
+      
       const billData = {
         id: Date.now(),
         customer: customerFormData,
@@ -281,7 +304,8 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
         date: new Date().toISOString(),
         invoiceNumber: `INV-${Date.now().toString().slice(-6)}`,
         paymentStatus: paymentStatus,
-        salesperson: loggedInEmployee
+        salesperson: employeeName,
+        employeeId: employeeId
       };
       
       const bills = JSON.parse(localStorage.getItem('bills') || '[]');
@@ -318,12 +342,11 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   };
 
   // Save product to backend when name is entered
-  const saveProductToAPI = async (productName, price = 0, tax = 0) => {
+  const saveProductToAPI = async (productName, price = 0) => {
     try {
       const productData = {
         name: productName,
-        price: price,
-        tax: tax
+        price: price
       };
       
       const response = await productAPI.create(productData);
@@ -342,7 +365,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
     if (field === 'name' && value.trim().length >= 2) {
       const product = products.find(p => p.id === id);
       if (product) {
-        await saveProductToAPI(value.trim(), product.price, product.tax);
+        await saveProductToAPI(value.trim(), product.price);
       }
     }
   };
@@ -379,9 +402,10 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   };
 
   React.useEffect(() => {
-    // Get logged in employee name
-    const employeeName = localStorage.getItem('loggedInEmployee') || 'Sales Person';
-    setLoggedInEmployee(employeeName);
+    // Get logged in employee data from localStorage
+    const employee = JSON.parse(localStorage.getItem("employee"));
+setLoggedInEmployee(employee?.name || "Sales Person");
+
     
     // Load API data
     loadCustomers();
@@ -602,27 +626,24 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
         <div className="absolute bottom-32 right-1/3 w-4 h-4 bg-green-400 rounded-full opacity-30 animate-float"></div>
       </div>
       {/* Mobile Header */}
-      <div className="bg-white rounded-xl shadow-xl p-4 mb-4 transform hover:scale-[1.02] transition-all duration-300 border border-gray-100 backdrop-blur-sm bg-white/90 hover:shadow-2xl hover:shadow-blue-200/50">
+      <div className={`rounded-xl shadow-xl p-4 mb-4 transform hover:scale-[1.02] transition-all duration-300 border backdrop-blur-sm hover:shadow-2xl ${
+        isDarkMode 
+          ? 'bg-gray-800/90 border-gray-700 hover:shadow-blue-900/50 text-white' 
+          : 'bg-white/90 border-gray-100 hover:shadow-blue-200/50 text-gray-800'
+      }`}>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <div className="animate-slideInLeft">
-            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-              <FaFileInvoice className="text-2xl text-blue-600 animate-pulse" /> {editingBill ? 'Edit Bill' : 'Create New Bill'}
+          <div className="animate-slideInLeft w-full text-center sm:text-left">
+            <h2 className={`text-xl font-bold flex items-center justify-center sm:justify-start gap-2 ${
+              isDarkMode ? 'text-white' : 'text-gray-800'
+            }`}>
+              <FaFileInvoice className="text-2xl text-blue-600 animate-pulse" /> 
+              {editingBill ? 'Edit Bill' : 'Create New Bill'}
             </h2>
-            <p className="text-sm text-gray-600">{editingBill ? `Editing Invoice: ${editingBill.invoiceNo}` : 'Generate professional invoices'}</p>
-          </div>
-          <div className="flex flex-wrap gap-2 w-full sm:w-auto animate-slideInRight">
-            <button className="flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-blue-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('send')}>
-              <FaPaperPlane className="animate-bounce" /> Send
-            </button>
-            <button className="flex-1 sm:flex-none bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-green-700 hover:to-green-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('print')}>
-              <FaPrint className="hover:animate-spin" /> Print
-            </button>
-            <button className="flex-1 sm:flex-none bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-purple-700 hover:to-purple-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('save')} disabled={loading}>
-              {loading ? <FaTimes className="animate-spin" /> : <FaSave className="hover:animate-pulse" />} {loading ? 'Saving...' : 'Save'}
-            </button>
-            <button className="flex-1 sm:flex-none bg-gradient-to-r from-orange-600 to-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-orange-700 hover:to-orange-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('preview')}>
-              <FaEye className="hover:animate-pulse" /> Preview
-            </button>
+            <p className={`text-sm ${
+              isDarkMode ? 'text-gray-300' : 'text-gray-600'
+            }`}>
+              {editingBill ? `Editing Invoice: ${editingBill.invoiceNo}` : 'Generate professional invoices'}
+            </p>
           </div>
         </div>
       </div>
@@ -630,16 +651,28 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       {/* Customer & Company Details */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         {/* Customer Details Card */}
-        <div className="bg-white rounded-xl shadow-xl p-4 md:p-6 transform hover:scale-[1.02] transition-all duration-300 border border-gray-100 animate-slideInLeft backdrop-blur-sm bg-white/95 hover:shadow-2xl hover:shadow-blue-200/30 group">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+        <div className={`rounded-xl shadow-xl p-4 md:p-6 transform hover:scale-[1.02] transition-all duration-300 border animate-slideInLeft backdrop-blur-sm hover:shadow-2xl group ${
+          isDarkMode 
+            ? 'bg-gray-800/95 border-gray-700 hover:shadow-blue-900/30 text-white' 
+            : 'bg-white/95 border-gray-100 hover:shadow-blue-200/30 text-gray-800'
+        }`}>
+          <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${
+            isDarkMode ? 'text-white' : 'text-gray-800'
+          }`}>
             <FaUser className="text-xl text-blue-600 animate-pulse" /> Customer Details
           </h3>
           <div className="customer-details space-y-4">
             <div className="animate-fadeInUp" style={{animationDelay: '0.1s'}}>
-              <label className="block text-sm font-medium text-red-600 mb-1">Customer Name *</label>
+              <label className={`block text-sm font-medium mb-1 ${
+                isDarkMode ? 'text-red-400' : 'text-red-600'
+              }`}>Customer Name *</label>
               <input 
                 type="text" 
-                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 hover:border-blue-300 hover:shadow-md" 
+                className={`w-full p-3 border-2 rounded-lg focus:ring-4 focus:ring-blue-100 transition-all duration-300 hover:shadow-md ${
+                  isDarkMode 
+                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400 hover:border-blue-500' 
+                    : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500 hover:border-blue-300'
+                }`} 
                 placeholder="Enter customer name"
                 value={customerFormData.name}
                 onChange={(e) => setCustomerFormData({...customerFormData, name: e.target.value})}
@@ -680,8 +713,14 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
         </div>
 
         {/* Company Details Card */}
-        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-xl p-4 md:p-6 border transform hover:scale-[1.02] transition-all duration-300 animate-slideInRight backdrop-blur-sm hover:shadow-2xl hover:shadow-green-200/30 group">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+        <div className={`rounded-xl shadow-xl p-4 md:p-6 border transform hover:scale-[1.02] transition-all duration-300 animate-slideInRight backdrop-blur-sm hover:shadow-2xl group ${
+          isDarkMode 
+            ? 'bg-gray-800/95 border-gray-700 hover:shadow-green-900/30 text-white' 
+            : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-300 hover:shadow-green-200/30 text-gray-800'
+        }`}>
+          <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${
+            isDarkMode ? 'text-white' : 'text-gray-800'
+          }`}>
             <FaBuilding className="text-xl text-green-600 animate-pulse" /> Company Details
           </h3>
           <div className="company-details space-y-4">
@@ -699,45 +738,75 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+              <label className={`block text-sm font-medium mb-1 ${
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}>Company Name</label>
               <input 
                 type="text" 
-                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
+                className={`w-full p-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 transition-all ${
+                  isDarkMode 
+                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400' 
+                    : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500'
+                }`} 
                 value={companyDetails.name}
                 onChange={(e) => setCompanyDetails({...companyDetails, name: e.target.value})}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Company Address</label>
+              <label className={`block text-sm font-medium mb-1 ${
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}>Company Address</label>
               <textarea 
-                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all resize-none" 
+                className={`w-full p-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 transition-all resize-none ${
+                  isDarkMode 
+                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400' 
+                    : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500'
+                }`} 
                 rows="3" 
                 value={companyDetails.address}
                 onChange={(e) => setCompanyDetails({...companyDetails, address: e.target.value})}
               ></textarea>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+              <label className={`block text-sm font-medium mb-1 ${
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}>Phone Number</label>
               <input 
                 type="text" 
-                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
+                className={`w-full p-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 transition-all ${
+                  isDarkMode 
+                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400' 
+                    : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500'
+                }`} 
                 value={companyDetails.phone}
                 onChange={(e) => setCompanyDetails({...companyDetails, phone: e.target.value})}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">GST Number</label>
+              <label className={`block text-sm font-medium mb-1 ${
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}>GST Number</label>
               <input 
                 type="text" 
-                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
+                className={`w-full p-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 transition-all ${
+                  isDarkMode 
+                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400' 
+                    : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500'
+                }`} 
                 value={companyDetails.gst}
                 onChange={(e) => setCompanyDetails({...companyDetails, gst: e.target.value})}
               />
             </div>
            
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
-              <select className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all">
+              <label className={`block text-sm font-medium mb-1 ${
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}>Payment Method</label>
+              <select className={`w-full p-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 transition-all ${
+                isDarkMode 
+                  ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400' 
+                  : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500'
+              }`}>
                 <option>💵 Cash</option>
                 <option>💳 Card</option>
                 <option>📱 UPI</option>
@@ -748,9 +817,15 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       </div>
 
       {/* Products Section */}
-      <div className="bg-white rounded-xl shadow-xl p-4 md:p-6 mb-6 transform hover:scale-[1.01] transition-all duration-300 border border-gray-100 animate-fadeInUp backdrop-blur-sm bg-white/95 hover:shadow-2xl hover:shadow-purple-200/30 group">
+      <div className={`rounded-xl shadow-xl p-4 md:p-6 mb-6 transform hover:scale-[1.01] transition-all duration-300 border animate-fadeInUp backdrop-blur-sm hover:shadow-2xl group ${
+        isDarkMode 
+          ? 'bg-gray-800/95 border-gray-700 hover:shadow-purple-900/30 text-white' 
+          : 'bg-white/95 border-gray-100 hover:shadow-purple-200/30 text-gray-800'
+      }`}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+          <h3 className={`text-lg font-semibold flex items-center gap-2 ${
+            isDarkMode ? 'text-white' : 'text-gray-800'
+          }`}>
             <FaBox className="text-xl text-purple-600 animate-pulse" /> Products & Services
           </h3>
           <button className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-green-600 hover:to-green-700 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2" onClick={addNewRow}>
@@ -828,42 +903,72 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
 
         {/* Desktop Table */}
         <div className="hidden md:block overflow-x-auto">
-          <table className="products-table w-full border-collapse border border-gray-200 rounded-lg overflow-hidden">
+          <table className={`products-table w-full border-collapse border rounded-lg overflow-hidden ${
+            isDarkMode ? 'border-gray-600' : 'border-gray-200'
+          }`}>
             <thead>
-              <tr className="bg-gradient-to-r from-gray-100 to-gray-200">
-                <th className="p-3 text-left font-semibold text-gray-700 border-b">Product</th>
-                <th className="p-3 text-center font-semibold text-gray-700 border-b">Qty</th>
-                <th className="p-3 text-center font-semibold text-gray-700 border-b">Price</th>
-                <th className="p-3 text-center font-semibold text-gray-700 border-b">Disc%</th>
-                <th className="p-3 text-center font-semibold text-gray-700 border-b">Amount</th>
-                <th className="p-3 text-center font-semibold text-gray-700 border-b">Action</th>
+              <tr className={`${
+                isDarkMode ? 'bg-gray-700' : 'bg-gradient-to-r from-gray-100 to-gray-200'
+              }`}>
+                <th className={`p-3 text-left font-semibold border-b ${
+                  isDarkMode ? 'text-gray-200 border-gray-600' : 'text-gray-700 border-gray-300'
+                }`}>Product</th>
+                <th className={`p-3 text-center font-semibold border-b ${
+                  isDarkMode ? 'text-gray-200 border-gray-600' : 'text-gray-700 border-gray-300'
+                }`}>Qty</th>
+                <th className={`p-3 text-center font-semibold border-b ${
+                  isDarkMode ? 'text-gray-200 border-gray-600' : 'text-gray-700 border-gray-300'
+                }`}>Price</th>
+                <th className={`p-3 text-center font-semibold border-b ${
+                  isDarkMode ? 'text-gray-200 border-gray-600' : 'text-gray-700 border-gray-300'
+                }`}>Disc%</th>
+                <th className={`p-3 text-center font-semibold border-b ${
+                  isDarkMode ? 'text-gray-200 border-gray-600' : 'text-gray-700 border-gray-300'
+                }`}>Amount</th>
+                <th className={`p-3 text-center font-semibold border-b ${
+                  isDarkMode ? 'text-gray-200 border-gray-600' : 'text-gray-700 border-gray-300'
+                }`}>Action</th>
               </tr>
             </thead>
             <tbody>
               {products.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="p-3 border-b">
+                <tr key={product.id} className={`transition-colors ${
+                  isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
+                }`}>
+                  <td className={`p-3 border-b ${
+                    isDarkMode ? 'border-gray-600' : 'border-gray-200'
+                  }`}>
                     <input 
                       type="text" 
-                      className="w-full p-2 border-0 bg-transparent text-sm focus:bg-gray-100 rounded" 
+                      className={`w-full p-2 border-0 bg-transparent text-sm rounded ${
+                        isDarkMode ? 'focus:bg-gray-600 text-white placeholder-gray-400' : 'focus:bg-gray-100 text-gray-900 placeholder-gray-500'
+                      }`} 
                       placeholder="Product name"
                       value={product.name}
                       onChange={(e) => updateProduct(product.id, 'name', e.target.value)}
                     />
                   </td>
-                  <td className="p-3 border-b text-center">
+                  <td className={`p-3 border-b text-center ${
+                    isDarkMode ? 'border-gray-600' : 'border-gray-200'
+                  }`}>
                     <input 
                       type="number" 
-                      className="w-16 p-2 border-0 bg-transparent text-sm text-center focus:bg-gray-100 rounded" 
+                      className={`w-16 p-2 border-0 bg-transparent text-sm text-center rounded ${
+                        isDarkMode ? 'focus:bg-gray-600 text-white' : 'focus:bg-gray-100 text-gray-900'
+                      }`} 
                       value={product.qty} 
                       min="1"
                       onChange={(e) => updateProduct(product.id, 'qty', parseInt(e.target.value) || 1)}
                     />
                   </td>
-                  <td className="p-3 border-b text-center">
+                  <td className={`p-3 border-b text-center ${
+                    isDarkMode ? 'border-gray-600' : 'border-gray-200'
+                  }`}>
                     <input 
                       type="number" 
-                      className="w-20 p-2 border-0 bg-transparent text-sm text-center focus:bg-gray-100 rounded" 
+                      className={`w-20 p-2 border-0 bg-transparent text-sm text-center rounded ${
+                        isDarkMode ? 'focus:bg-gray-600 text-white' : 'focus:bg-gray-100 text-gray-900'
+                      }`} 
                       value={product.price} 
                       min="0" 
                       step="0.01"
@@ -872,22 +977,14 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
                       onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
                     />
                   </td>
-                  <td className="p-3 border-b text-center">
+                  <td className={`p-3 border-b text-center ${
+                    isDarkMode ? 'border-gray-600' : 'border-gray-200'
+                  }`}>
                     <input 
                       type="number" 
-                      className="w-16 p-2 border-0 bg-transparent text-sm text-center focus:bg-gray-100 rounded" 
-                      value={product.tax} 
-                      min="0" 
-                      max="100"
-                      onChange={(e) => updateProduct(product.id, 'tax', parseFloat(e.target.value) || 0)}
-                      onFocus={(e) => { if(e.target.value == '0') e.target.select(); }}
-                      onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
-                    />
-                  </td>
-                  <td className="p-3 border-b text-center">
-                    <input 
-                      type="number" 
-                      className="w-16 p-2 border-0 bg-transparent text-sm text-center focus:bg-gray-100 rounded" 
+                      className={`w-16 p-2 border-0 bg-transparent text-sm text-center rounded ${
+                        isDarkMode ? 'focus:bg-gray-600 text-white' : 'focus:bg-gray-100 text-gray-900'
+                      }`} 
                       value={product.discount} 
                       min="0" 
                       max="100"
@@ -896,10 +993,14 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
                       onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
                     />
                   </td>
-                  <td className="p-3 border-b text-center font-medium text-gray-700">
+                  <td className={`p-3 border-b text-center font-medium ${
+                    isDarkMode ? 'border-gray-600 text-gray-200' : 'border-gray-200 text-gray-700'
+                  }`}>
                     ₹ {calculateRowAmount(product).toFixed(2)}
                   </td>
-                  <td className="p-3 border-b text-center">
+                  <td className={`p-3 border-b text-center ${
+                    isDarkMode ? 'border-gray-600' : 'border-gray-200'
+                  }`}>
                     <button 
                       className="bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm hover:bg-red-600 transition-colors mx-auto"
                       onClick={() => deleteRow(product.id)}
@@ -916,11 +1017,19 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       </div>
 
       {/* Bill Summary */}
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl shadow-xl p-4 md:p-6 transform hover:scale-[1.01] transition-all duration-300 border border-blue-200 animate-fadeInUp backdrop-blur-sm hover:shadow-2xl hover:shadow-indigo-200/40 group">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+      <div className={`rounded-xl shadow-xl p-4 md:p-6 transform hover:scale-[1.01] transition-all duration-300 border animate-fadeInUp backdrop-blur-sm hover:shadow-2xl group ${
+        isDarkMode 
+          ? 'bg-gray-800/90 border-gray-700 hover:shadow-indigo-900/40 text-white' 
+          : 'bg-gradient-to-br from-blue-50 to-indigo-100 border-blue-200 hover:shadow-indigo-200/40 text-gray-800'
+      }`}>
+        <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${
+          isDarkMode ? 'text-white' : 'text-gray-800'
+        }`}>
           <FaCalculator className="text-xl text-green-600 animate-pulse" /> Bill Summary
         </h3>
-        <div className="bg-white rounded-lg p-4 space-y-3 shadow-inner">
+        <div className={`rounded-lg p-4 space-y-3 shadow-inner ${
+          isDarkMode ? 'bg-gray-700/50' : 'bg-white'
+        }`}>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b border-gray-100 hover:bg-gray-50 transition-all duration-300 rounded px-2">
             <span className="text-sm text-gray-600 mb-1 sm:mb-0">Untaxed Amount:</span>
             <span className="font-semibold text-gray-800 animate-pulse">₹ {calculateTotals().subtotal.toFixed(2)}</span>
@@ -1022,8 +1131,32 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
               onChange={(e) => setShowCompanyWatermark(e.target.checked)}
               className="rounded" 
             />
-            <label htmlFor="companyWatermark" className="text-sm text-gray-600">Show Company Watermark</label>
+            <label htmlFor="companyWatermark" className={`text-sm ${
+              isDarkMode ? 'text-gray-300' : 'text-gray-600'
+            }`}>Show Company Watermark</label>
           </div>
+        </div>
+      </div>
+
+      {/* Action Buttons - Moved to End */}
+      <div className={`rounded-xl shadow-xl p-4 mb-4 transform hover:scale-[1.02] transition-all duration-300 border backdrop-blur-sm hover:shadow-2xl ${
+        isDarkMode 
+          ? 'bg-gray-800/90 border-gray-700 hover:shadow-blue-900/50' 
+          : 'bg-white/90 border-gray-100 hover:shadow-blue-200/50'
+      }`}>
+        <div className="flex flex-wrap gap-2 w-full animate-slideInRight justify-center">
+          <button className="flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-blue-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('send')}>
+            <FaPaperPlane className="animate-bounce" /> Send
+          </button>
+          <button className="flex-1 sm:flex-none bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-green-700 hover:to-green-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('print')}>
+            <FaPrint className="hover:animate-spin" /> Print
+          </button>
+          <button className="flex-1 sm:flex-none bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-purple-700 hover:to-purple-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('save')} disabled={loading}>
+            {loading ? <FaTimes className="animate-spin" /> : <FaSave className="hover:animate-pulse" />} {loading ? 'Saving...' : 'Save'}
+          </button>
+          <button className="flex-1 sm:flex-none bg-gradient-to-r from-orange-600 to-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-orange-700 hover:to-orange-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('preview')}>
+            <FaEye className="hover:animate-pulse" /> Preview
+          </button>
         </div>
       </div>
 

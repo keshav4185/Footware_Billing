@@ -10,6 +10,17 @@ const api = axios.create({
   },
 });
 
+// Employee API
+export const employeeAPI = {
+  login: (credentials) => axios.post('http://localhost:8080/api/employees/login', {
+    empId: credentials.empId,
+    email: credentials.email,
+    password: credentials.password
+  }),
+  getById: (id) => axios.get(`http://localhost:8080/api/employees/${id}`),
+  getAll: () => api.get('/employees'),
+};
+
 // Company API
 export const companyAPI = {
   create: (company) => api.post('/company', {
