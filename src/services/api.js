@@ -30,6 +30,8 @@ export const companyAPI = {
     gst: company.gst,
     brands: company.brands
   }),
+   getAll: () => axios.get("/company"),   // ✅ ADD THIS
+  getById: (id) => axios.get(`/company/${id}`)
 };
 
 // Customer API

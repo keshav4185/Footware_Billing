@@ -584,39 +584,67 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                       </td>
                       <td className="p-4 text-center relative dropdown-container">
                         <button 
-                          className="bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 mx-auto"
+                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 mx-auto ${
+                            isDarkMode 
+                              ? 'bg-gray-700 hover:bg-gray-600 text-white border border-gray-600' 
+                              : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
+                          }`}
                           onClick={() => toggleDropdown(bill.id)}
                         >
                           Actions ⋮
                         </button>
                         {openDropdown === bill.id && (
-                          <div className="absolute right-4 top-12 bg-white border border-gray-200 rounded-lg shadow-lg min-w-32" style={{zIndex: 1000}}>
+                          <div className={`absolute right-4 top-12 rounded-lg shadow-lg min-w-32 ${
+                            isDarkMode 
+                              ? 'bg-gray-800 border border-gray-600 text-white' 
+                              : 'bg-white border border-gray-200 text-gray-800'
+                          }`} style={{zIndex: 1000}}>
                             <button 
-                              className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2"
+                              className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 ${
+                                isDarkMode 
+                                  ? 'hover:bg-gray-700 text-white' 
+                                  : 'hover:bg-gray-50 text-gray-800'
+                              }`}
                               onClick={() => { handleUpdateBill(bill); }}
                             >
                               ✏️ Update
                             </button>
                             <button 
-                              className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2"
+                              className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 ${
+                                isDarkMode 
+                                  ? 'hover:bg-gray-700 text-white' 
+                                  : 'hover:bg-gray-50 text-gray-800'
+                              }`}
                               onClick={() => { viewBill(bill); setOpenDropdown(null); }}
                             >
                               👁️ View
                             </button>
                             <button 
-                              className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2"
+                              className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 ${
+                                isDarkMode 
+                                  ? 'hover:bg-gray-700 text-white' 
+                                  : 'hover:bg-gray-50 text-gray-800'
+                              }`}
                               onClick={() => { printBill(bill); setOpenDropdown(null); }}
                             >
                               🖨️ Print
                             </button>
                             <button 
-                              className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2"
+                              className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 ${
+                                isDarkMode 
+                                  ? 'hover:bg-gray-700 text-white' 
+                                  : 'hover:bg-gray-50 text-gray-800'
+                              }`}
                               onClick={() => { handleExchange(bill); }}
                             >
                               🔄 Exchange
                             </button>
                             <button 
-                              className="w-full text-left px-4 py-2 hover:bg-red-50 text-sm flex items-center gap-2 text-red-600 border-t"
+                              className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 text-red-500 hover:text-red-400 border-t ${
+                                isDarkMode 
+                                  ? 'hover:bg-gray-700 border-gray-600' 
+                                  : 'hover:bg-red-50 border-gray-200'
+                              }`}
                               onClick={() => { deleteBill(bill.id); setOpenDropdown(null); }}
                             >
                               🗑️ Delete
@@ -696,13 +724,19 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
       {/* Exchange Modal */}
       {showExchange && exchangeBill && createPortal(
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{zIndex: 999999}} onClick={() => setShowExchange(false)}>
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[95vh] overflow-y-auto m-2 md:m-4" onClick={(e) => e.stopPropagation()}>
+          <div className={`rounded-xl shadow-2xl w-full max-w-4xl max-h-[95vh] overflow-y-auto m-2 md:m-4 ${
+            isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'
+          }`} onClick={(e) => e.stopPropagation()}>
             <div className="p-4 md:p-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <h3 className={`text-xl font-bold flex items-center gap-2 ${
+                  isDarkMode ? 'text-white' : 'text-gray-800'
+                }`}>
                   <span className="text-2xl">🔄</span> Exchange Product
                 </h3>
-                <button onClick={() => setShowExchange(false)} className="text-gray-500 hover:text-gray-700 text-2xl">
+                <button onClick={() => setShowExchange(false)} className={`text-2xl transition-colors ${
+                  isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
+                }`}>
                   ×
                 </button>
               </div>
@@ -710,7 +744,9 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Original Bill Info */}
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-bold mb-3 text-gray-800">Original Bill</h4>
+                  <h4 className={`font-bold mb-3 ${
+                    isDarkMode ? 'text-white' : 'text-gray-800'
+                  }`}>Original Bill</h4>
                   <div className="space-y-2 text-sm">
                     <p><strong>Invoice No:</strong> {exchangeBill.invoiceNo}</p>
                     <p><strong>Customer:</strong> {exchangeBill.customerName}</p>
@@ -722,41 +758,67 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                 
                 {/* Exchange Form */}
                 <div className="space-y-4">
-                  <h4 className="font-bold text-gray-800">Exchange Details</h4>
+                  <h4 className={`font-bold ${
+                    isDarkMode ? 'text-white' : 'text-gray-800'
+                  }`}>Exchange Details</h4>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Exchange Product</label>
+                    <label className={`block text-sm font-medium mb-1 ${
+                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                    }`}>Exchange Product</label>
                     <input 
                       type="text" 
                       placeholder="Enter new product name"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                          : 'bg-white border-gray-300 text-gray-800 placeholder-gray-500'
+                      }`}
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">New Amount</label>
+                    <label className={`block text-sm font-medium mb-1 ${
+                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                    }`}>New Amount</label>
                     <input 
                       type="number" 
                       placeholder="Enter new amount"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                          : 'bg-white border-gray-300 text-gray-800 placeholder-gray-500'
+                      }`}
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Exchange Reason</label>
+                    <label className={`block text-sm font-medium mb-1 ${
+                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                    }`}>Exchange Reason</label>
                     <textarea 
                       placeholder="Reason for exchange"
                       rows="3"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                          : 'bg-white border-gray-300 text-gray-800 placeholder-gray-500'
+                      }`}
                     ></textarea>
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Difference Amount</label>
+                    <label className={`block text-sm font-medium mb-1 ${
+                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                    }`}>Difference Amount</label>
                     <input 
                       type="number" 
                       placeholder="Amount difference (+/-)"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                          : 'bg-white border-gray-300 text-gray-800 placeholder-gray-500'
+                      }`}
                     />
                   </div>
                 </div>
@@ -765,12 +827,12 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
               <div className="flex gap-3 mt-6">
                 <button 
                   onClick={() => setShowExchange(false)}
-                  className="flex-1 bg-gray-500 text-white py-3 rounded-lg font-medium hover:bg-gray-600 transition-all"
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg font-medium transition-all shadow-md hover:shadow-lg"
                 >
                   Cancel
                 </button>
                 <button 
-                  className="flex-1 bg-orange-500 text-white py-3 rounded-lg font-medium hover:bg-orange-600 transition-all"
+                  className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-medium transition-all shadow-md hover:shadow-lg"
                 >
                   Process Exchange
                 </button>
@@ -784,55 +846,85 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
       {/* Update Modal */}
       {showUpdateModal && updateBill && createPortal(
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{zIndex: 999999}} onClick={() => setShowUpdateModal(false)}>
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[95vh] overflow-y-auto m-2 md:m-4" onClick={(e) => e.stopPropagation()}>
+          <div className={`rounded-xl shadow-2xl w-full max-w-2xl max-h-[95vh] overflow-y-auto m-2 md:m-4 ${
+            isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'
+          }`} onClick={(e) => e.stopPropagation()}>
             <div className="p-4 md:p-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <h3 className={`text-xl font-bold flex items-center gap-2 ${
+                  isDarkMode ? 'text-white' : 'text-gray-800'
+                }`}>
                   <span className="text-2xl">✏️</span> Update Invoice
                 </h3>
-                <button onClick={() => setShowUpdateModal(false)} className="text-gray-500 hover:text-gray-700 text-2xl">
+                <button onClick={() => setShowUpdateModal(false)} className={`text-2xl transition-colors ${
+                  isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
+                }`}>
                   ×
                 </button>
               </div>
               
               <div className="space-y-4 update-form">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Invoice Number</label>
+                  <label className={`block text-sm font-medium mb-2 ${
+                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                  }`}>Invoice Number</label>
                   <input 
                     name="invoiceNumber"
                     type="text" 
                     defaultValue={updateBill.invoiceNo}
-                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
+                    className={`w-full p-3 border-2 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all ${
+                      isDarkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                        : 'bg-white border-gray-200 text-gray-800 placeholder-gray-500'
+                    }`}
                     placeholder="Invoice number" 
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Customer Name</label>
+                  <label className={`block text-sm font-medium mb-2 ${
+                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                  }`}>Customer Name</label>
                   <input 
                     name="customerName"
                     type="text" 
                     defaultValue={updateBill.customerName}
-                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
+                    className={`w-full p-3 border-2 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all ${
+                      isDarkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                        : 'bg-white border-gray-200 text-gray-800 placeholder-gray-500'
+                    }`}
                     placeholder="Customer name" 
                     readOnly
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Amount</label>
+                  <label className={`block text-sm font-medium mb-2 ${
+                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                  }`}>Amount</label>
                   <input 
                     name="amount"
                     type="number" 
                     defaultValue={updateBill.amount}
-                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
+                    className={`w-full p-3 border-2 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all ${
+                      isDarkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                        : 'bg-white border-gray-200 text-gray-800 placeholder-gray-500'
+                    }`}
                     placeholder="Amount" 
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Payment Status</label>
+                  <label className={`block text-sm font-medium mb-2 ${
+                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                  }`}>Payment Status</label>
                   <select 
                     name="paymentStatus"
                     defaultValue={updateBill.paymentStatus}
-                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                    className={`w-full p-3 border-2 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all ${
+                      isDarkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white' 
+                        : 'bg-white border-gray-200 text-gray-800'
+                    }`}
                   >
                     <option value="Paid">Paid</option>
                     <option value="Unpaid">Unpaid</option>
@@ -843,7 +935,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
               <div className="flex gap-3 mt-6">
                 <button 
                   onClick={() => setShowUpdateModal(false)}
-                  className="flex-1 bg-gray-500 text-white py-3 rounded-lg font-medium hover:bg-gray-600 transition-all"
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg font-medium transition-all shadow-md hover:shadow-lg"
                 >
                   Cancel
                 </button>
@@ -862,7 +954,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                     };
                     updateInvoice(updatedData);
                   }}
-                  className="flex-1 bg-blue-500 text-white py-3 rounded-lg font-medium hover:bg-blue-600 transition-all"
+                  className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-medium transition-all shadow-md hover:shadow-lg"
                 >
                   Update Invoice
                 </button>
@@ -876,13 +968,19 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
       {/* Preview Modal */}
       {showPreview && selectedBill && createPortal(
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{zIndex: 999999}} onClick={() => setShowPreview(false)}>
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-y-auto m-2 md:m-4" onClick={(e) => e.stopPropagation()}>
+          <div className={`rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-y-auto m-2 md:m-4 ${
+            isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'
+          }`} onClick={(e) => e.stopPropagation()}>
             <div className="p-3 md:p-6">
               <div className="flex justify-between items-center mb-4 md:mb-6">
-                <h3 className="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2">
+                <h3 className={`text-lg md:text-xl font-bold flex items-center gap-2 ${
+                  isDarkMode ? 'text-white' : 'text-gray-800'
+                }`}>
                   <span className="text-xl md:text-2xl">👁️</span> Invoice Preview
                 </h3>
-                <button onClick={() => setShowPreview(false)} className="text-gray-500 hover:text-gray-700 text-xl md:text-2xl">
+                <button onClick={() => setShowPreview(false)} className={`text-xl md:text-2xl transition-colors ${
+                  isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
+                }`}>
                   ×
                 </button>
               </div>
@@ -1104,7 +1202,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
               <div className="flex gap-3 mt-4 md:mt-6">
                 <button 
                   onClick={() => setShowPreview(false)}
-                  className="flex-1 bg-gray-500 text-white py-2 md:py-3 rounded-lg font-medium hover:bg-gray-600 transition-all text-sm md:text-base"
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 md:py-3 rounded-lg font-medium transition-all text-sm md:text-base shadow-md hover:shadow-lg"
                 >
                   Close Preview
                 </button>
