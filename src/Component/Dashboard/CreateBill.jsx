@@ -160,41 +160,179 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
     }
   };
 
+  // const saveBillToAPI = async () => {
+  //   setLoading(true);
+  //   try {
+  //     // Get logged-in employee ID directly from localStorage
+  //     // const employeeId = localStorage.getItem('employeeId'); // This is the empId from login
+  //     // const employeeName = localStorage.getItem('loggedInEmployee') || 'Sales Person';
+  //     const employee = JSON.parse(localStorage.getItem("employee"));
+  //     const employeeDbId = employee?.id;   // OR employee?.id (based on backend)
+  //     const employeeName = employee?.name;
+      
+  //     console.log('Employee ID being sent:', employeeId); // Debug log
+      
+  //     // Create company first
+  //     const companyResponse = await companyAPI.create({
+  //       name: companyDetails.name,
+  //       address: companyDetails.address,
+  //       phone: companyDetails.phone,
+  //       gst: companyDetails.gst,
+  //       brands: companyDetails.brands
+  //     });
+  //     const companyId = companyResponse.data.id;
+  //     console.log('Company created with ID:', companyId);
+
+  //     // Create customer
+  //     const customerResponse = await customerAPI.create({
+  //       name: customerFormData.name,
+  //       phone: customerFormData.phone,
+  //       gst: customerFormData.gst,
+  //       address: customerFormData.address
+  //     });
+  //     const customerId = customerResponse.data.id;
+  //     console.log('Customer created with ID:', customerId);
+
+  //     // Prepare invoice items from products
+  //     const items = products.filter(p => p.name.trim()).map(product => ({
+  //       productName: product.name,
+  //       quantity: product.qty,
+  //       price: product.price,
+  //       tax: product.tax,
+  //       discount: product.discount,
+  //       amount: calculateRowAmount(product)
+  //     }));
+
+  //     // Create or find products for each item
+  //     const itemsWithProducts = [];
+  //     for (const item of items) {
+  //       try {
+  //         // Try to create a product with the entered name
+  //         const productResponse = await productAPI.create({
+  //           name: item.productName,
+  //           price: item.price,
+  //           tax: item.tax
+  //         });
+          
+  //         itemsWithProducts.push({
+  //            itemName: item.productName,
+  //           product: { id: productResponse.data.id },
+  //           quantity: item.quantity,
+  //           price: item.price,
+  //           tax: item.tax,
+  //           discount: item.discount,
+  //           rowTotal: item.amount
+  //         });
+  //       } catch (error) {
+  //         console.error('Error creating product:', error);
+  //         // If product creation fails, use a default product ID or create without product reference
+  //         itemsWithProducts.push({
+  //            itemName: item.productName,
+  //           product: null, // or { id: 1 } if you have a default product
+  //           quantity: item.quantity,
+  //           price: item.price,
+  //           tax: item.tax,
+  //           discount: item.discount,
+  //           rowTotal: item.amount
+  //         });
+  //       }
+  //     }
+
+  //     const totals = calculateTotals();
+  //     const invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
+
+  //     // Create invoice with employee ID
+  //     const invoiceData = {
+  //       invoiceNumber: invoiceNumber,
+  //       company: { id: companyId },
+  //       customer: { id: customerId },
+  //       employee: { id: employeeDbId }, // Send employee ID to backend
+  //       salesperson: employeeName,
+  //       items: itemsWithProducts,
+  //       subTotal: totals.subtotal,
+  //       totalAmount: totals.grandTotal,
+  //       advanceAmount: advance,
+  //       balanceAmount: totals.balanceAmount,
+  //       paymentStatus: paymentStatus === 'Paid' ? 'PAID' : 'UNPAID'
+  //     };
+      
+  //     console.log('Invoice data being sent:', invoiceData); // Debug log
+  //     console.log("Employee DB ID:", employeeDbId);
+  //     const invoiceResponse = await invoiceAPI.create(invoiceData);
+  //     console.log('Invoice created with ID:', invoiceResponse.data.id);
+      
+  //     // Create payment if advance amount is provided
+  //     if (advance > 0) {
+  //       await paymentAPI.create({
+  //         paymentMethod: 'CASH',
+  //         amount: advance,
+  //         paymentDate: new Date().toISOString(),
+  //         invoice: { id: invoiceResponse.data.id }
+  //       });
+  //       console.log('Payment created for advance amount');
+  //     }
+
+  //     alert('💾 Bill saved to database successfully!');
+  //     saveBill();
+      
+  //   } catch (error) {
+  //     console.error('Error saving to API:', error);
+  //     console.log('Error response:', error.response?.data);
+  //     console.log('Error status:', error.response?.status);
+  //     alert('Error saving to database: ' + (error.response?.data?.message || error.message) + '. Saved locally instead.');
+  //     saveBill();
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+
+
+
   const saveBillToAPI = async () => {
-    setLoading(true);
-    try {
-      // Get logged-in employee ID directly from localStorage
-      // const employeeId = localStorage.getItem('employeeId'); // This is the empId from login
-      // const employeeName = localStorage.getItem('loggedInEmployee') || 'Sales Person';
-      const employee = JSON.parse(localStorage.getItem("employee"));
-      const employeeId = employee?.empId;   // OR employee?.id (based on backend)
-      const employeeName = employee?.name;
-      
-      console.log('Employee ID being sent:', employeeId); // Debug log
-      
-      // Create company first
-      const companyResponse = await companyAPI.create({
-        name: companyDetails.name,
-        address: companyDetails.address,
-        phone: companyDetails.phone,
-        gst: companyDetails.gst,
-        brands: companyDetails.brands
-      });
-      const companyId = companyResponse.data.id;
-      console.log('Company created with ID:', companyId);
+  setLoading(true);
 
-      // Create customer
-      const customerResponse = await customerAPI.create({
-        name: customerFormData.name,
-        phone: customerFormData.phone,
-        gst: customerFormData.gst,
-        address: customerFormData.address
-      });
-      const customerId = customerResponse.data.id;
-      console.log('Customer created with ID:', customerId);
+  try {
+    // ✅ Get logged-in employee from localStorage
+    const employee = JSON.parse(localStorage.getItem("employee"));
+    const employeeDbId = employee?.id;     // MUST be DB primary key
+    const employeeName = employee?.name || "Sales Person";
 
-      // Prepare invoice items from products
-      const items = products.filter(p => p.name.trim()).map(product => ({
+    // 🔒 Safety check
+    if (!employeeDbId) {
+      alert("Employee not logged in or employee ID missing. Please login again.");
+      setLoading(false);
+      return;
+    }
+
+    console.log("Employee object:", employee);
+    console.log("Employee DB ID:", employeeDbId);
+
+    // ✅ Create company
+    const companyResponse = await companyAPI.create({
+      name: companyDetails.name,
+      address: companyDetails.address,
+      phone: companyDetails.phone,
+      gst: companyDetails.gst,
+      brands: companyDetails.brands
+    });
+    const companyId = companyResponse.data.id;
+    console.log("Company created with ID:", companyId);
+
+    // ✅ Create customer
+    const customerResponse = await customerAPI.create({
+      name: customerFormData.name,
+      phone: customerFormData.phone,
+      gst: customerFormData.gst,
+      address: customerFormData.address
+    });
+    const customerId = customerResponse.data.id;
+    console.log("Customer created with ID:", customerId);
+
+    // ✅ Prepare invoice items
+    const items = products
+      .filter(p => p.name.trim())
+      .map(product => ({
         productName: product.name,
         quantity: product.qty,
         price: product.price,
@@ -203,136 +341,216 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
         amount: calculateRowAmount(product)
       }));
 
-      // Create or find products for each item
-      const itemsWithProducts = [];
-      for (const item of items) {
-        try {
-          // Try to create a product with the entered name
-          const productResponse = await productAPI.create({
-            name: item.productName,
-            price: item.price,
-            tax: item.tax
-          });
-          
-          itemsWithProducts.push({
-             itemName: item.productName,
-            product: { id: productResponse.data.id },
-            quantity: item.quantity,
-            price: item.price,
-            tax: item.tax,
-            discount: item.discount,
-            rowTotal: item.amount
-          });
-        } catch (error) {
-          console.error('Error creating product:', error);
-          // If product creation fails, use a default product ID or create without product reference
-          itemsWithProducts.push({
-             itemName: item.productName,
-            product: null, // or { id: 1 } if you have a default product
-            quantity: item.quantity,
-            price: item.price,
-            tax: item.tax,
-            discount: item.discount,
-            rowTotal: item.amount
-          });
-        }
-      }
+    // ✅ Create / attach products
+    const itemsWithProducts = [];
 
-      const totals = calculateTotals();
-      const invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
-
-      // Create invoice with employee ID
-      const invoiceData = {
-        invoiceNumber: invoiceNumber,
-        company: { id: companyId },
-        customer: { id: customerId },
-        employeeId: employeeId, // Send employee ID to backend
-        salesperson: employeeName,
-        items: itemsWithProducts,
-        subTotal: totals.subtotal,
-        totalAmount: totals.grandTotal,
-        advanceAmount: advance,
-        balanceAmount: totals.balanceAmount,
-        paymentStatus: paymentStatus === 'Paid' ? 'PAID' : 'UNPAID'
-      };
-      
-      console.log('Invoice data being sent:', invoiceData); // Debug log
-
-      const invoiceResponse = await invoiceAPI.create(invoiceData);
-      console.log('Invoice created with ID:', invoiceResponse.data.id);
-      
-      // Create payment if advance amount is provided
-      if (advance > 0) {
-        await paymentAPI.create({
-          paymentMethod: 'CASH',
-          amount: advance,
-          paymentDate: new Date().toISOString(),
-          invoice: { id: invoiceResponse.data.id }
+    for (const item of items) {
+      try {
+        const productResponse = await productAPI.create({
+          name: item.productName,
+          price: item.price,
+          tax: item.tax
         });
-        console.log('Payment created for advance amount');
-      }
 
-      alert('💾 Bill saved to database successfully!');
-      saveBill();
-      
-    } catch (error) {
-      console.error('Error saving to API:', error);
-      console.log('Error response:', error.response?.data);
-      console.log('Error status:', error.response?.status);
-      alert('Error saving to database: ' + (error.response?.data?.message || error.message) + '. Saved locally instead.');
-      saveBill();
-    } finally {
-      setLoading(false);
+        itemsWithProducts.push({
+          itemName: item.productName,
+          product: { id: productResponse.data.id },
+          quantity: item.quantity,
+          price: item.price,
+          tax: item.tax,
+          discount: item.discount,
+          rowTotal: item.amount
+        });
+      } catch (error) {
+        console.error("Error creating product:", error);
+
+        itemsWithProducts.push({
+          itemName: item.productName,
+          product: null,
+          quantity: item.quantity,
+          price: item.price,
+          tax: item.tax,
+          discount: item.discount,
+          rowTotal: item.amount
+        });
+      }
     }
-  };
+
+    const totals = calculateTotals();
+    const invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
+
+    // ✅ FINAL invoice payload (CORRECT)
+    const invoiceData = {
+      invoiceNumber,
+      company: { id: companyId },
+      customer: { id: customerId },
+      employee: { id: employeeDbId },   // ✅ CORRECT FK
+      salesperson: employeeName,
+      items: itemsWithProducts,
+      subTotal: totals.subtotal,
+      totalAmount: totals.grandTotal,
+      advanceAmount: advance,
+      balanceAmount: totals.balanceAmount,
+      paymentStatus: paymentStatus === "Paid" ? "PAID" : "UNPAID"
+    };
+
+    console.log("Invoice data being sent:", invoiceData);
+
+    // ✅ Create invoice
+    const invoiceResponse = await invoiceAPI.create(invoiceData);
+    console.log("Invoice created with ID:", invoiceResponse.data.id);
+
+    // ✅ Create payment if advance exists
+    if (advance > 0) {
+      await paymentAPI.create({
+        paymentMethod: "CASH",
+        amount: advance,
+        paymentDate: new Date().toISOString(),
+        invoice: { id: invoiceResponse.data.id }
+      });
+
+      console.log("Advance payment saved");
+    }
+
+    alert("💾 Bill saved to database successfully!");
+    saveBill();
+
+  } catch (error) {
+    console.error("Error saving to API:", error);
+    console.error("Backend response:", error.response?.data);
+
+    alert(
+      "Error saving to database: " +
+        (error.response?.data?.message || error.message) +
+        ". Saved locally instead."
+    );
+
+    saveBill();
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+
+
+
+  // const saveBill = () => {
+  //   try {
+  //     // Get logged-in employee data
+  //     // const employeeName = localStorage.getItem('loggedInEmployee') || 'Sales Person';
+  //     // const employeeId = localStorage.getItem('employeeId') || null;
+
+  //     const employee = JSON.parse(localStorage.getItem("employee"));
+
+  //       const employeeName = employee?.name || "Sales Person";
+  //      const employeeId = employee?.id || null;
+
+
+      
+  //     const billData = {
+  //       id: Date.now(),
+  //       customer: customerFormData,
+  //       products: products.filter(p => p.name.trim()),
+  //       date: new Date().toISOString(),
+  //       invoiceNumber: `INV-${Date.now().toString().slice(-6)}`,
+  //       paymentStatus: paymentStatus,
+  //       salesperson: employeeName,
+  //       employeeId: employee?.id || null
+
+  //     };
+      
+  //     const bills = JSON.parse(localStorage.getItem('bills') || '[]');
+  //     bills.push(billData);
+  //     localStorage.setItem('bills', JSON.stringify(bills));
+      
+  //     const customers = JSON.parse(localStorage.getItem('customers') || '[]');
+  //     const existing = customers.find(c => c.phone === customerFormData.phone);
+      
+  //     if (!existing) {
+  //       customers.push({
+  //         id: Date.now(),
+  //         ...customerFormData,
+  //         totalBills: 1,
+  //         lastBillDate: new Date().toLocaleDateString()
+  //       });
+  //     }
+      
+  //     localStorage.setItem('customers', JSON.stringify(customers));
+  //     alert('💾 Bill saved successfully!');
+      
+  //     setCustomerFormData({ name: '', phone: '', gst: '', address: '' });
+  //     setProducts([{ id: 1, name: '', qty: 1, price: 0, discount: 0 }]);
+  //   } catch (error) {
+  //     alert('Error saving bill: ' + error.message);
+  //   }
+  // };
+
+
   const saveBill = () => {
-    try {
-      // Get logged-in employee data
-      // const employeeName = localStorage.getItem('loggedInEmployee') || 'Sales Person';
-      // const employeeId = localStorage.getItem('employeeId') || null;
+  try {
+    // ✅ Get logged-in employee
+    const employee = JSON.parse(localStorage.getItem("employee"));
+    const employeeName = employee?.name || "Sales Person";
+    const employeeDbId = employee?.id || null;
 
-      const employee = JSON.parse(localStorage.getItem("employee"));
-
-        const employeeName = employee?.name || "Sales Person";
-        const employeeId = employee?.empId || null;
-
-      
-      const billData = {
-        id: Date.now(),
-        customer: customerFormData,
-        products: products.filter(p => p.name.trim()),
-        date: new Date().toISOString(),
-        invoiceNumber: `INV-${Date.now().toString().slice(-6)}`,
-        paymentStatus: paymentStatus,
-        salesperson: employeeName,
-        employeeId: employeeId
-      };
-      
-      const bills = JSON.parse(localStorage.getItem('bills') || '[]');
-      bills.push(billData);
-      localStorage.setItem('bills', JSON.stringify(bills));
-      
-      const customers = JSON.parse(localStorage.getItem('customers') || '[]');
-      const existing = customers.find(c => c.phone === customerFormData.phone);
-      
-      if (!existing) {
-        customers.push({
-          id: Date.now(),
-          ...customerFormData,
-          totalBills: 1,
-          lastBillDate: new Date().toLocaleDateString()
-        });
-      }
-      
-      localStorage.setItem('customers', JSON.stringify(customers));
-      alert('💾 Bill saved successfully!');
-      
-      setCustomerFormData({ name: '', phone: '', gst: '', address: '' });
-      setProducts([{ id: 1, name: '', qty: 1, price: 0, discount: 0 }]);
-    } catch (error) {
-      alert('Error saving bill: ' + error.message);
+    // (Optional safety check)
+    if (!employeeDbId) {
+      console.warn("Employee ID missing while saving bill locally");
     }
-  };
+
+    // ✅ Use SAME invoice number if already generated
+    const invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
+
+    const billData = {
+      id: Date.now(), // local bill ID
+      invoiceNumber,
+      date: new Date().toISOString(),
+      customer: customerFormData,
+      products: products.filter(p => p.name.trim()),
+      paymentStatus,
+      salesperson: employeeName,
+      employeeId: employeeDbId
+    };
+
+    // ✅ Save bills locally
+    const bills = JSON.parse(localStorage.getItem("bills") || "[]");
+    bills.push(billData);
+    localStorage.setItem("bills", JSON.stringify(bills));
+
+    // ✅ Save / update customer locally
+    const customers = JSON.parse(localStorage.getItem("customers") || "[]");
+    const existingCustomer = customers.find(
+      c => c.phone === customerFormData.phone
+    );
+
+    if (!existingCustomer) {
+      customers.push({
+        id: Date.now(),
+        ...customerFormData,
+        totalBills: 1,
+        lastBillDate: new Date().toLocaleDateString()
+      });
+    }
+
+    localStorage.setItem("customers", JSON.stringify(customers));
+
+    alert("💾 Bill saved locally successfully!");
+
+    // ✅ Reset form
+    setCustomerFormData({ name: "", phone: "", gst: "", address: "" });
+    setProducts([{ id: 1, name: "", qty: 1, price: 0, discount: 0 }]);
+
+  } catch (error) {
+    alert("Error saving bill locally: " + error.message);
+  }
+};
+
+
+
+
+
 
   const addNewRow = () => {
     setProducts([...products, {
@@ -1030,15 +1248,33 @@ setLoggedInEmployee(employee?.name || "Sales Person");
         <div className={`rounded-lg p-4 space-y-3 shadow-inner ${
           isDarkMode ? 'bg-gray-700/50' : 'bg-white'
         }`}>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b border-gray-100 hover:bg-gray-50 transition-all duration-300 rounded px-2">
-            <span className="text-sm text-gray-600 mb-1 sm:mb-0">Untaxed Amount:</span>
-            <span className="font-semibold text-gray-800 animate-pulse">₹ {calculateTotals().subtotal.toFixed(2)}</span>
+          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b transition-all duration-300 rounded px-2 ${
+            isDarkMode 
+              ? 'border-gray-600 hover:bg-gray-700 text-gray-200' 
+              : 'border-gray-100 hover:bg-gray-50 text-gray-800'
+          }`}>
+            <span className={`text-sm mb-1 sm:mb-0 ${
+              isDarkMode ? 'text-gray-300' : 'text-gray-600'
+            }`}>Untaxed Amount:</span>
+            <span className={`font-semibold animate-pulse ${
+              isDarkMode ? 'text-gray-100' : 'text-gray-800'
+            }`}>₹ {calculateTotals().subtotal.toFixed(2)}</span>
           </div>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b border-gray-100 hover:bg-gray-50 transition-all duration-300 rounded px-2">
-            <span className="text-sm text-gray-600 mb-1 sm:mb-0">Discount Amount:</span>
-            <span className="font-semibold text-gray-800 animate-pulse">₹ {calculateTotals().totalDiscount.toFixed(2)}</span>
+          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b transition-all duration-300 rounded px-2 ${
+            isDarkMode 
+              ? 'border-gray-600 hover:bg-gray-700 text-gray-200' 
+              : 'border-gray-100 hover:bg-gray-50 text-gray-800'
+          }`}>
+            <span className={`text-sm mb-1 sm:mb-0 ${
+              isDarkMode ? 'text-gray-300' : 'text-gray-600'
+            }`}>Discount Amount:</span>
+            <span className={`font-semibold animate-pulse ${
+              isDarkMode ? 'text-gray-100' : 'text-gray-800'
+            }`}>₹ {calculateTotals().totalDiscount.toFixed(2)}</span>
           </div>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b border-gray-100">
+          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b ${
+            isDarkMode ? 'border-gray-600' : 'border-gray-100'
+          }`}>
             <div className="flex flex-wrap items-center gap-2 mb-1 sm:mb-0">
               <input 
                 type="checkbox" 
@@ -1046,10 +1282,16 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                 onChange={(e) => setCgstEnabled(e.target.checked)} 
                 className="rounded" 
               />
-              <span className="text-sm text-gray-600">CGST:</span>
+              <span className={`text-sm ${
+                isDarkMode ? 'text-gray-300' : 'text-gray-600'
+              }`}>CGST:</span>
               <input 
                 type="number" 
-                className="w-12 p-1 border border-gray-300 rounded text-xs text-center" 
+                className={`w-12 p-1 border rounded text-xs text-center ${
+                  isDarkMode 
+                    ? 'border-gray-600 bg-gray-700 text-white' 
+                    : 'border-gray-300 bg-white text-gray-900'
+                }`} 
                 value={cgstRate} 
                 min="0" 
                 step="0.01"
@@ -1058,9 +1300,13 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                 onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
               />%
             </div>
-            <span className="font-semibold text-gray-800">₹ {calculateTotals().cgstAmount.toFixed(2)}</span>
+            <span className={`font-semibold ${
+              isDarkMode ? 'text-gray-100' : 'text-gray-800'
+            }`}>₹ {calculateTotals().cgstAmount.toFixed(2)}</span>
           </div>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b border-gray-100">
+          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b ${
+            isDarkMode ? 'border-gray-600' : 'border-gray-100'
+          }`}>
             <div className="flex flex-wrap items-center gap-2 mb-1 sm:mb-0">
               <input 
                 type="checkbox" 
@@ -1068,10 +1314,16 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                 onChange={(e) => setSgstEnabled(e.target.checked)} 
                 className="rounded" 
               />
-              <span className="text-sm text-gray-600">SGST:</span>
+              <span className={`text-sm ${
+                isDarkMode ? 'text-gray-300' : 'text-gray-600'
+              }`}>SGST:</span>
               <input 
                 type="number" 
-                className="w-12 p-1 border border-gray-300 rounded text-xs text-center" 
+                className={`w-12 p-1 border rounded text-xs text-center ${
+                  isDarkMode 
+                    ? 'border-gray-600 bg-gray-700 text-white' 
+                    : 'border-gray-300 bg-white text-gray-900'
+                }`} 
                 value={sgstRate} 
                 min="0" 
                 step="0.01"
@@ -1080,14 +1332,24 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                 onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
               />%
             </div>
-            <span className="font-semibold text-gray-800">₹ {calculateTotals().sgstAmount.toFixed(2)}</span>
+            <span className={`font-semibold ${
+              isDarkMode ? 'text-gray-100' : 'text-gray-800'
+            }`}>₹ {calculateTotals().sgstAmount.toFixed(2)}</span>
           </div>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b border-gray-100">
+          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b ${
+            isDarkMode ? 'border-gray-600' : 'border-gray-100'
+          }`}>
             <div className="flex flex-wrap items-center gap-2 mb-1 sm:mb-0">
-              <span className="text-sm text-gray-600">Advance Amount:</span>
+              <span className={`text-sm ${
+                isDarkMode ? 'text-gray-300' : 'text-gray-600'
+              }`}>Advance Amount:</span>
               <input 
                 type="number" 
-                className="w-20 p-1 border border-gray-300 rounded text-xs text-center" 
+                className={`w-20 p-1 border rounded text-xs text-center ${
+                  isDarkMode 
+                    ? 'border-gray-600 bg-gray-700 text-white' 
+                    : 'border-gray-300 bg-white text-gray-900'
+                }`} 
                 value={advance} 
                 min="0" 
                 step="0.01"
@@ -1100,7 +1362,9 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                 onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
               />
             </div>
-            <span className="font-semibold text-gray-800">₹ {advance.toFixed(2)}</span>
+            <span className={`font-semibold ${
+              isDarkMode ? 'text-gray-100' : 'text-gray-800'
+            }`}>₹ {advance.toFixed(2)}</span>
           </div>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg px-4 border-2 border-blue-200">
             <span className="text-base sm:text-lg font-bold text-blue-800 mb-1 sm:mb-0">Total Amount:</span>
@@ -1145,16 +1409,24 @@ setLoggedInEmployee(employee?.name || "Sales Person");
           : 'bg-white/90 border-gray-100 hover:shadow-blue-200/50'
       }`}>
         <div className="flex flex-wrap gap-2 w-full animate-slideInRight justify-center">
-          <button className="flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-blue-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('send')}>
+          <button className={`flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-blue-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center ${
+            isDarkMode ? 'hover:shadow-blue-400/30' : 'hover:shadow-blue-300/50'
+          }`} onClick={() => handleAction('send')}>
             <FaPaperPlane className="animate-bounce" /> Send
           </button>
-          <button className="flex-1 sm:flex-none bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-green-700 hover:to-green-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('print')}>
+          <button className={`flex-1 sm:flex-none bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-green-700 hover:to-green-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center ${
+            isDarkMode ? 'hover:shadow-green-400/30' : 'hover:shadow-green-300/50'
+          }`} onClick={() => handleAction('print')}>
             <FaPrint className="hover:animate-spin" /> Print
           </button>
-          <button className="flex-1 sm:flex-none bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-purple-700 hover:to-purple-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('save')} disabled={loading}>
+          <button className={`flex-1 sm:flex-none bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-purple-700 hover:to-purple-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center ${
+            isDarkMode ? 'hover:shadow-purple-400/30' : 'hover:shadow-purple-300/50'
+          }`} onClick={() => handleAction('save')} disabled={loading}>
             {loading ? <FaTimes className="animate-spin" /> : <FaSave className="hover:animate-pulse" />} {loading ? 'Saving...' : 'Save'}
           </button>
-          <button className="flex-1 sm:flex-none bg-gradient-to-r from-orange-600 to-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-orange-700 hover:to-orange-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('preview')}>
+          <button className={`flex-1 sm:flex-none bg-gradient-to-r from-orange-600 to-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-orange-700 hover:to-orange-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center ${
+            isDarkMode ? 'hover:shadow-orange-400/30' : 'hover:shadow-orange-300/50'
+          }`} onClick={() => handleAction('preview')}>
             <FaEye className="hover:animate-pulse" /> Preview
           </button>
         </div>

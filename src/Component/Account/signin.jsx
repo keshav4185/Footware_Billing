@@ -19,33 +19,82 @@ const Signin = () => {
   }, []);
 
   // 🔹 EMPLOYEE LOGIN (CONNECTED TO BACKEND)
-  const handleUserLogin = async (e) => {
-    e.preventDefault();
+//   const handleUserLogin = async (e) => {
+//     e.preventDefault();
 
-    const empId = e.target.empId.value;
-    const email = e.target.email.value;
-    const password = e.target.password.value;
+//     // const empId = e.target.empId.value;
+//     const employeeData = res.data;
 
-    try {
-      const res = await axios.post(
-        'http://localhost:8080/api/employees/login',
-        { empId, email, password }
-      );
 
-      // Store employee data in localStorage
-      const employeeData = res.data;
-      localStorage.setItem('isSignedIn', 'true');
-      localStorage.setItem('employee', JSON.stringify(employeeData));
-      localStorage.setItem('loggedInEmployee', employeeData.name || employeeData.empId);
-      localStorage.setItem('employeeId', empId); // Store the empId from login form
-      localStorage.setItem('employeeEmail', employeeData.email);
+
+// // Optional (UI only)
+// localStorage.setItem("loggedInEmployee", employeeData.name);
+//     const email = e.target.email.value;
+//     const password = e.target.password.value;
+
+//     try {
+//       const res = await axios.post(
+//         'http://localhost:8080/api/employees/login',
+//         { empId, email, password }
+//       );
+
+//       // Store employee data in localStorage
+//       const employeeData = res.data;
+//       localStorage.setItem('isSignedIn', 'true');
+//       localStorage.setItem('employee', JSON.stringify(employeeData));
+//       localStorage.setItem('loggedInEmployee', employeeData.name || employeeData.empId);
+//       // localStorage.setItem('employeeId', empId); // Store the empId from login form
+//       localStorage.setItem('employeeEmail', employeeData.email);
+//       localStorage.setItem("isSignedIn", "true");
+
       
-      window.location.href = '/dashboard';
+//       window.location.href = '/dashboard';
 
-    } catch (err) {
-      alert('Invalid Employee Credentials');
-    }
-  };
+//     } catch (err) {
+//       alert('Invalid Employee Credentials');
+//     }
+//   };
+const handleUserLogin = async (e) => {
+  e.preventDefault();
+
+  // ✅ Get values from form
+  const empId = e.target.empId.value;
+  const email = e.target.email.value;
+  const password = e.target.password.value;
+
+  try {
+    // ✅ Call backend login API
+    const res = await axios.post(
+      "http://localhost:8080/api/employees/login",
+      { empId, email, password }
+    );
+
+    const employeeData = res.data;
+
+    // ✅ Store FULL employee object (must include DB id)
+    localStorage.setItem("employee", JSON.stringify(employeeData));
+    localStorage.setItem("isSignedIn", "true");
+    localStorage.setItem("loggedInEmployee", employeeData.name);
+
+    alert("✅ Login successful");
+
+    // ✅ Redirect to dashboard
+    window.location.href = "/dashboard";
+
+  } catch (error) {
+    console.error("Login error:", error);
+    alert(
+      error.response?.data?.message || "Invalid employee credentials"
+    );
+  }
+};
+
+
+
+
+
+
+
 
   // 🔹 ADMIN LOGIN (unchanged)
   const handleAdminLogin = (e) => {
