@@ -1,198 +1,298 @@
-import React, { useState } from 'react';
-import PaymentsReport from './PaymentsReport';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, Legend
+} from "recharts";
 
-const Reports = ({ bills, customers, products }) => {
-  const [activeReport, setActiveReport] = useState('payments');
+const Reports = () => {
+  const [activeReport, setActiveReport] = useState("payments");
+  const [bills, setBills] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const reportTypes = [
-    { id: 'payments', label: 'Payments Report', icon: '💳' },
-    { id: 'sales', label: 'Sales Report', icon: '📊' },
-    { id: 'customers', label: 'Customer Report', icon: '👥' },
-    { id: 'products', label: 'Product Report', icon: '📦' }
-  ];
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
-  const SalesReport = () => {
-    const salesData = bills.reduce((acc, bill) => {
-      const date = new Date(bill.date);
-      const month = date.toISOString().slice(0, 7);
-      if (!acc[month]) acc[month] = { revenue: 0, count: 0 };
-      acc[month].revenue += bill.grandTotal || 0;
-      acc[month].count += 1;
+  // Fetch data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [billsRes, customersRes, productsRes] = await Promise.all([
+          axios.get("http://localhost:8080/api/billing/invoices"),
+          axios.get("http://localhost:8080/api/customers"),
+          axios.get("http://localhost:8080/api/products"),
+        ]);
+        setBills(billsRes.data);
+        setCustomers(customersRes.data);
+        setProducts(productsRes.data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching report data", err);
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const filteredBills = bills.filter((bill) => {
+    let statusMatch = paymentStatusFilter === "all" || bill.paymentStatus === paymentStatusFilter;
+    let dateMatch = true;
+    if (startDate) dateMatch = new Date(bill.invoiceDate) >= new Date(startDate);
+    if (endDate) dateMatch = dateMatch && new Date(bill.invoiceDate) <= new Date(endDate);
+    return statusMatch && dateMatch;
+  });
+
+  // Animated KPI card
+  const KPICard = ({ title, value, colorFrom, colorTo }) => (
+    <div
+      className={`p-4 rounded-xl text-white transform transition duration-300 hover:scale-105 hover:shadow-xl`}
+      style={{ background: `linear-gradient(to right, ${colorFrom}, ${colorTo})` }}
+    >
+      <h3 className="text-lg font-bold">{title}</h3>
+      <p className="text-2xl font-extrabold mt-2">{value}</p>
+    </div>
+  );
+
+  // ------------------- Payments Report -------------------
+  const PaymentsReport = () => {
+    const monthlyDataObj = filteredBills.reduce((acc, bill) => {
+      const month = new Date(bill.invoiceDate).toLocaleString("default", { month: "short", year: "numeric" });
+      if (!acc[month]) acc[month] = { month, paid: 0, unpaid: 0 };
+      if (bill.paymentStatus === "PAID") acc[month].paid += bill.totalAmount || 0;
+      else acc[month].unpaid += bill.totalAmount || 0;
       return acc;
     }, {});
+    const monthlyData = Object.values(monthlyDataObj);
 
     return (
       <div className="space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 sm:p-6 rounded-xl">
-            <h3 className="text-lg font-bold">Total Sales</h3>
-            <p className="text-2xl sm:text-3xl font-bold">₹{bills.reduce((sum, bill) => sum + (bill.grandTotal || 0), 0).toFixed(2)}</p>
+        {/* Filters */}
+        <div className="flex flex-wrap gap-4 mb-4 items-center">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Start Date</label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="mt-1 block p-2 border rounded-lg"
+            />
           </div>
-          <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 sm:p-6 rounded-xl">
-            <h3 className="text-lg font-bold">Total Orders</h3>
-            <p className="text-2xl sm:text-3xl font-bold">{bills.length}</p>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">End Date</label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="mt-1 block p-2 border rounded-lg"
+            />
           </div>
-          <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 sm:p-6 rounded-xl">
-            <h3 className="text-lg font-bold">Avg Order Value</h3>
-            <p className="text-2xl sm:text-3xl font-bold">₹{bills.length ? (bills.reduce((sum, bill) => sum + (bill.grandTotal || 0), 0) / bills.length).toFixed(2) : '0.00'}</p>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Payment Status</label>
+            <select
+              value={paymentStatusFilter}
+              onChange={(e) => setPaymentStatusFilter(e.target.value)}
+              className="mt-1 block p-2 border rounded-lg"
+            >
+              <option value="all">All</option>
+              <option value="PAID">Paid</option>
+              <option value="UNPAID">Unpaid</option>
+            </select>
           </div>
         </div>
-        
-        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
-          <h3 className="text-lg font-bold mb-4">Monthly Sales</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[400px]">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2">Month</th>
-                  <th className="text-left py-2">Orders</th>
-                  <th className="text-left py-2">Revenue</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Object.entries(salesData).map(([month, data]) => (
-                  <tr key={month} className="border-b">
-                    <td className="py-2">{new Date(month).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</td>
-                    <td className="py-2">{data.count}</td>
-                    <td className="py-2 font-bold">₹{data.revenue.toFixed(2)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+
+        {/* KPI Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <KPICard
+            title="Total Paid"
+            value={`₹${filteredBills.filter(b => b.paymentStatus === "PAID").reduce((sum, b) => sum + (b.totalAmount || 0), 0).toFixed(2)}`}
+            colorFrom="#4ade80"
+            colorTo="#16a34a"
+          />
+          <KPICard
+            title="Total Unpaid"
+            value={`₹${filteredBills.filter(b => b.paymentStatus !== "PAID").reduce((sum, b) => sum + (b.totalAmount || 0), 0).toFixed(2)}`}
+            colorFrom="#f87171"
+            colorTo="#b91c1c"
+          />
+          <KPICard
+            title="Total Orders"
+            value={filteredBills.length}
+            colorFrom="#3b82f6"
+            colorTo="#1e3a8a"
+          />
+        </div>
+
+        {/* Chart */}
+        <div className="bg-white p-4 rounded-xl shadow-lg mt-4">
+          <h3 className="text-lg font-bold mb-4">Monthly Payment Status</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={monthlyData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip formatter={(value) => `₹${value.toFixed(2)}`} />
+              <Legend />
+              <Bar dataKey="paid" fill="#4ade80" />
+              <Bar dataKey="unpaid" fill="#f87171" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
     );
   };
 
-  const CustomerReport = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-r from-teal-500 to-teal-600 text-white p-4 sm:p-6 rounded-xl">
-          <h3 className="text-lg font-bold">Total Customers</h3>
-          <p className="text-2xl sm:text-3xl font-bold">{customers.length}</p>
-        </div>
-        <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white p-4 sm:p-6 rounded-xl">
-          <h3 className="text-lg font-bold">Active Customers</h3>
-          <p className="text-2xl sm:text-3xl font-bold">{customers.filter(c => bills.some(b => b.customerName === c.name)).length}</p>
-        </div>
-        <div className="bg-gradient-to-r from-pink-500 to-pink-600 text-white p-4 sm:p-6 rounded-xl">
-          <h3 className="text-lg font-bold">New This Month</h3>
-          <p className="text-2xl sm:text-3xl font-bold">{customers.filter(c => new Date(c.createdAt || Date.now()).getMonth() === new Date().getMonth()).length}</p>
-        </div>
-      </div>
-      
-      <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
-        <h3 className="text-lg font-bold mb-4">Top Customers</h3>
-        <div className="space-y-3">
-          {customers.slice(0, 10).map((customer, index) => (
-            <div key={customer.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <div className="flex items-center space-x-3">
-                <span className="bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">
-                  {index + 1}
-                </span>
-                <div>
-                  <p className="font-medium">{customer.name}</p>
-                  <p className="text-sm text-gray-500">{customer.email}</p>
-                </div>
-              </div>
-              <div className="mt-2 sm:mt-0 text-right">
-                <p className="font-bold">₹{bills.filter(b => b.customerName === customer.name).reduce((sum, b) => sum + (b.grandTotal || 0), 0).toFixed(2)}</p>
-                <p className="text-sm text-gray-500">{bills.filter(b => b.customerName === customer.name).length} orders</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+  // ------------------- Sales Report -------------------
+  const SalesReport = () => {
+    const monthlyDataObj = filteredBills.reduce((acc, bill) => {
+      const month = new Date(bill.invoiceDate).toLocaleString("default", { month: "short", year: "numeric" });
+      if (!acc[month]) acc[month] = { month, revenue: 0, orders: 0 };
+      acc[month].revenue += bill.totalAmount || 0;
+      acc[month].orders += 1;
+      return acc;
+    }, {});
+    const monthlyData = Object.values(monthlyDataObj);
 
-  const ProductReport = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 sm:p-6 rounded-xl">
-          <h3 className="text-lg font-bold">Total Products</h3>
-          <p className="text-2xl sm:text-3xl font-bold">{products.length}</p>
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <KPICard
+            title="Total Sales"
+            value={`₹${filteredBills.reduce((sum, bill) => sum + (bill.totalAmount || 0), 0).toFixed(2)}`}
+            colorFrom="#3b82f6"
+            colorTo="#1e3a8a"
+          />
+          <KPICard
+            title="Total Orders"
+            value={filteredBills.length}
+            colorFrom="#10b981"
+            colorTo="#065f46"
+          />
+          <KPICard
+            title="Avg Order Value"
+            value={`₹${filteredBills.length ? (filteredBills.reduce((sum, bill) => sum + (bill.totalAmount || 0), 0) / filteredBills.length).toFixed(2) : "0.00"}`}
+            colorFrom="#8b5cf6"
+            colorTo="#5b21b6"
+          />
         </div>
-        <div className="bg-gradient-to-r from-red-500 to-red-600 text-white p-4 sm:p-6 rounded-xl">
-          <h3 className="text-lg font-bold">Low Stock</h3>
-          <p className="text-2xl sm:text-3xl font-bold">{products.filter(p => p.stock < 10).length}</p>
-        </div>
-        <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white p-4 sm:p-6 rounded-xl">
-          <h3 className="text-lg font-bold">Total Value</h3>
-          <p className="text-2xl sm:text-3xl font-bold">₹{products.reduce((sum, p) => sum + (p.price * p.stock), 0).toFixed(2)}</p>
-        </div>
-      </div>
-      
-      <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
-        <h3 className="text-lg font-bold mb-4">Product Performance</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[500px]">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left py-2">Product</th>
-                <th className="text-left py-2">Stock</th>
-                <th className="text-left py-2">Price</th>
-                <th className="text-left py-2">Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.slice(0, 10).map((product) => (
-                <tr key={product.id} className="border-b">
-                  <td className="py-2 font-medium">{product.name}</td>
-                  <td className="py-2">
-                    <span className={`px-2 py-1 rounded text-xs ${product.stock < 10 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
-                      {product.stock}
-                    </span>
-                  </td>
-                  <td className="py-2">₹{product.price}</td>
-                  <td className="py-2 font-bold">₹{(product.price * product.stock).toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+
+        <div className="bg-white p-4 rounded-xl shadow-lg mt-4">
+          <h3 className="text-lg font-bold mb-4">Monthly Revenue</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={monthlyData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip formatter={(value) => `₹${value.toFixed(2)}`} />
+              <Line type="monotone" dataKey="revenue" stroke="#8884d8" strokeWidth={3} />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
+
+  // ------------------- Customer-wise Sales -------------------
+  const CustomerSalesReport = () => {
+    const customerSales = customers.map(c => {
+      const customerBills = bills.filter(b => b.customer?.id === c.id);
+      const revenue = customerBills.reduce((sum, b) => sum + (b.totalAmount || 0), 0);
+      return { name: c.name, orders: customerBills.length, revenue };
+    });
+
+    return (
+      <div className="bg-white p-4 rounded-xl shadow-lg">
+        <h3 className="text-lg font-bold mb-4">Customer-wise Sales</h3>
+        <ResponsiveContainer width="100%" height={350}>
+          <BarChart data={customerSales}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip formatter={(value) => `₹${value.toFixed(2)}`} />
+            <Legend />
+            <Bar dataKey="orders" fill="#82ca9d" />
+            <Bar dataKey="revenue" fill="#8884d8" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  };
+
+  // ------------------- Product Stock Report (Bar Chart) -------------------
+  const ProductReport = () => {
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <KPICard
+            title="Total Products"
+            value={products.length}
+            colorFrom="#f97316"
+            colorTo="#b45309"
+          />
+          <KPICard
+            title="Low Stock"
+            value={products.filter(p => p.stock < 10).length}
+            colorFrom="#ef4444"
+            colorTo="#7f1d1d"
+          />
+          <KPICard
+            title="Total Value"
+            value={`₹${products.reduce((sum, p) => sum + (p.price * p.stock), 0).toFixed(2)}`}
+            colorFrom="#eab308"
+            colorTo="#78350f"
+          />
+        </div>
+
+        <div className="bg-white p-4 rounded-xl shadow-lg mt-4">
+          <h3 className="text-lg font-bold mb-4">Product Stock Levels</h3>
+          <ResponsiveContainer width="100%" height={350}>
+            <BarChart data={products}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip formatter={(value) => `${value} units`} />
+              <Bar dataKey="stock" fill="#3b82f6" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    );
+  };
 
   const renderReport = () => {
-    switch(activeReport) {
-      case 'payments': return <PaymentsReport bills={bills} />;
-      case 'sales': return <SalesReport />;
-      case 'customers': return <CustomerReport />;
-      case 'products': return <ProductReport />;
-      default: return <PaymentsReport bills={bills} />;
+    switch (activeReport) {
+      case "payments": return <PaymentsReport />;
+      case "sales": return <SalesReport />;
+      case "customer-sales": return <CustomerSalesReport />;
+      case "products": return <ProductReport />;
+      default: return <PaymentsReport />;
     }
   };
 
+  if (loading) return <div className="text-center py-20 text-gray-500">Loading reports...</div>;
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">Reports & Analytics</h2>
-          <p className="text-gray-600">Comprehensive business insights and performance metrics</p>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-xl shadow-lg p-3 sm:p-4 lg:p-6">
-        <div className="flex flex-wrap gap-2 mb-4 sm:mb-6">
-          {reportTypes.map((report) => (
+      <h2 className="text-2xl font-bold text-gray-800">Reports & Analytics</h2>
+      <div className="bg-white rounded-xl shadow-lg p-4">
+        <div className="flex flex-wrap gap-2 mb-4">
+          {["payments", "sales", "customer-sales", "products"].map(id => (
             <button
-              key={report.id}
-              onClick={() => setActiveReport(report.id)}
-              className={`flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg transition-all text-sm ${
-                activeReport === report.id
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              key={id}
+              onClick={() => setActiveReport(id)}
+              className={`px-3 py-2 rounded-lg text-sm ${
+                activeReport === id
+                  ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              <span>{report.icon}</span>
-              <span className="font-medium">{report.label}</span>
+              {id.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ")}
             </button>
           ))}
         </div>
-
         {renderReport()}
       </div>
     </div>

@@ -1,34 +1,63 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
-const DashboardOverview = ({ bills, customers, products }) => {
-  const getTotalRevenue = () => {
-    return bills.reduce((total, bill) => total + (bill.grandTotal || 0), 0);
+const DashboardOverview = () => {
+  const [bills, setBills] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [products, setProducts] = useState([]);
+
+  /* ================= BACKEND FETCH ================= */
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const [invoiceRes, customerRes, productRes] = await Promise.all([
+        axios.get('http://localhost:8080/api/billing/invoices'),
+        axios.get('http://localhost:8080/api/billing/customers'),
+        axios.get('http://localhost:8080/api/billing/products'),
+      ]);
+
+      const mappedBills = invoiceRes.data.map(inv => ({
+        id: inv.id,
+        grandTotal: inv.totalAmount,
+        date: inv.invoiceDate,
+        paymentStatus: inv.paymentStatus?.toLowerCase(),
+        customerName: inv.customer?.name || 'Unknown Customer',
+      }));
+
+      setBills(mappedBills);
+      setCustomers(customerRes.data);
+      setProducts(productRes.data);
+    } catch (error) {
+      console.error('Dashboard API Error:', error);
+    }
   };
 
-  const getPaidAmount = () => {
-    return bills.filter(bill => bill.paymentStatus === 'paid').reduce((total, bill) => total + (bill.grandTotal || 0), 0);
-  };
+  /* ================= UI LOGIC ================= */
+  const getTotalRevenue = () =>
+    bills.reduce((total, bill) => total + (bill.grandTotal || 0), 0);
 
-  const getPendingAmount = () => {
-    return bills.filter(bill => bill.paymentStatus === 'pending').reduce((total, bill) => total + (bill.grandTotal || 0), 0);
-  };
+  const getPaidAmount = () =>
+    bills
+      .filter(bill => bill.paymentStatus === 'paid')
+      .reduce((total, bill) => total + (bill.grandTotal || 0), 0);
 
   const getMonthlyGrowth = () => {
     const currentMonth = new Date().getMonth();
     const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-    
-    const currentMonthRevenue = bills.filter(bill => {
-      const billDate = new Date(bill.date);
-      return billDate.getMonth() === currentMonth;
-    }).reduce((total, bill) => total + (bill.grandTotal || 0), 0);
-    
-    const lastMonthRevenue = bills.filter(bill => {
-      const billDate = new Date(bill.date);
-      return billDate.getMonth() === lastMonth;
-    }).reduce((total, bill) => total + (bill.grandTotal || 0), 0);
-    
-    if (lastMonthRevenue === 0) return 0;
-    return ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue * 100).toFixed(1);
+
+    const monthRevenue = month =>
+      bills
+        .filter(b => new Date(b.date).getMonth() === month)
+        .reduce((t, b) => t + (b.grandTotal || 0), 0);
+
+    const current = monthRevenue(currentMonth);
+    const last = monthRevenue(lastMonth);
+
+    if (last === 0) return 0;
+    return ((current - last) / last * 100).toFixed(1);
   };
 
   const stats = [
@@ -37,170 +66,123 @@ const DashboardOverview = ({ bills, customers, products }) => {
       value: `₹${getTotalRevenue().toLocaleString()}`,
       change: `+${getMonthlyGrowth()}%`,
       icon: '💰',
-      color: 'from-emerald-500 to-emerald-600',
-      bgColor: 'bg-emerald-50',
+      bg: 'bg-gradient-to-tr from-emerald-50 to-emerald-100',
       iconColor: 'text-emerald-600'
     },
     {
       title: 'Total Invoices',
-      value: bills.length.toLocaleString(),
-      change: `+${bills.filter(bill => {
-        const billDate = new Date(bill.date);
-        const currentMonth = new Date().getMonth();
-        return billDate.getMonth() === currentMonth;
-      }).length} this month`,
+      value: bills.length,
+      change: 'All time',
       icon: '📊',
-      color: 'from-blue-500 to-blue-600',
-      bgColor: 'bg-blue-50',
+      bg: 'bg-gradient-to-tr from-blue-50 to-blue-100',
       iconColor: 'text-blue-600'
     },
     {
       title: 'Active Customers',
-      value: customers.length.toLocaleString(),
+      value: customers.length,
       change: 'All time',
       icon: '👥',
-      color: 'from-purple-500 to-purple-600',
-      bgColor: 'bg-purple-50',
+      bg: 'bg-gradient-to-tr from-purple-50 to-purple-100',
       iconColor: 'text-purple-600'
     },
     {
       title: 'Collection Rate',
-      value: `${getTotalRevenue() > 0 ? ((getPaidAmount() / getTotalRevenue()) * 100).toFixed(1) : 0}%`,
+      value: `${getTotalRevenue() > 0
+        ? ((getPaidAmount() / getTotalRevenue()) * 100).toFixed(1)
+        : 0}%`,
       change: 'Payment efficiency',
       icon: '📈',
-      color: 'from-teal-500 to-teal-600',
-      bgColor: 'bg-teal-50',
+      bg: 'bg-gradient-to-tr from-teal-50 to-teal-100',
       iconColor: 'text-teal-600'
     }
   ];
 
   const recentBills = bills.slice(-6).reverse();
-  const lowStockProducts = products.filter(product => product.stock < 10);
-  const topCustomers = customers.slice(0, 5);
 
+  /* ================= UI ================= */
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-6 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard Overview</h1>
-          <p className="text-gray-600 mt-1">Welcome back! Here's what's happening with your business.</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">
+            Dashboard Overview
+          </h1>
+          <p className="text-gray-600 mt-2 text-sm sm:text-base">
+            Welcome back! Here's what's happening with your business.
+          </p>
         </div>
-        <div className="flex items-center space-x-2 text-sm text-gray-500">
-          <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-          <span>Live Data</span>
+        <div className="flex items-center text-sm text-gray-500">
+          <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse mr-2"></span>
+          Live Data
         </div>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div className={`${stat.bgColor} p-3 rounded-lg`}>
-                <span className={`text-2xl ${stat.iconColor}`}>{stat.icon}</span>
+        {stats.map((s, i) => (
+          <div
+            key={i}
+            className="bg-white p-6 rounded-2xl shadow-xl border transform hover:scale-105 transition-transform duration-300"
+          >
+            <div className="flex justify-between items-center">
+              <div className={`${s.bg} p-4 rounded-xl flex items-center justify-center`}>
+                <span className={`text-3xl ${s.iconColor}`}>{s.icon}</span>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                <p className="text-sm text-gray-500 mt-1">{stat.change}</p>
+                <p className="text-2xl font-bold">{s.value}</p>
+                <p className="text-sm text-gray-500">{s.change}</p>
               </div>
             </div>
-            <h3 className="text-gray-700 font-medium mt-4">{stat.title}</h3>
+            <h3 className="mt-5 font-medium text-gray-700">{s.title}</h3>
           </div>
         ))}
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Recent Invoices */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100">
-          <div className="p-6 border-b border-gray-100">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">Recent Invoices</h3>
-              <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">View All</button>
-            </div>
-          </div>
-          
-          <div className="p-6">
-            {recentBills.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="text-6xl mb-4">📄</div>
-                <h4 className="text-lg font-medium text-gray-900 mb-2">No invoices yet</h4>
-                <p className="text-gray-500">Create your first invoice to get started</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {recentBills.map((bill) => (
-                  <div key={bill.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                    <div className="flex items-center space-x-4">
-                      <div className={`w-3 h-3 rounded-full ${
-                        bill.paymentStatus === 'paid' ? 'bg-green-500' :
-                        bill.paymentStatus === 'overdue' ? 'bg-red-500' : 'bg-yellow-500'
-                      }`}></div>
-                      <div>
-                        <p className="font-medium text-gray-900">{bill.customerName}</p>
-                        <p className="text-sm text-gray-500">#{bill.id} • {bill.date}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-gray-900">₹{bill.grandTotal?.toLocaleString()}</p>
-                      <p className={`text-xs font-medium capitalize ${
-                        bill.paymentStatus === 'paid' ? 'text-green-600' :
-                        bill.paymentStatus === 'overdue' ? 'text-red-600' : 'text-yellow-600'
-                      }`}>
-                        {bill.paymentStatus || 'pending'}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+      {/* Recent Invoices */}
+      <div className="bg-white rounded-2xl border shadow-xl overflow-hidden">
+        <div className="p-6 border-b bg-gradient-to-r from-blue-50 to-blue-100">
+          <h3 className="text-lg font-semibold text-gray-900">Recent Invoices</h3>
         </div>
 
-        {/* Right Sidebar */}
-        <div className="space-y-6">
-          
-          {/* Quick Actions */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-            <div className="space-y-3">
-              <button
-                onClick={() => window.open('/dashboard', '_blank')}
-                className="w-full flex items-center space-x-3 p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors group"
-              >
-                <div className="bg-blue-500 p-2 rounded-lg group-hover:bg-blue-600 transition-colors">
-                  <span className="text-white text-sm">📄</span>
-                </div>
-                <div className="text-left">
-                  <p className="font-medium text-gray-900">New Invoice</p>
-                  <p className="text-xs text-gray-500">Create billing</p>
-                </div>
-              </button>
-              
-              <button className="w-full flex items-center space-x-3 p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors group">
-                <div className="bg-green-500 p-2 rounded-lg group-hover:bg-green-600 transition-colors">
-                  <span className="text-white text-sm">👥</span>
-                </div>
-                <div className="text-left">
-                  <p className="font-medium text-gray-900">Add Customer</p>
-                  <p className="text-xs text-gray-500">New client</p>
-                </div>
-              </button>
-              
-              <button className="w-full flex items-center space-x-3 p-3 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors group">
-                <div className="bg-purple-500 p-2 rounded-lg group-hover:bg-purple-600 transition-colors">
-                  <span className="text-white text-sm">📦</span>
-                </div>
-                <div className="text-left">
-                  <p className="font-medium text-gray-900">Manage Stock</p>
-                  <p className="text-xs text-gray-500">Inventory</p>
-                </div>
-              </button>
+        <div className="p-6">
+          {recentBills.length === 0 ? (
+            <div className="text-center py-16 text-gray-500 italic">
+              No invoices yet
             </div>
-          </div>
-
+          ) : (
+            <div className="space-y-4">
+              {recentBills.map(bill => (
+                <div
+                  key={bill.id}
+                  className="flex justify-between items-center bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300"
+                >
+                  <div>
+                    <p className="font-semibold text-gray-800">{bill.customerName}</p>
+                    <p className="text-sm text-gray-500">
+                      #{bill.id} • {new Date(bill.date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-gray-900">
+                      ₹{bill.grandTotal?.toLocaleString()}
+                    </p>
+                    <p
+                      className={`text-xs capitalize font-medium ${
+                        bill.paymentStatus === 'paid'
+                          ? 'text-green-600'
+                          : bill.paymentStatus === 'pending'
+                          ? 'text-yellow-600'
+                          : 'text-red-600'
+                      }`}
+                    >
+                      {bill.paymentStatus || 'pending'}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
