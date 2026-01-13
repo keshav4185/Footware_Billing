@@ -64,30 +64,33 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
         }
       }
       
-      return {
-        id: invoice.id,
-        invoiceNo: invoice.invoiceNumber || `INV-${invoice.id}`,
-        customerName: invoice.customer?.name || 'N/A',
-        customerPhone: invoice.customer?.phone || 'N/A',
-        customerGst: invoice.customer?.gst || 'N/A',
-        customerAddress: invoice.customer?.address || 'N/A',
-        date: invoice.invoiceDate ? new Date(invoice.invoiceDate).toLocaleDateString() : new Date().toLocaleDateString(),
-        amount: invoice.totalAmount || 0,
-        status: 'Completed',
-        paymentStatus: (invoice.paymentStatus === 'PAID' || (invoice.balanceAmount || 0) === 0) ? 'Paid' : 'Unpaid',
-        items: invoice.items || [],
-        totals: {
-          subtotal: invoice.subTotal || 0,
-          grandTotal: invoice.totalAmount || 0,
-          balanceAmount: invoice.balanceAmount || 0,
-          advanceAmount: invoice.advanceAmount || 0,
-          cgstAmount: invoice.cgstAmount || 0,
-          sgstAmount: invoice.sgstAmount || 0,
-          totalDiscount: invoice.totalDiscount || 0
-        },
-        company: companyDetails,
-        employeeName: invoice.employee?.name || 'Sales Person'
-      };
+        // Use totalAmount directly from backend if available
+        const calculatedAmount = invoice.totalAmount || invoice.grandTotal || 0;
+        
+        return {
+          id: invoice.id,
+          invoiceNo: invoice.invoiceNumber || `INV-${invoice.id}`,
+          customerName: invoice.customer?.name || 'N/A',
+          customerPhone: invoice.customer?.phone || 'N/A',
+          customerGst: invoice.customer?.gst || 'N/A',
+          customerAddress: invoice.customer?.address || 'N/A',
+          date: invoice.invoiceDate ? new Date(invoice.invoiceDate).toLocaleDateString() : new Date().toLocaleDateString(),
+          amount: calculatedAmount,
+          status: 'Completed',
+          paymentStatus: (invoice.paymentStatus === 'PAID' || (invoice.balanceAmount || 0) === 0) ? 'Paid' : 'Unpaid',
+          items: invoice.items || [],
+          totals: {
+            subtotal: invoice.subTotal || 0,
+            grandTotal: calculatedAmount,
+            balanceAmount: invoice.balanceAmount || 0,
+            advanceAmount: invoice.advanceAmount || 0,
+            cgstAmount: invoice.cgstAmount || 0,
+            sgstAmount: invoice.sgstAmount || 0,
+            totalDiscount: invoice.totalDiscount || 0
+          },
+          company: companyDetails,
+          employeeName: invoice.employee?.name || 'Sales Person'
+        };
     } catch (error) {
       console.error('Error fetching complete invoice data:', error);
       return null;
@@ -171,6 +174,9 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
           }
         }
         
+        // Use totalAmount directly from backend if available
+        const calculatedAmount = invoice.totalAmount || invoice.grandTotal || 0;
+        
         return {
           id: invoice.id,
           invoiceNo: invoice.invoiceNumber || `INV-${invoice.id}`,
@@ -179,15 +185,18 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
           customerGst: invoice.customer?.gst || 'N/A',
           customerAddress: invoice.customer?.address || 'N/A',
           date: invoice.invoiceDate ? new Date(invoice.invoiceDate).toLocaleDateString() : new Date().toLocaleDateString(),
-          amount: invoice.totalAmount || 0,
+          amount: calculatedAmount,
           status: 'Completed',
           paymentStatus: (invoice.paymentStatus === 'PAID' || (invoice.balanceAmount || 0) === 0) ? 'Paid' : 'Unpaid',
           items: invoice.items || [],
           totals: {
             subtotal: invoice.subTotal || 0,
-            grandTotal: invoice.totalAmount || 0,
+            grandTotal: calculatedAmount,
             balanceAmount: invoice.balanceAmount || 0,
-            advanceAmount: invoice.advanceAmount || 0
+            advanceAmount: invoice.advanceAmount || 0,
+            cgstAmount: invoice.cgstAmount || 0,
+            sgstAmount: invoice.sgstAmount || 0,
+            totalDiscount: invoice.totalDiscount || 0
           },
           companyId: invoice.company?.id,
           customerId: invoice.customer?.id,
@@ -442,8 +451,8 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
             <div class="amounts-section">
               <div class="amount-row"><span>Taxable Amount:</span><span>₹${calculatedTotals.taxableAmount.toFixed(2)}</span></div>
               <div class="amount-row"><span>Discount:</span><span>₹${calculatedTotals.totalDiscount.toFixed(2)}</span></div>
-              <div class="amount-row"><span>CGST (9%):</span><span>₹${calculatedTotals.cgstAmount.toFixed(2)}</span></div>
-              <div class="amount-row"><span>SGST (9%):</span><span>₹${calculatedTotals.sgstAmount.toFixed(2)}</span></div>
+              ${calculatedTotals.cgstAmount > 0 ? `<div class="amount-row"><span>CGST (9%):</span><span>₹${calculatedTotals.cgstAmount.toFixed(2)}</span></div>` : ''}
+              ${calculatedTotals.sgstAmount > 0 ? `<div class="amount-row"><span>SGST (9%):</span><span>₹${calculatedTotals.sgstAmount.toFixed(2)}</span></div>` : ''}
               <div class="amount-row total-amount"><span>Total Amount:</span><span>₹${calculatedTotals.grandTotal.toFixed(2)}</span></div>
               <div class="amount-row"><span>Advance Amount:</span><span>₹${(billData.totals?.advanceAmount || 0).toFixed(2)}</span></div>
               <div class="amount-row" style="background: #fef3cd; border-top: 2px solid #f59e0b;"><span style="color: #92400e; font-weight: bold;">Balance Amount:</span><span style="color: #92400e; font-weight: bold;">₹${calculatedTotals.balanceAmount.toFixed(2)}</span></div>
@@ -1160,14 +1169,18 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                               <span>Discount:</span>
                               <span>₹{calculatedTotals.totalDiscount.toFixed(2)}</span>
                             </div>
-                            <div className="flex justify-between py-1 border-b">
-                              <span>CGST (9%):</span>
-                              <span>₹{calculatedTotals.cgstAmount.toFixed(2)}</span>
-                            </div>
-                            <div className="flex justify-between py-1 border-b">
-                              <span>SGST (9%):</span>
-                              <span>₹{calculatedTotals.sgstAmount.toFixed(2)}</span>
-                            </div>
+                            {calculatedTotals.cgstAmount > 0 && (
+                              <div className="flex justify-between py-1 border-b">
+                                <span>CGST (9%):</span>
+                                <span>₹{calculatedTotals.cgstAmount.toFixed(2)}</span>
+                              </div>
+                            )}
+                            {calculatedTotals.sgstAmount > 0 && (
+                              <div className="flex justify-between py-1 border-b">
+                                <span>SGST (9%):</span>
+                                <span>₹{calculatedTotals.sgstAmount.toFixed(2)}</span>
+                              </div>
+                            )}
                             <div className="flex justify-between py-2 bg-gray-100 px-3 font-bold text-sm md:text-lg border border-black md:border-2">
                               <span>Total Amount:</span>
                               <span>₹{calculatedTotals.grandTotal.toFixed(2)}</span>

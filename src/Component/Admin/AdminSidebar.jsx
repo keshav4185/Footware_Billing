@@ -66,7 +66,7 @@ const AdminSidebar = ({ activeSection, setActiveSection, isSidebarOpen, setIsSid
         {/* User Profile */}
         <div className="p-3 lg:p-4 border-t border-gray-200 flex-shrink-0">
         </div>
-      </div>
+      </div>    
     </>
   );
 };

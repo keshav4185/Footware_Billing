@@ -4,6 +4,8 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, Legend
 } from "recharts";
+import CountUp from "react-countup";
+import * as XLSX from "xlsx";
 
 const Reports = () => {
   const [activeReport, setActiveReport] = useState("payments");
@@ -11,20 +13,19 @@ const Reports = () => {
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [reportType, setReportType] = useState("monthly"); // daily / monthly / yearly
 
-  // Fetch data
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         const [billsRes, customersRes, productsRes] = await Promise.all([
           axios.get("http://localhost:8080/api/billing/invoices"),
-          axios.get("http://localhost:8080/api/customers"),
-          axios.get("http://localhost:8080/api/products"),
+          axios.get("http://localhost:8080/api/billing/customers"),
+          axios.get("http://localhost:8080/api/billing/products"),
         ]);
         setBills(billsRes.data);
         setCustomers(customersRes.data);
@@ -46,75 +47,108 @@ const Reports = () => {
     return statusMatch && dateMatch;
   });
 
-  // Animated KPI card
   const KPICard = ({ title, value, colorFrom, colorTo }) => (
     <div
-      className={`p-4 rounded-xl text-white transform transition duration-300 hover:scale-105 hover:shadow-xl`}
+      className={`p-4 rounded-xl text-white transform transition duration-300 hover:scale-105 hover:shadow-2xl`}
       style={{ background: `linear-gradient(to right, ${colorFrom}, ${colorTo})` }}
     >
       <h3 className="text-lg font-bold">{title}</h3>
-      <p className="text-2xl font-extrabold mt-2">{value}</p>
+      <p className="text-2xl font-extrabold mt-2">
+        <CountUp end={Number(value)} duration={1.5} separator="," prefix={value.toString().includes("₹") ? "₹" : ""}/>
+      </p>
     </div>
   );
 
-  // ------------------- Payments Report -------------------
-  const PaymentsReport = () => {
-    const monthlyDataObj = filteredBills.reduce((acc, bill) => {
-      const month = new Date(bill.invoiceDate).toLocaleString("default", { month: "short", year: "numeric" });
-      if (!acc[month]) acc[month] = { month, paid: 0, unpaid: 0 };
-      if (bill.paymentStatus === "PAID") acc[month].paid += bill.totalAmount || 0;
-      else acc[month].unpaid += bill.totalAmount || 0;
-      return acc;
-    }, {});
-    const monthlyData = Object.values(monthlyDataObj);
+  const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-2 shadow-lg rounded-lg border border-gray-200 animate-fadeIn">
+          {payload.map((p) => (
+            <p key={p.name} className="text-gray-800 font-medium">
+              {p.name}: {["revenue", "paid", "unpaid"].includes(p.dataKey) ? p.value.toLocaleString('en-IN', { style: 'currency', currency: 'INR' }) : p.value.toLocaleString()}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
 
+  const groupBills = (billsArray, type) => {
+    const data = {};
+    billsArray.forEach((bill) => {
+      const date = new Date(bill.invoiceDate);
+      let key = "";
+      if (type === "daily") key = date.toISOString().slice(0, 10);
+      else if (type === "monthly") key = date.toISOString().slice(0, 7);
+      else key = date.getFullYear();
+      if (!data[key]) data[key] = { label: key, revenue: 0, paid: 0, unpaid: 0, orders: 0 };
+      data[key].revenue += bill.totalAmount || 0;
+      if (bill.paymentStatus === "PAID") data[key].paid += bill.totalAmount || 0;
+      else data[key].unpaid += bill.totalAmount || 0;
+      data[key].orders += 1;
+    });
+    return Object.values(data);
+  };
+
+  const exportToExcel = (reportData, filename = "report.xlsx") => {
+    const ws = XLSX.utils.json_to_sheet(reportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Report");
+    XLSX.writeFile(wb, filename);
+  };
+
+  const PaymentsReport = () => {
+    const chartData = groupBills(filteredBills, reportType);
     return (
       <div className="space-y-6">
-        {/* Filters */}
         <div className="flex flex-wrap gap-4 mb-4 items-center">
           <div>
             <label className="block text-sm font-medium text-gray-700">Start Date</label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="mt-1 block p-2 border rounded-lg"
-            />
+            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
+              className="mt-1 block p-2 border rounded-lg" />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">End Date</label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="mt-1 block p-2 border rounded-lg"
-            />
+            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}
+              className="mt-1 block p-2 border rounded-lg" />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">Payment Status</label>
-            <select
-              value={paymentStatusFilter}
-              onChange={(e) => setPaymentStatusFilter(e.target.value)}
-              className="mt-1 block p-2 border rounded-lg"
-            >
+            <select value={paymentStatusFilter} onChange={(e) => setPaymentStatusFilter(e.target.value)}
+              className="mt-1 block p-2 border rounded-lg">
               <option value="all">All</option>
               <option value="PAID">Paid</option>
               <option value="UNPAID">Unpaid</option>
             </select>
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Report Type</label>
+            <select value={reportType} onChange={(e) => setReportType(e.target.value)}
+              className="mt-1 block p-2 border rounded-lg">
+              <option value="daily">Daily</option>
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </div>
+          <div className="mt-6">
+            <button onClick={() => exportToExcel(chartData, `payments_${reportType}.xlsx`)}
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+              Export Excel
+            </button>
+          </div>
         </div>
 
-        {/* KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <KPICard
             title="Total Paid"
-            value={`₹${filteredBills.filter(b => b.paymentStatus === "PAID").reduce((sum, b) => sum + (b.totalAmount || 0), 0).toFixed(2)}`}
+            value={filteredBills.filter(b => b.paymentStatus === "PAID").reduce((sum, b) => sum + (b.totalAmount || 0), 0).toFixed(2)}
             colorFrom="#4ade80"
             colorTo="#16a34a"
           />
           <KPICard
             title="Total Unpaid"
-            value={`₹${filteredBills.filter(b => b.paymentStatus !== "PAID").reduce((sum, b) => sum + (b.totalAmount || 0), 0).toFixed(2)}`}
+            value={filteredBills.filter(b => b.paymentStatus !== "PAID").reduce((sum, b) => sum + (b.totalAmount || 0), 0).toFixed(2)}
             colorFrom="#f87171"
             colorTo="#b91c1c"
           />
@@ -126,42 +160,42 @@ const Reports = () => {
           />
         </div>
 
-        {/* Chart */}
         <div className="bg-white p-4 rounded-xl shadow-lg mt-4">
-          <h3 className="text-lg font-bold mb-4">Monthly Payment Status</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={monthlyData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip formatter={(value) => `₹${value.toFixed(2)}`} />
-              <Legend />
-              <Bar dataKey="paid" fill="#4ade80" />
-              <Bar dataKey="unpaid" fill="#f87171" />
-            </BarChart>
-          </ResponsiveContainer>
+          <h3 className="text-lg font-bold mb-4">Payment Status</h3>
+          {chartData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="label" />
+                <YAxis />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                <Bar dataKey="paid" fill="#4ade80" radius={[5,5,0,0]} />
+                <Bar dataKey="unpaid" fill="#f87171" radius={[5,5,0,0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : <p className="text-gray-500 text-center py-10">No data available for selected period.</p>}
         </div>
       </div>
     );
   };
 
-  // ------------------- Sales Report -------------------
   const SalesReport = () => {
-    const monthlyDataObj = filteredBills.reduce((acc, bill) => {
-      const month = new Date(bill.invoiceDate).toLocaleString("default", { month: "short", year: "numeric" });
-      if (!acc[month]) acc[month] = { month, revenue: 0, orders: 0 };
-      acc[month].revenue += bill.totalAmount || 0;
-      acc[month].orders += 1;
-      return acc;
-    }, {});
-    const monthlyData = Object.values(monthlyDataObj);
+    const chartData = groupBills(filteredBills, reportType);
+    const topCustomers = customers
+      .map(c => ({
+        name: c.name,
+        total: filteredBills.filter(b => b.customer?.id === c.id).reduce((sum, b) => sum + (b.totalAmount || 0), 0)
+      }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5);
 
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <KPICard
             title="Total Sales"
-            value={`₹${filteredBills.reduce((sum, bill) => sum + (bill.totalAmount || 0), 0).toFixed(2)}`}
+            value={filteredBills.reduce((sum, b) => sum + (b.totalAmount || 0), 0).toFixed(2)}
             colorFrom="#3b82f6"
             colorTo="#1e3a8a"
           />
@@ -173,56 +207,59 @@ const Reports = () => {
           />
           <KPICard
             title="Avg Order Value"
-            value={`₹${filteredBills.length ? (filteredBills.reduce((sum, bill) => sum + (bill.totalAmount || 0), 0) / filteredBills.length).toFixed(2) : "0.00"}`}
+            value={(filteredBills.length ? (filteredBills.reduce((sum, b) => sum + (b.totalAmount || 0), 0) / filteredBills.length).toFixed(2) : "0.00")}
             colorFrom="#8b5cf6"
             colorTo="#5b21b6"
           />
         </div>
 
-        <div className="bg-white p-4 rounded-xl shadow-lg mt-4">
-          <h3 className="text-lg font-bold mb-4">Monthly Revenue</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={monthlyData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip formatter={(value) => `₹${value.toFixed(2)}`} />
-              <Line type="monotone" dataKey="revenue" stroke="#8884d8" strokeWidth={3} />
-            </LineChart>
-          </ResponsiveContainer>
+        <div className="flex flex-wrap gap-4 mt-4">
+          <div className="bg-white p-4 rounded-xl shadow-lg w-full sm:w-1/2">
+            <h3 className="text-lg font-bold mb-4">Revenue</h3>
+            {chartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="label" />
+                  <YAxis />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Line type="monotone" dataKey="revenue" stroke="#8884d8" strokeWidth={3} />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : <p className="text-gray-500 text-center py-10">No data available for selected period.</p>}
+          </div>
+
+          <div className="bg-white p-4 rounded-xl shadow-lg w-full sm:w-1/2">
+            <h3 className="text-lg font-bold mb-4">Top 5 Customers</h3>
+            {topCustomers.length > 0 ? (
+              <ul className="list-disc pl-5">
+                {topCustomers.map(c => (
+                  <li key={c.name}>{c.name}: ₹{c.total.toFixed(2)}</li>
+                ))}
+              </ul>
+            ) : <p className="text-gray-500">No customer data available.</p>}
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <button onClick={() => exportToExcel(chartData, `sales_${reportType}.xlsx`)}
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+            Export Excel
+          </button>
         </div>
       </div>
     );
   };
 
-  // ------------------- Customer-wise Sales -------------------
-  const CustomerSalesReport = () => {
-    const customerSales = customers.map(c => {
-      const customerBills = bills.filter(b => b.customer?.id === c.id);
-      const revenue = customerBills.reduce((sum, b) => sum + (b.totalAmount || 0), 0);
-      return { name: c.name, orders: customerBills.length, revenue };
-    });
-
-    return (
-      <div className="bg-white p-4 rounded-xl shadow-lg">
-        <h3 className="text-lg font-bold mb-4">Customer-wise Sales</h3>
-        <ResponsiveContainer width="100%" height={350}>
-          <BarChart data={customerSales}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip formatter={(value) => `₹${value.toFixed(2)}`} />
-            <Legend />
-            <Bar dataKey="orders" fill="#82ca9d" />
-            <Bar dataKey="revenue" fill="#8884d8" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-    );
-  };
-
-  // ------------------- Product Stock Report (Bar Chart) -------------------
   const ProductReport = () => {
+    const topProducts = products
+      .map(p => ({
+        name: p.name,
+        total: (p.price || 0) * (p.stock || 0)
+      }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5);
+
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -240,7 +277,7 @@ const Reports = () => {
           />
           <KPICard
             title="Total Value"
-            value={`₹${products.reduce((sum, p) => sum + (p.price * p.stock), 0).toFixed(2)}`}
+            value={products.reduce((sum, p) => sum + (p.price * p.stock), 0).toFixed(2)}
             colorFrom="#eab308"
             colorTo="#78350f"
           />
@@ -248,15 +285,32 @@ const Reports = () => {
 
         <div className="bg-white p-4 rounded-xl shadow-lg mt-4">
           <h3 className="text-lg font-bold mb-4">Product Stock Levels</h3>
-          <ResponsiveContainer width="100%" height={350}>
-            <BarChart data={products}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip formatter={(value) => `${value} units`} />
-              <Bar dataKey="stock" fill="#3b82f6" />
-            </BarChart>
-          </ResponsiveContainer>
+          {products.length > 0 ? (
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart data={products}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="stock" fill="#3b82f6" radius={[5,5,0,0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : <p className="text-gray-500 text-center py-10">No product data available.</p>}
+        </div>
+
+        <div className="mt-4">
+          <h3 className="text-lg font-bold mb-2">Top 5 Products by Value</h3>
+          {topProducts.length > 0 ? (
+            <ul className="list-disc pl-5">
+              {topProducts.map(p => (
+                <li key={p.name}>{p.name}: ₹{p.total.toFixed(2)}</li>
+              ))}
+            </ul>
+          ) : <p className="text-gray-500">No product data available.</p>}
+          <button onClick={() => exportToExcel(products, `products.xlsx`)}
+            className="bg-blue-500 text-white px-4 py-2 mt-2 rounded-lg hover:bg-blue-600">
+            Export Excel
+          </button>
         </div>
       </div>
     );
@@ -266,7 +320,6 @@ const Reports = () => {
     switch (activeReport) {
       case "payments": return <PaymentsReport />;
       case "sales": return <SalesReport />;
-      case "customer-sales": return <CustomerSalesReport />;
       case "products": return <ProductReport />;
       default: return <PaymentsReport />;
     }
@@ -279,7 +332,7 @@ const Reports = () => {
       <h2 className="text-2xl font-bold text-gray-800">Reports & Analytics</h2>
       <div className="bg-white rounded-xl shadow-lg p-4">
         <div className="flex flex-wrap gap-2 mb-4">
-          {["payments", "sales", "customer-sales", "products"].map(id => (
+          {["payments", "sales", "products"].map(id => (
             <button
               key={id}
               onClick={() => setActiveReport(id)}
@@ -289,7 +342,7 @@ const Reports = () => {
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              {id.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ")}
+              {id.charAt(0).toUpperCase() + id.slice(1)}
             </button>
           ))}
         </div>

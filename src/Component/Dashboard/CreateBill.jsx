@@ -356,10 +356,11 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
           itemName: item.productName,
           product: { id: productResponse.data.id },
           quantity: item.quantity,
+          rate: item.price,
           price: item.price,
-          tax: item.tax,
+          tax: item.tax || 0,
           discount: item.discount,
-          rowTotal: item.amount
+          totalAmount: item.amount
         });
       } catch (error) {
         console.error("Error creating product:", error);
@@ -368,10 +369,11 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
           itemName: item.productName,
           product: null,
           quantity: item.quantity,
+          rate: item.price,
           price: item.price,
-          tax: item.tax,
+          tax: item.tax || 0,
           discount: item.discount,
-          rowTotal: item.amount
+          totalAmount: item.amount
         });
       }
     }
@@ -382,19 +384,25 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
     // ✅ FINAL invoice payload (CORRECT)
     const invoiceData = {
       invoiceNumber,
+      invoiceDate: new Date().toISOString(),
       company: { id: companyId },
       customer: { id: customerId },
-      employee: { id: employeeDbId },   // ✅ CORRECT FK
+      employee: { id: employeeDbId },
       salesperson: employeeName,
       items: itemsWithProducts,
-      subTotal: totals.subtotal,
-      totalAmount: totals.grandTotal,
-      advanceAmount: advance,
-      balanceAmount: totals.balanceAmount,
+      subTotal: parseFloat(totals.subtotal.toFixed(2)),
+      totalAmount: parseFloat(totals.grandTotal.toFixed(2)),
+      cgstAmount: parseFloat(totals.cgstAmount.toFixed(2)),
+      sgstAmount: parseFloat(totals.sgstAmount.toFixed(2)),
+      totalDiscount: parseFloat(totals.totalDiscount.toFixed(2)),
+      advanceAmount: parseFloat(advance.toFixed(2)),
+      balanceAmount: parseFloat(totals.balanceAmount.toFixed(2)),
       paymentStatus: paymentStatus === "Paid" ? "PAID" : "UNPAID"
     };
 
     console.log("Invoice data being sent:", invoiceData);
+    console.log("Calculated totals:", totals);
+    console.log("Total amount being sent:", totals.grandTotal);
 
     // ✅ Create invoice
     const invoiceResponse = await invoiceAPI.create(invoiceData);
@@ -1460,7 +1468,11 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                 <div className="flex flex-col md:flex-row justify-between items-start mb-4 md:mb-6 pb-3 md:pb-4 border-b border-black md:border-b-2">
                   <div className="flex items-start w-full md:w-auto mb-3 md:mb-0">
                     <div className="w-12 h-12 md:w-16 md:h-16 border border-black md:border-2 flex items-center justify-center text-xs font-bold mr-3 md:mr-4 bg-gray-100">
-                      YOUR<br/>LOGO
+                      {companyLogo ? (
+                        <img src={companyLogo} alt="Logo" className="w-full h-full object-contain" />
+                      ) : (
+                        'YOUR LOGO'
+                      )}
                     </div>
                     <div className="flex-1">
                       <h1 className="text-lg md:text-xl font-bold">{companyDetails.name}</h1>
