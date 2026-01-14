@@ -30,6 +30,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   const [sgstRate, setSgstRate] = React.useState(9);
   const [showPreview, setShowPreview] = React.useState(false);
   const [companyLogo, setCompanyLogo] = React.useState(null);
+  const [digitalSignature, setDigitalSignature] = React.useState(null);
   const [advance, setAdvance] = React.useState(0);
   const [balance, setBalance] = React.useState(0);
   const [paymentStatus, setPaymentStatus] = React.useState('Unpaid');
@@ -40,12 +41,13 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   const [loading, setLoading] = React.useState(false);
   const [companyId, setCompanyId] = React.useState(null);
   const [companyDetails, setCompanyDetails] = React.useState({
-    name: 'Smart Sales',
+    name: 'SMARTMATRIX Digital Services',
     address: '123 Business Street, City - 400001',
     phone: '+91 98765 43210',
     gst: '27XXXXX1234X1ZX',
     brands: 'RELAXO adidas Bata Paragon FILA campus'
   });
+  const [invoiceDate, setInvoiceDate] = React.useState(new Date().toISOString().split('T')[0]);
 
   const validateBasicForm = () => {
     if (!products.some(p => p.name.trim())) {
@@ -147,9 +149,9 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       if (response.data && response.data.length > 0) {
         const latestCompany = response.data[response.data.length - 1];
         setCompanyDetails({
-          name: latestCompany.name || 'Smart Sales',
-          address: latestCompany.address || '123 Business Street, City - 400001',
-          phone: latestCompany.phone || '+91 98765 43210',
+          name: latestCompany.name || 'SMARTMATRIX Digital Services ',
+          address: latestCompany.address || 'First Floor, Survey No. 21, Ganesham Commercial -A, Office No, 102-A, Aundh - Ravet BRTS Rd, Pimple Saudagar, Pune, Maharashtra 411027',
+          phone: latestCompany.phone || '9112108484',
           gst: latestCompany.gst || '27XXXXX1234X1ZX',
           brands: latestCompany.brands || 'RELAXO adidas Bata Paragon FILA campus'
         });
@@ -332,14 +334,22 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
     // ✅ Prepare invoice items
     const items = products
       .filter(p => p.name.trim())
-      .map(product => ({
-        productName: product.name,
-        quantity: product.qty,
-        price: product.price,
-        tax: product.tax,
-        discount: product.discount,
-        amount: calculateRowAmount(product)
-      }));
+      .map(product => {
+        const subtotal = product.qty * product.price;
+        const afterDiscount = subtotal * (1 - product.discount/100);
+        const cgst = cgstEnabled ? afterDiscount * cgstRate / 100 : 0;
+        const sgst = sgstEnabled ? afterDiscount * sgstRate / 100 : 0;
+        const totalWithTax = afterDiscount + cgst + sgst;
+        
+        return {
+          productName: product.name,
+          quantity: product.qty,
+          price: product.price,
+          tax: product.tax,
+          discount: product.discount,
+          amount: totalWithTax
+        };
+      });
 
     // ✅ Create / attach products
     const itemsWithProducts = [];
@@ -357,10 +367,10 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
           product: { id: productResponse.data.id },
           quantity: item.quantity,
           rate: item.price,
-          price: item.price,
+          price: parseFloat(item.amount.toFixed(2)),
           tax: item.tax || 0,
           discount: item.discount,
-          totalAmount: item.amount
+          rowTotal: parseFloat(item.amount.toFixed(2))
         });
       } catch (error) {
         console.error("Error creating product:", error);
@@ -370,10 +380,10 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
           product: null,
           quantity: item.quantity,
           rate: item.price,
-          price: item.price,
+          price: parseFloat(item.amount.toFixed(2)),
           tax: item.tax || 0,
           discount: item.discount,
-          totalAmount: item.amount
+          rowTotal: parseFloat(item.amount.toFixed(2))
         });
       }
     }
@@ -397,12 +407,14 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       totalDiscount: parseFloat(totals.totalDiscount.toFixed(2)),
       advanceAmount: parseFloat(advance.toFixed(2)),
       balanceAmount: parseFloat(totals.balanceAmount.toFixed(2)),
+      price: parseFloat(totals.balanceAmount.toFixed(2)),
       paymentStatus: paymentStatus === "Paid" ? "PAID" : "UNPAID"
     };
 
     console.log("Invoice data being sent:", invoiceData);
     console.log("Calculated totals:", totals);
     console.log("Total amount being sent:", totals.grandTotal);
+    console.log("Balance amount (price field):", totals.balanceAmount);
 
     // ✅ Create invoice
     const invoiceResponse = await invoiceAPI.create(invoiceData);
@@ -605,7 +617,9 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   const calculateRowAmount = (product) => {
     const subtotal = product.qty * product.price;
     const afterDiscount = subtotal * (1 - product.discount/100);
-    return afterDiscount;
+    const cgst = cgstEnabled ? afterDiscount * cgstRate / 100 : 0;
+    const sgst = sgstEnabled ? afterDiscount * sgstRate / 100 : 0;
+    return afterDiscount + cgst + sgst;
   };
 
   const calculateTotals = () => {
@@ -670,6 +684,12 @@ setLoggedInEmployee(employee?.name || "Sales Person");
       setCompanyLogo(savedLogo);
     }
     
+    // Load saved signature
+    const savedSignature = localStorage.getItem('digitalSignature');
+    if (savedSignature) {
+      setDigitalSignature(savedSignature);
+    }
+    
     // Load saved company details
     const savedCompanyDetails = localStorage.getItem('companyDetails');
     if (savedCompanyDetails) {
@@ -699,27 +719,59 @@ setLoggedInEmployee(employee?.name || "Sales Person");
     }
   };
 
+  const handleSignatureUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const signatureData = event.target.result;
+        setDigitalSignature(signatureData);
+        localStorage.setItem('digitalSignature', signatureData);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const convertToWords = (num) => {
     const ones = ['', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 'TEN', 'ELEVEN', 'TWELVE', 'THIRTEEN', 'FOURTEEN', 'FIFTEEN', 'SIXTEEN', 'SEVENTEEN', 'EIGHTEEN', 'NINETEEN'];
     const tens = ['', '', 'TWENTY', 'THIRTY', 'FORTY', 'FIFTY', 'SIXTY', 'SEVENTY', 'EIGHTY', 'NINETY'];
     
+    num = Math.floor(num);
     if (num === 0) return 'ZERO RUPEES ONLY';
     
     let words = '';
-    if (num >= 10000000) { words += ones[Math.floor(num / 10000000)] + ' CRORE '; num %= 10000000; }
-    if (num >= 100000) { words += ones[Math.floor(num / 100000)] + ' LAKH '; num %= 100000; }
-    if (num >= 1000) { words += ones[Math.floor(num / 1000)] + ' THOUSAND '; num %= 1000; }
-    if (num >= 100) { words += ones[Math.floor(num / 100)] + ' HUNDRED '; num %= 100; }
-    if (num >= 20) { words += tens[Math.floor(num / 10)] + ' '; num %= 10; }
+    if (num >= 10000000) { 
+      const crores = Math.floor(num / 10000000);
+      words += (crores < 20 ? ones[crores] : tens[Math.floor(crores / 10)] + ' ' + ones[crores % 10]) + ' CRORE '; 
+      num %= 10000000; 
+    }
+    if (num >= 100000) { 
+      const lakhs = Math.floor(num / 100000);
+      words += (lakhs < 20 ? ones[lakhs] : tens[Math.floor(lakhs / 10)] + ' ' + ones[lakhs % 10]) + ' LAKH '; 
+      num %= 100000; 
+    }
+    if (num >= 1000) { 
+      const thousands = Math.floor(num / 1000);
+      words += (thousands < 20 ? ones[thousands] : tens[Math.floor(thousands / 10)] + ' ' + ones[thousands % 10]) + ' THOUSAND '; 
+      num %= 1000; 
+    }
+    if (num >= 100) { 
+      words += ones[Math.floor(num / 100)] + ' HUNDRED '; 
+      num %= 100; 
+    }
+    if (num >= 20) { 
+      words += tens[Math.floor(num / 10)] + ' '; 
+      num %= 10; 
+    }
     if (num > 0) words += ones[num] + ' ';
     
-    return words.trim() + ' RUPEES ONLY';
+    return words.trim().replace(/\s+/g, ' ') + ' RUPEES ONLY';
   };
 
   const openDirectPrintPreview = () => {
     const totals = calculateTotals();
     const productsHTML = products.filter(p => p.name).map((p, i) => 
-      `<tr><td>${i + 1}</td><td class="product-name">${p.name}</td><td>-</td><td>${p.qty}</td><td>${p.price.toFixed(2)}</td><td>${p.discount}</td><td>${calculateRowAmount(p).toFixed(2)}</td></tr>`
+      `<tr><td>${i + 1}</td><td class="product-name">${p.name}</td><!--<td>-</td>--><td>${p.qty}</td><td>${p.price.toFixed(2)}</td><td>${p.discount}</td><td>${calculateRowAmount(p).toFixed(2)}</td></tr>`
     ).join('');
     
     const printTab = window.open('', '_blank');
@@ -784,8 +836,8 @@ setLoggedInEmployee(employee?.name || "Sales Person");
               <div class="logo-box">${companyLogo ? `<img src="${companyLogo}" alt="Logo" style="width:100%;height:100%;object-fit:contain;">` : 'YOUR<br>LOGO'}</div>
               <div class="company-info">
                 <div class="company-name">${companyDetails.name}</div>
-                <div class="company-details">${companyDetails.address}<br>Phone: ${companyDetails.phone}<br>GST: ${companyDetails.gst}</div>
-                <div class="brand-line">${companyDetails.brands}</div>
+                <div class="company-details">${companyDetails.address}<br>Phone: ${companyDetails.phone}<!--<br>GST: ${companyDetails.gst}--></div>
+                <!--<div class="brand-line">${companyDetails.brands}</div>-->
               </div>
             </div>
             <div class="invoice-title">INVOICE</div>
@@ -797,14 +849,14 @@ setLoggedInEmployee(employee?.name || "Sales Person");
               <div class="customer-details">
                 <strong>Name:</strong> ${customerFormData.name}<br>
                 <strong>Phone:</strong> ${customerFormData.phone}<br>
-                <strong>GST:</strong> ${customerFormData.gst}<br>
+                <!--<strong>GST:</strong> ${customerFormData.gst}<br>-->
                 <strong>Address:</strong> ${customerFormData.address}
               </div>
             </div>
             <div class="invoice-info">
               <table class="invoice-info-table">
                 <tr><td>Invoice No.:</td><td>INV-${Date.now().toString().slice(-6)}</td></tr>
-                <tr><td>Invoice Date:</td><td>${new Date().toLocaleDateString('en-GB')}</td></tr>
+                <tr><td>Invoice Date:</td><td>${new Date(invoiceDate).toLocaleDateString('en-GB')}</td></tr>
                 <tr><td>Salesperson:</td><td><strong>${loggedInEmployee}</strong></td></tr>
                 <tr><td>Payment Method:</td><td><span class="payment-method">💵 Cash</span></td></tr>
                 <tr><td>Payment Status:</td><td><span class="payment-status">${paymentStatus}</span></td></tr>
@@ -812,7 +864,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
             </div>
           </div>
           // <table class="products-table">
-          //   // <thead><tr><th>Sr. No.</th><th>Name of Product/Service</th><th>HSN/SAC</th><th>Qty</th><th>Rate</th><th>Disc. (%)</th><th>Total</th></tr></thead>
+          //   <thead><tr><th>Sr. No.</th><th>Name of Product/Service</th><!--<th>HSN/SAC</th>--><th>Qty</th><th>Rate</th><th>Disc. (%)</th><th>Total</th></tr></thead>
           //   <tbody>${productsHTML}</tbody>
           // </table>
           <div class="totals-section">
@@ -826,13 +878,17 @@ setLoggedInEmployee(employee?.name || "Sales Person");
               ${cgstEnabled ? `<div class="amount-row"><span>CGST (${cgstRate}%):</span><span>₹${totals.cgstAmount.toFixed(2)}</span></div>` : ''}
               ${sgstEnabled ? `<div class="amount-row"><span>SGST (${sgstRate}%):</span><span>₹${totals.sgstAmount.toFixed(2)}</span></div>` : ''}
               <div className="amount-row total-amount"><span>Total Amount:</span><span>₹${totals.grandTotal.toFixed(2)} ${paymentStatus === 'Paid' ? '✅' : '❌'}</span></div>
-              <div class="amount-row"><span>Advance Amount:</span><span>₹${advance.toFixed(2)}</span></div>
+              <div class="amount-row"><span>Paid Amount:</span><span>₹${advance.toFixed(2)}</span></div>
               <div class="amount-row" style="background: #fef3cd; border-top: 2px solid #f59e0b;"><span style="color: #92400e; font-weight: bold;">Balance Amount:</span><span style="color: #92400e; font-weight: bold;">₹${totals.balanceAmount.toFixed(2)}</span></div>
             </div>
           </div>
-          <div class="signatures">
+          <!--<div class="signatures">
             <div class="signature-box">Owner Signature</div>
             <div class="signature-box">Customer Signature</div>
+          </div>-->
+          <div style="border: 3px solid #000; border-top: none; padding: 20px; text-align: right; background: #fafafa; min-height: 120px; position: relative;">
+            ${digitalSignature ? `<div style="margin-bottom: 10px;"><img src="${digitalSignature}" alt="Signature" style="width: 120px; height: 60px; object-fit: contain; display: inline-block;"></div>` : '<div style="height: 60px;"></div>'}
+            <div style="border-top: 2px solid #000; display: inline-block; min-width: 200px; padding-top: 8px; font-size: 14px; font-weight: bold; color: #000; margin-top: 10px;">Authorized Signature</div>
           </div>
         </div>
       </body>
@@ -915,7 +971,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                 onChange={(e) => setCustomerFormData({...customerFormData, phone: e.target.value.replace(/[^0-9]/g, '')})}
               />
             </div>
-            <div className="animate-fadeInUp" style={{animationDelay: '0.3s'}}>
+            {/* <div className="animate-fadeInUp" style={{animationDelay: '0.3s'}}>
               <label className="block text-sm font-medium text-red-600 mb-1">GST Number *</label>
               <input 
                 type="text" 
@@ -924,7 +980,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                 value={customerFormData.gst}
                 onChange={(e) => setCustomerFormData({...customerFormData, gst: e.target.value})}
               />
-            </div>
+            </div> */}
             <div className="animate-fadeInUp" style={{animationDelay: '0.4s'}}>
               <label className="block text-sm font-medium text-red-600 mb-1">Invoice Address *</label>
               <textarea 
@@ -1008,7 +1064,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                 onChange={(e) => setCompanyDetails({...companyDetails, phone: e.target.value})}
               />
             </div>
-            <div>
+            {/* <div>
               <label className={`block text-sm font-medium mb-1 ${
                 isDarkMode ? 'text-gray-300' : 'text-gray-700'
               }`}>GST Number</label>
@@ -1022,6 +1078,34 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                 value={companyDetails.gst}
                 onChange={(e) => setCompanyDetails({...companyDetails, gst: e.target.value})}
               />
+            </div> */}
+            <div>
+              <label className={`block text-sm font-medium mb-1 ${
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}>Invoice Date</label>
+              <input 
+                type="date" 
+                className={`w-full p-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 transition-all ${
+                  isDarkMode 
+                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400' 
+                    : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500'
+                }`} 
+                value={invoiceDate}
+                onChange={(e) => setInvoiceDate(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Digital Signature</label>
+              <div className="flex items-center gap-3 flex-wrap">
+                {digitalSignature ? (
+                  <img src={digitalSignature} alt="Signature" className="w-24 h-16 object-contain border rounded bg-white" />
+                ) : (
+                  <div className="bg-gray-200 text-gray-600 p-3 rounded-lg text-xs font-bold text-center min-w-20">No Signature</div>
+                )}
+                <input type="file" id="signature-upload" accept="image/*" className="hidden" onChange={handleSignatureUpload} />
+                <label htmlFor="signature-upload" className="bg-gray-600 text-white px-3 py-2 rounded-lg text-xs cursor-pointer hover:bg-gray-700 transition-colors">📝 Upload Signature</label>
+                <span className="text-xs text-gray-500">{digitalSignature ? 'Signature uploaded' : 'No signature'}</span>
+              </div>
             </div>
            
             <div>
@@ -1479,9 +1563,9 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                       <p className="text-xs md:text-sm text-gray-600">
                         {companyDetails.address}<br/>
                         Phone: {companyDetails.phone}<br/>
-                        GST: {companyDetails.gst}
+                        {/* GST: {companyDetails.gst} */}
                       </p>
-                      <p className="text-xs md:text-sm font-medium mt-2">{companyDetails.brands}</p>
+                      {/* <p className="text-xs md:text-sm font-medium mt-2">{companyDetails.brands}</p> */}
                     </div>
                   </div>
                   <div className="text-left md:text-right w-full md:w-auto">
@@ -1513,7 +1597,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                       </div>
                       <div className="flex justify-between">
                         <span className="font-bold">Invoice Date:</span>
-                        <span>{new Date().toLocaleDateString()}</span>
+                        <span>{new Date(invoiceDate).toLocaleDateString()}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="font-bold">Salesperson:</span>
@@ -1629,7 +1713,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                         </div>
                       </div>
                       <div className="flex justify-between py-1 border-b">
-                        <span>Advance Amount:</span>
+                        <span>Paid Amount:</span>
                         <span>₹{advance.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between py-2 bg-orange-100 px-3 font-bold text-sm md:text-lg border border-orange-300">
@@ -1641,12 +1725,20 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                 </div>
                 
                 {/* Signatures */}
-                <div className="grid grid-cols-2 gap-4 md:gap-6 mt-6 md:mt-8 pt-6 md:pt-8 border-t border-black md:border-t-2">
+                {/* <div className="grid grid-cols-2 gap-4 md:gap-6 mt-6 md:mt-8 pt-6 md:pt-8 border-t border-black md:border-t-2">
                   <div className="text-center">
                     <div className="border-t border-black mt-8 md:mt-12 pt-2 font-bold text-xs md:text-sm">Owner Signature</div>
                   </div>
                   <div className="text-center">
                     <div className="border-t border-black mt-8 md:mt-12 pt-2 font-bold text-xs md:text-sm">Customer Signature</div>
+                  </div>
+                </div> */}
+                <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-black md:border-t-2">
+                  <div className="text-right">
+                    {digitalSignature && (
+                      <img src={digitalSignature} alt="Signature" className="inline-block w-32 h-20 object-contain mb-2" />
+                    )}
+                    <div className="border-t border-black mt-2 pt-2 font-bold text-xs md:text-sm inline-block min-w-[200px]">Authorized Signature</div>
                   </div>
                 </div>
               </div>
@@ -1700,7 +1792,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                     placeholder="Enter phone number" 
                   />
                 </div>
-                <div>
+                {/* <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">GST Number</label>
                   <input 
                     type="text" 
@@ -1709,7 +1801,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                     className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
                     placeholder="Enter GST number" 
                   />
-                </div>
+                </div> */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Address *</label>
                   <textarea 

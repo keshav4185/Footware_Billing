@@ -60,7 +60,7 @@ export const invoiceAPI = {
   create: (invoice) => api.post('/invoice', invoice),
   getAll: () => api.get('/invoices'),
   update: (id, invoice) => api.put(`/invoice/${id}`, invoice),
-  delete: (id) => api.delete(`/invoice/${id}`),
+  delete: (id) => axios.delete(`http://localhost:8080/api/billing/invoices/${id}`),
 };
 
 // Payment API

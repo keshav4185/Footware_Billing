@@ -13,11 +13,12 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
   const [loading, setLoading] = React.useState(false);
   const [showUpdateModal, setShowUpdateModal] = React.useState(false);
   const [updateBill, setUpdateBill] = React.useState(null);
+  const [selectedDate, setSelectedDate] = React.useState('');
 
   // Fetch complete invoice data with all related entities
   const fetchCompleteInvoiceData = async (invoiceId) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/billing/invoices/${invoiceId}`, {
+      const response = await fetch(`http://localhost:8080/api/billing/invoice/${invoiceId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -206,7 +207,8 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
       }));
       
       console.log('Mapped invoices with company details:', apiInvoices);
-      setInvoices(apiInvoices);
+      // Sort by ID descending (newest first)
+      setInvoices(apiInvoices.sort((a, b) => b.id - a.id));
     } catch (error) {
       console.error('Error fetching invoices:', error);
       // Fallback to localStorage
@@ -257,7 +259,11 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
   }, []);
 
   const viewBill = async (bill) => {
+    console.log('Viewing bill:', bill.id);
     const completeData = await fetchCompleteInvoiceData(bill.id);
+    console.log('Complete invoice data:', completeData);
+    console.log('CGST Amount:', completeData?.totals?.cgstAmount);
+    console.log('SGST Amount:', completeData?.totals?.sgstAmount);
     setSelectedBill(completeData || bill);
     setShowPreview(true);
   };
@@ -320,18 +326,16 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
     // Get logged-in employee data
     const employeeName = localStorage.getItem('loggedInEmployee') || billData.employeeName || 'Sales Person';
     
-    // Calculate proper totals using the items
-    const calculatedTotals = billData.items && billData.items.length > 0 
-      ? calculateTotals(billData.items, 9, 9, billData.totals?.advanceAmount || 0)
-      : {
-          subtotal: billData.amount,
-          totalDiscount: 0,
-          taxableAmount: billData.amount,
-          cgstAmount: 0,
-          sgstAmount: 0,
-          grandTotal: billData.amount,
-          balanceAmount: billData.amount - (billData.totals?.advanceAmount || 0)
-        };
+    // Use backend totals directly
+    const calculatedTotals = {
+      subtotal: billData.totals?.subtotal || billData.amount,
+      totalDiscount: billData.totals?.totalDiscount || 0,
+      taxableAmount: (billData.totals?.subtotal || billData.amount) - (billData.totals?.totalDiscount || 0),
+      cgstAmount: billData.totals?.cgstAmount || 0,
+      sgstAmount: billData.totals?.sgstAmount || 0,
+      grandTotal: billData.totals?.grandTotal || billData.amount,
+      balanceAmount: billData.totals?.balanceAmount || (billData.amount - (billData.totals?.advanceAmount || 0))
+    };
     
     // Generate products HTML from actual items
     const productsHTML = billData.items && billData.items.length > 0 
@@ -472,13 +476,23 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
   const deleteBill = async (billId) => {
     if (confirm('Are you sure you want to delete this bill?')) {
       try {
-        await invoiceAPI.delete(billId);
+        const response = await fetch(`http://localhost:8080/api/billing/invoice/${billId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const updatedInvoices = invoices.filter(bill => bill.id !== billId);
         setInvoices(updatedInvoices);
         alert('Bill deleted successfully!');
       } catch (error) {
         console.error('Error deleting invoice:', error);
-        alert('Error deleting invoice: ' + (error.response?.data?.message || error.message));
+        alert('Error deleting invoice: ' + error.message);
       }
     }
   };
@@ -504,12 +518,16 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
   const savedBills = invoices;
-  const filteredBills = savedBills.filter(bill => 
-    bill.invoiceNo.toLowerCase().includes(billSearchTerm.toLowerCase()) ||
-    bill.customerName.toLowerCase().includes(billSearchTerm.toLowerCase()) ||
-    bill.customerPhone.includes(billSearchTerm) ||
-    bill.amount.toString().includes(billSearchTerm)
-  );
+  const filteredBills = savedBills.filter(bill => {
+    const matchesSearch = bill.invoiceNo.toLowerCase().includes(billSearchTerm.toLowerCase()) ||
+      bill.customerName.toLowerCase().includes(billSearchTerm.toLowerCase()) ||
+      bill.customerPhone.includes(billSearchTerm) ||
+      bill.amount.toString().includes(billSearchTerm);
+    
+    const matchesDate = !selectedDate || bill.date === new Date(selectedDate).toLocaleDateString();
+    
+    return matchesSearch && matchesDate;
+  });
 
   return (
     <div className="p-4 md:p-6 relative overflow-hidden">
@@ -521,23 +539,47 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
       </div>
       
       <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 mb-6 backdrop-blur-sm bg-white/90 hover:shadow-2xl hover:shadow-blue-200/50 transition-all duration-500 transform hover:scale-[1.01] border border-gray-100 relative z-10">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-          <div>
-            <h2 className="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2">
-              <span className="text-2xl">📄</span> My Billings
-            </h2>
-            <p className="text-sm text-gray-600">View and manage your billing history</p>
+        <div className="flex flex-col gap-4 mb-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h2 className="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2">
+                <span className="text-2xl">📄</span> My Billings
+              </h2>
+              <p className="text-sm text-gray-600">View and manage your billing history</p>
+            </div>
+            <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+              <div className="relative w-full md:w-64">
+                <input 
+                  type="date" 
+                  className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                />
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">📅</span>
+              </div>
+              <div className="relative w-full md:w-80">
+                <input 
+                  type="text" 
+                  placeholder="Search bills..."
+                  className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                  value={billSearchTerm}
+                  onChange={(e) => setBillSearchTerm(e.target.value)}
+                />
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
+              </div>
+            </div>
           </div>
-          <div className="relative w-full md:w-auto">
-            <input 
-              type="text" 
-              placeholder="Search bills..."
-              className="w-full md:w-80 pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-              value={billSearchTerm}
-              onChange={(e) => setBillSearchTerm(e.target.value)}
-            />
-            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
-          </div>
+          {selectedDate && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">Showing bills for: <strong>{new Date(selectedDate).toLocaleDateString()}</strong></span>
+              <button 
+                onClick={() => setSelectedDate('')}
+                className="text-sm text-blue-600 hover:text-blue-800 underline"
+              >
+                Clear filter
+              </button>
+            </div>
+          )}
         </div>
         
         {loading ? (
@@ -579,17 +621,13 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                         </span>
                       </td>
                       <td className="p-4">
-                        <button 
-                          onClick={() => togglePaymentStatus(bill.id)}
-                          className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                            (bill.paymentStatus || 'Unpaid') === 'Paid' 
-                              ? 'bg-green-100 text-green-800 hover:bg-green-200' 
-                              : 'bg-red-100 text-red-800 hover:bg-red-200'
-                          }`}
-                        >
-                          <span>{(bill.paymentStatus || 'Unpaid') === 'Paid' ? '✅' : '❌'}</span>
-                          {bill.paymentStatus || 'Unpaid'}
-                        </button>
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          (bill.paymentStatus || 'Unpaid') === 'Paid' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {(bill.paymentStatus || 'Unpaid') === 'Paid' ? '✅' : '❌'} {bill.paymentStatus || 'Unpaid'}
+                        </span>
                       </td>
                       <td className="p-4 text-center relative dropdown-container">
                         <button 
@@ -614,16 +652,6 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                                   ? 'hover:bg-gray-700 text-white' 
                                   : 'hover:bg-gray-50 text-gray-800'
                               }`}
-                              onClick={() => { handleUpdateBill(bill); }}
-                            >
-                              ✏️ Update
-                            </button>
-                            <button 
-                              className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 ${
-                                isDarkMode 
-                                  ? 'hover:bg-gray-700 text-white' 
-                                  : 'hover:bg-gray-50 text-gray-800'
-                              }`}
                               onClick={() => { viewBill(bill); setOpenDropdown(null); }}
                             >
                               👁️ View
@@ -637,16 +665,6 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                               onClick={() => { printBill(bill); setOpenDropdown(null); }}
                             >
                               🖨️ Print
-                            </button>
-                            <button 
-                              className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 ${
-                                isDarkMode 
-                                  ? 'hover:bg-gray-700 text-white' 
-                                  : 'hover:bg-gray-50 text-gray-800'
-                              }`}
-                              onClick={() => { handleExchange(bill); }}
-                            >
-                              🔄 Exchange
                             </button>
                             <button 
                               className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 text-red-500 hover:text-red-400 border-t ${
@@ -680,17 +698,13 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                       <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
                         {bill.status}
                       </span>
-                      <button 
-                        onClick={() => togglePaymentStatus(bill.id)}
-                        className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-colors ${
-                          (bill.paymentStatus || 'Unpaid') === 'Paid' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}
-                      >
-                        <span>{(bill.paymentStatus || 'Unpaid') === 'Paid' ? '✅' : '❌'}</span>
-                        {bill.paymentStatus || 'Unpaid'}
-                      </button>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        (bill.paymentStatus || 'Unpaid') === 'Paid' 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        <span>{(bill.paymentStatus || 'Unpaid') === 'Paid' ? '✅' : '❌'}</span> {bill.paymentStatus || 'Unpaid'}
+                      </span>
                     </div>
                   </div>
                   <div className="flex justify-between items-center mb-3">
@@ -698,12 +712,6 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                     <span className="font-bold text-green-600">₹{bill.amount.toFixed(2)}</span>
                   </div>
                   <div className="flex gap-2">
-                    <button 
-                      className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 text-white py-2 rounded text-sm hover:from-orange-600 hover:to-orange-700 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
-                      onClick={() => handleUpdateBill(bill)}
-                    >
-                      ✏️ Update
-                    </button>
                     <button 
                       className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 rounded text-sm hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
                       onClick={() => viewBill(bill)}
@@ -1070,7 +1078,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                     selectedBill.items.map((item, index) => (
                       <div key={index} className="bg-gray-50 p-3 mb-2 rounded border">
                         <div className="flex justify-between items-start mb-2">
-                          <span className="font-medium">{index + 1}. {item.product?.name || 'Product'}</span>
+                          <span className="font-medium">{index + 1}. {item.itemName || item.productName || item.product?.name || 'Product'}</span>
                           <span className="font-bold">₹{calculateRowAmount(item).toFixed(2)}</span>
                         </div>
                         <div className="grid grid-cols-3 gap-2 text-xs text-gray-600">
@@ -1113,7 +1121,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                         selectedBill.items.map((item, index) => (
                           <tr key={index}>
                             <td className="border border-black p-2 text-center text-sm">{index + 1}</td>
-                            <td className="border border-black p-2 text-sm">{item.product?.name || 'Product'}</td>
+                            <td className="border border-black p-2 text-sm">{item.itemName || item.productName || item.product?.name || 'Product'}</td>
                             <td className="border border-black p-2 text-center text-sm">{item.quantity || 1}</td>
                             <td className="border border-black p-2 text-center text-sm">₹{(item.price || 0).toFixed(2)}</td>
                             <td className="border border-black p-2 text-center text-sm">{item.discount || 0}%</td>
@@ -1139,26 +1147,22 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                   <div className="bg-gray-50 p-3 md:p-4 rounded">
                     <strong className="block mb-2">Total in words:</strong>
                     <div className="font-bold text-gray-700 text-xs md:text-sm">
-                      {selectedBill.items && selectedBill.items.length > 0 
-                        ? convertToWords(Math.round(calculateTotals(selectedBill.items, 9, 9, selectedBill.totals?.advanceAmount || 0).grandTotal))
-                        : convertToWords(Math.round(selectedBill.amount))
-                      }
+                      {convertToWords(Math.round(selectedBill.totals?.grandTotal || selectedBill.amount))}
                     </div>
                   </div>
                   <div>
                     <div className="space-y-2 text-xs md:text-sm">
                       {(() => {
-                        const calculatedTotals = selectedBill.items && selectedBill.items.length > 0 
-                          ? calculateTotals(selectedBill.items, 9, 9, selectedBill.totals?.advanceAmount || 0)
-                          : {
-                              subtotal: selectedBill.amount,
-                              totalDiscount: 0,
-                              taxableAmount: selectedBill.amount,
-                              cgstAmount: 0,
-                              sgstAmount: 0,
-                              grandTotal: selectedBill.amount,
-                              balanceAmount: selectedBill.amount - (selectedBill.totals?.advanceAmount || 0)
-                            };
+                        // Use backend totals directly
+                        const calculatedTotals = {
+                          subtotal: selectedBill.totals?.subtotal || selectedBill.amount,
+                          totalDiscount: selectedBill.totals?.totalDiscount || 0,
+                          taxableAmount: (selectedBill.totals?.subtotal || selectedBill.amount) - (selectedBill.totals?.totalDiscount || 0),
+                          cgstAmount: selectedBill.totals?.cgstAmount || 0,
+                          sgstAmount: selectedBill.totals?.sgstAmount || 0,
+                          grandTotal: selectedBill.totals?.grandTotal || selectedBill.amount,
+                          balanceAmount: selectedBill.totals?.balanceAmount || (selectedBill.amount - (selectedBill.totals?.advanceAmount || 0))
+                        };
                         return (
                           <>
                             <div className="flex justify-between py-1 border-b">
