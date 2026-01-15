@@ -30,24 +30,23 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   const [sgstRate, setSgstRate] = React.useState(9);
   const [showPreview, setShowPreview] = React.useState(false);
   const [companyLogo, setCompanyLogo] = React.useState(null);
-  const [digitalSignature, setDigitalSignature] = React.useState(null);
   const [advance, setAdvance] = React.useState(0);
   const [balance, setBalance] = React.useState(0);
   const [paymentStatus, setPaymentStatus] = React.useState('Unpaid');
   const [showCompanyWatermark, setShowCompanyWatermark] = React.useState(false);
   const [loggedInEmployee, setLoggedInEmployee] = React.useState('');
+  const [digitalSignature, setDigitalSignature] = React.useState(null);
   const [customers, setCustomers] = React.useState([]);
   const [apiProducts, setApiProducts] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [companyId, setCompanyId] = React.useState(null);
   const [companyDetails, setCompanyDetails] = React.useState({
-    name: 'SMARTMATRIX Digital Services',
+    name: 'Smart Sales',
     address: '123 Business Street, City - 400001',
     phone: '+91 98765 43210',
     gst: '27XXXXX1234X1ZX',
     brands: 'RELAXO adidas Bata Paragon FILA campus'
   });
-  const [invoiceDate, setInvoiceDate] = React.useState(new Date().toISOString().split('T')[0]);
 
   const validateBasicForm = () => {
     if (!products.some(p => p.name.trim())) {
@@ -149,9 +148,9 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       if (response.data && response.data.length > 0) {
         const latestCompany = response.data[response.data.length - 1];
         setCompanyDetails({
-          name: latestCompany.name || 'SMARTMATRIX Digital Services ',
-          address: latestCompany.address || 'First Floor, Survey No. 21, Ganesham Commercial -A, Office No, 102-A, Aundh - Ravet BRTS Rd, Pimple Saudagar, Pune, Maharashtra 411027',
-          phone: latestCompany.phone || '9112108484',
+          name: latestCompany.name || 'Smart Sales',
+          address: latestCompany.address || '123 Business Street, City - 400001',
+          phone: latestCompany.phone || '+91 98765 43210',
           gst: latestCompany.gst || '27XXXXX1234X1ZX',
           brands: latestCompany.brands || 'RELAXO adidas Bata Paragon FILA campus'
         });
@@ -669,13 +668,45 @@ setLoggedInEmployee(employee?.name || "Sales Person");
         gst: editingBill.customerGst || '',
         address: editingBill.customerAddress || ''
       });
-      setProducts([{
-        id: 1,
-        name: editingBill.productName || '',
-        qty: 1,
-        price: editingBill.amount || 0,
-        discount: 0
-      }]);
+      
+      // Load all products from editingBill.items
+      if (editingBill.items && editingBill.items.length > 0) {
+        const loadedProducts = editingBill.items.map((item, index) => {
+          // The price from backend already includes tax, so we need to reverse-calculate the base price
+          const priceWithTax = item.price || 0;
+          const quantity = item.quantity || 1;
+          const discount = item.discount || 0;
+          
+          // Calculate base price (before tax)
+          // priceWithTax = basePrice * qty * (1 - discount/100) * (1 + (cgst + sgst)/100)
+          // So: basePrice = priceWithTax / [qty * (1 - discount/100) * (1 + tax/100)]
+          const taxRate = (cgstEnabled ? cgstRate : 0) + (sgstEnabled ? sgstRate : 0);
+          const basePricePerUnit = priceWithTax / (quantity * (1 - discount/100) * (1 + taxRate/100));
+          
+          return {
+            id: index + 1,
+            name: item.itemName || item.productName || item.product?.name || '',
+            qty: quantity,
+            price: basePricePerUnit,
+            discount: discount
+          };
+        });
+        setProducts(loadedProducts);
+      } else {
+        setProducts([{
+          id: 1,
+          name: editingBill.productName || '',
+          qty: 1,
+          price: editingBill.amount || 0,
+          discount: 0
+        }]);
+      }
+      
+      // Load payment details
+      if (editingBill.totals) {
+        setAdvance(editingBill.totals.advanceAmount || 0);
+        setPaymentStatus(editingBill.paymentStatus || 'Unpaid');
+      }
     }
     
     // Load saved logo
@@ -736,43 +767,26 @@ setLoggedInEmployee(employee?.name || "Sales Person");
     const ones = ['', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 'TEN', 'ELEVEN', 'TWELVE', 'THIRTEEN', 'FOURTEEN', 'FIFTEEN', 'SIXTEEN', 'SEVENTEEN', 'EIGHTEEN', 'NINETEEN'];
     const tens = ['', '', 'TWENTY', 'THIRTY', 'FORTY', 'FIFTY', 'SIXTY', 'SEVENTY', 'EIGHTY', 'NINETY'];
     
-    num = Math.floor(num);
     if (num === 0) return 'ZERO RUPEES ONLY';
     
     let words = '';
-    if (num >= 10000000) { 
-      const crores = Math.floor(num / 10000000);
-      words += (crores < 20 ? ones[crores] : tens[Math.floor(crores / 10)] + ' ' + ones[crores % 10]) + ' CRORE '; 
-      num %= 10000000; 
-    }
-    if (num >= 100000) { 
-      const lakhs = Math.floor(num / 100000);
-      words += (lakhs < 20 ? ones[lakhs] : tens[Math.floor(lakhs / 10)] + ' ' + ones[lakhs % 10]) + ' LAKH '; 
-      num %= 100000; 
-    }
-    if (num >= 1000) { 
-      const thousands = Math.floor(num / 1000);
-      words += (thousands < 20 ? ones[thousands] : tens[Math.floor(thousands / 10)] + ' ' + ones[thousands % 10]) + ' THOUSAND '; 
-      num %= 1000; 
-    }
-    if (num >= 100) { 
-      words += ones[Math.floor(num / 100)] + ' HUNDRED '; 
-      num %= 100; 
-    }
-    if (num >= 20) { 
-      words += tens[Math.floor(num / 10)] + ' '; 
-      num %= 10; 
-    }
+    if (num >= 10000000) { words += ones[Math.floor(num / 10000000)] + ' CRORE '; num %= 10000000; }
+    if (num >= 100000) { words += ones[Math.floor(num / 100000)] + ' LAKH '; num %= 100000; }
+    if (num >= 1000) { words += ones[Math.floor(num / 1000)] + ' THOUSAND '; num %= 1000; }
+    if (num >= 100) { words += ones[Math.floor(num / 100)] + ' HUNDRED '; num %= 100; }
+    if (num >= 20) { words += tens[Math.floor(num / 10)] + ' '; num %= 10; }
     if (num > 0) words += ones[num] + ' ';
     
-    return words.trim().replace(/\s+/g, ' ') + ' RUPEES ONLY';
+    return words.trim() + ' RUPEES ONLY';
   };
 
   const openDirectPrintPreview = () => {
     const totals = calculateTotals();
-    const productsHTML = products.filter(p => p.name).map((p, i) => 
-      `<tr><td>${i + 1}</td><td class="product-name">${p.name}</td><!--<td>-</td>--><td>${p.qty}</td><td>${p.price.toFixed(2)}</td><td>${p.discount}</td><td>${calculateRowAmount(p).toFixed(2)}</td></tr>`
-    ).join('');
+    const productsHTML = products.filter(p => p.name).map((p, i) => {
+      const subtotal = p.qty * p.price;
+      const afterDiscount = subtotal * (1 - p.discount/100);
+      return `<tr><td>${i + 1}</td><td class="product-name">${p.name}</td><!--<td>-</td>--><td>${p.qty}</td><td>${p.price.toFixed(2)}</td><td>${p.discount}</td><td>${afterDiscount.toFixed(2)}</td></tr>`;
+    }).join('');
     
     const printTab = window.open('', '_blank');
     printTab.document.write(`
@@ -785,7 +799,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
         .invoice-container { max-width: 210mm; margin: 0 auto; background: white; border: 3px solid #000; }
         .header-section { border-bottom: 3px solid #000; padding: 20px; display: flex; justify-content: space-between; align-items: flex-start; min-height: 120px; }
         .logo-section { display: flex; align-items: flex-start; flex: 1; }
-        .logo-box { width: 80px; height: 80px; border: 2px solid #000; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; margin-right: 20px; text-align: center; line-height: 1.1; background: #f9f9f9; }
+        .logo-box { width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; margin-right: 20px; text-align: center; line-height: 1.1; }
         .company-info { flex: 1; }
         .company-name { font-size: 22px; font-weight: bold; margin-bottom: 8px; color: #000; }
         .company-details { font-size: 13px; line-height: 1.4; color: #333; margin-bottom: 12px; }
@@ -856,17 +870,17 @@ setLoggedInEmployee(employee?.name || "Sales Person");
             <div class="invoice-info">
               <table class="invoice-info-table">
                 <tr><td>Invoice No.:</td><td>INV-${Date.now().toString().slice(-6)}</td></tr>
-                <tr><td>Invoice Date:</td><td>${new Date(invoiceDate).toLocaleDateString('en-GB')}</td></tr>
+                <tr><td>Invoice Date:</td><td>${new Date().toLocaleDateString('en-GB')}</td></tr>
                 <tr><td>Salesperson:</td><td><strong>${loggedInEmployee}</strong></td></tr>
                 <tr><td>Payment Method:</td><td><span class="payment-method">💵 Cash</span></td></tr>
                 <tr><td>Payment Status:</td><td><span class="payment-status">${paymentStatus}</span></td></tr>
               </table>
             </div>
           </div>
-          // <table class="products-table">
-          //   <thead><tr><th>Sr. No.</th><th>Name of Product/Service</th><!--<th>HSN/SAC</th>--><th>Qty</th><th>Rate</th><th>Disc. (%)</th><th>Total</th></tr></thead>
-          //   <tbody>${productsHTML}</tbody>
-          // </table>
+          <table class="products-table">
+            <thead><tr><th>Sr. No.</th><th>Name of Product/Service</th><!--<th>HSN/SAC</th>--><th>Qty</th><th>Rate</th><th>Disc. (%)</th><th>Total</th></tr></thead>
+            <tbody>${productsHTML}</tbody>
+          </table>
           <div class="totals-section">
             <div class="words-section">
               <strong>Total in words:</strong><br>
@@ -886,9 +900,9 @@ setLoggedInEmployee(employee?.name || "Sales Person");
             <div class="signature-box">Owner Signature</div>
             <div class="signature-box">Customer Signature</div>
           </div>-->
-          <div style="border: 3px solid #000; border-top: none; padding: 20px; text-align: right; background: #fafafa; min-height: 120px; position: relative;">
-            ${digitalSignature ? `<div style="margin-bottom: 10px;"><img src="${digitalSignature}" alt="Signature" style="width: 120px; height: 60px; object-fit: contain; display: inline-block;"></div>` : '<div style="height: 60px;"></div>'}
-            <div style="border-top: 2px solid #000; display: inline-block; min-width: 200px; padding-top: 8px; font-size: 14px; font-weight: bold; color: #000; margin-top: 10px;">Authorized Signature</div>
+          <div style="border: 3px solid #000; border-top: none; padding: 60px 20px 20px; text-align: right; background: #fafafa; min-height: 120px; position: relative;">
+            ${digitalSignature ? `<img src="${digitalSignature}" alt="Signature" style="width: 150px; height: 60px; object-fit: contain; position: absolute; top: 20px; right: 50px;">` : ''}
+            <div style="border-top: 1px solid #000; display: inline-block; min-width: 200px; padding-top: 10px; font-size: 14px; font-weight: bold; color: #000;">Authorized Signature</div>
           </div>
         </div>
       </body>
@@ -1020,6 +1034,19 @@ setLoggedInEmployee(employee?.name || "Sales Person");
               </div>
             </div>
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Digital Signature</label>
+              <div className="flex items-center gap-3 flex-wrap">
+                {digitalSignature ? (
+                  <img src={digitalSignature} alt="Signature" className="w-32 h-16 object-contain border rounded" />
+                ) : (
+                  <div className="bg-gray-200 text-gray-600 p-3 rounded-lg text-xs font-bold text-center min-w-20">No Signature</div>
+                )}
+                <input type="file" id="signature-upload" accept="image/*" className="hidden" onChange={handleSignatureUpload} />
+                <label htmlFor="signature-upload" className="bg-gray-600 text-white px-3 py-2 rounded-lg text-xs cursor-pointer hover:bg-gray-700 transition-colors">📝 Upload Signature</label>
+                <span className="text-xs text-gray-500">{digitalSignature ? 'Signature uploaded' : 'No signature'}</span>
+              </div>
+            </div>
+            <div>
               <label className={`block text-sm font-medium mb-1 ${
                 isDarkMode ? 'text-gray-300' : 'text-gray-700'
               }`}>Company Name</label>
@@ -1079,34 +1106,6 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                 onChange={(e) => setCompanyDetails({...companyDetails, gst: e.target.value})}
               />
             </div> */}
-            <div>
-              <label className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}>Invoice Date</label>
-              <input 
-                type="date" 
-                className={`w-full p-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 transition-all ${
-                  isDarkMode 
-                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400' 
-                    : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500'
-                }`} 
-                value={invoiceDate}
-                onChange={(e) => setInvoiceDate(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Digital Signature</label>
-              <div className="flex items-center gap-3 flex-wrap">
-                {digitalSignature ? (
-                  <img src={digitalSignature} alt="Signature" className="w-24 h-16 object-contain border rounded bg-white" />
-                ) : (
-                  <div className="bg-gray-200 text-gray-600 p-3 rounded-lg text-xs font-bold text-center min-w-20">No Signature</div>
-                )}
-                <input type="file" id="signature-upload" accept="image/*" className="hidden" onChange={handleSignatureUpload} />
-                <label htmlFor="signature-upload" className="bg-gray-600 text-white px-3 py-2 rounded-lg text-xs cursor-pointer hover:bg-gray-700 transition-colors">📝 Upload Signature</label>
-                <span className="text-xs text-gray-500">{digitalSignature ? 'Signature uploaded' : 'No signature'}</span>
-              </div>
-            </div>
            
             <div>
               <label className={`block text-sm font-medium mb-1 ${
@@ -1469,7 +1468,18 @@ setLoggedInEmployee(employee?.name || "Sales Person");
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg px-4 border-2 border-gray-300 mt-2">
             <span className="text-base sm:text-lg font-bold text-gray-800 mb-2 sm:mb-0">Payment Status:</span>
             <button 
-              onClick={() => setPaymentStatus(paymentStatus === 'Paid' ? 'Unpaid' : 'Paid')}
+              onClick={() => {
+                const newStatus = paymentStatus === 'Paid' ? 'Unpaid' : 'Paid';
+                setPaymentStatus(newStatus);
+                if (newStatus === 'Paid') {
+                  const grandTotal = calculateTotals().grandTotal;
+                  setAdvance(grandTotal);
+                  setBalance(0);
+                } else {
+                  setAdvance(0);
+                  setBalance(calculateTotals().grandTotal);
+                }
+              }}
               className={`px-4 py-2 rounded-lg font-bold text-sm transition-all ${
                 paymentStatus === 'Paid' 
                   ? 'bg-green-500 text-white hover:bg-green-600' 
@@ -1551,7 +1561,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start mb-4 md:mb-6 pb-3 md:pb-4 border-b border-black md:border-b-2">
                   <div className="flex items-start w-full md:w-auto mb-3 md:mb-0">
-                    <div className="w-12 h-12 md:w-16 md:h-16 border border-black md:border-2 flex items-center justify-center text-xs font-bold mr-3 md:mr-4 bg-gray-100">
+                    <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center text-xs font-bold mr-3 md:mr-4">
                       {companyLogo ? (
                         <img src={companyLogo} alt="Logo" className="w-full h-full object-contain" />
                       ) : (
@@ -1563,9 +1573,9 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                       <p className="text-xs md:text-sm text-gray-600">
                         {companyDetails.address}<br/>
                         Phone: {companyDetails.phone}<br/>
-                        {/* GST: {companyDetails.gst} */}
+                        GST: {companyDetails.gst}
                       </p>
-                      {/* <p className="text-xs md:text-sm font-medium mt-2">{companyDetails.brands}</p> */}
+                      {/*<p className="text-xs md:text-sm font-medium mt-2">{companyDetails.brands}</p>*/}
                     </div>
                   </div>
                   <div className="text-left md:text-right w-full md:w-auto">
@@ -1597,7 +1607,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                       </div>
                       <div className="flex justify-between">
                         <span className="font-bold">Invoice Date:</span>
-                        <span>{new Date(invoiceDate).toLocaleDateString()}</span>
+                        <span>{new Date().toLocaleDateString()}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="font-bold">Salesperson:</span>
@@ -1622,11 +1632,13 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                   <h4 className="font-bold mb-2">Products:</h4>
                   {products.map((product, index) => {
                     if (product.name) {
+                      const subtotal = product.qty * product.price;
+                      const afterDiscount = subtotal * (1 - product.discount/100);
                       return (
                         <div key={index} className="bg-gray-50 p-3 mb-2 rounded border">
                           <div className="flex justify-between items-start mb-2">
                             <span className="font-medium">{index + 1}. {product.name}</span>
-                            <span className="font-bold">₹{calculateRowAmount(product).toFixed(2)}</span>
+                            <span className="font-bold">₹{afterDiscount.toFixed(2)}</span>
                           </div>
                           <div className="grid grid-cols-3 gap-2 text-xs text-gray-600">
                             <span>Qty: {product.qty}</span>
@@ -1647,7 +1659,6 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                       <tr className="bg-gray-100">
                         <th className="border border-black p-2 text-sm">Sr. No.</th>
                         <th className="border border-black p-2 text-sm">Name of Product/Service</th>
-                        {/* <th className="border border-black p-2 text-sm">HSN/SAC</th> */}
                         <th className="border border-black p-2 text-sm">Qty</th>
                         <th className="border border-black p-2 text-sm">Rate</th>
                         <th className="border border-black p-2 text-sm">Disc. (%)</th>
@@ -1657,15 +1668,16 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                     <tbody>
                       {products.map((product, index) => {
                         if (product.name) {
+                          const subtotal = product.qty * product.price;
+                          const afterDiscount = subtotal * (1 - product.discount/100);
                           return (
                             <tr key={index}>
                               <td className="border border-black p-2 text-center text-sm">{index + 1}</td>
                               <td className="border border-black p-2 text-sm">{product.name}</td>
-                              {/* <td className="border border-black p-2 text-center text-sm">-</td> */}
                               <td className="border border-black p-2 text-center text-sm">{product.qty}</td>
                               <td className="border border-black p-2 text-center text-sm">₹{product.price.toFixed(2)}</td>
                               <td className="border border-black p-2 text-center text-sm">{product.discount}%</td>
-                              <td className="border border-black p-2 text-center text-sm">₹{calculateRowAmount(product).toFixed(2)}</td>
+                              <td className="border border-black p-2 text-center text-sm">₹{afterDiscount.toFixed(2)}</td>
                             </tr>
                           );
                         }
@@ -1734,11 +1746,13 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                   </div>
                 </div> */}
                 <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-black md:border-t-2">
-                  <div className="text-right">
+                  <div className="text-right relative" style={{minHeight: '100px', paddingTop: '20px'}}>
                     {digitalSignature && (
-                      <img src={digitalSignature} alt="Signature" className="inline-block w-32 h-20 object-contain mb-2" />
+                      <img src={digitalSignature} alt="Signature" className="w-32 h-16 object-contain absolute top-0 right-8" />
                     )}
-                    <div className="border-t border-black mt-2 pt-2 font-bold text-xs md:text-sm inline-block min-w-[200px]">Authorized Signature</div>
+                    <div className="border-t border-black pt-2 font-bold text-xs md:text-sm inline-block min-w-[200px]" style={{marginTop: '60px'}}>
+                      Authorized Signature
+                    </div>
                   </div>
                 </div>
               </div>

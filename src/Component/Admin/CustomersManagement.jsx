@@ -97,15 +97,30 @@ const CustomersManagement = ({ customers, setCustomers }) => {
   // DELETE CUSTOMER
   // ==========================
   const handleDeleteCustomer = async (customerId) => {
-    if (!window.confirm('Are you sure you want to delete this customer?')) return;
+    if (!window.confirm('Are you sure you want to delete this customer? This will also delete all related invoices.')) return;
 
     try {
-      await axios.delete(
+      // First, fetch all invoices for this customer
+      const invoicesResponse = await axios.get('http://localhost:8080/api/billing/invoices');
+      const customerInvoices = invoicesResponse.data.filter(inv => inv.customer?.id === customerId);
+      
+      // Delete all related invoices first
+      for (const invoice of customerInvoices) {
+        await axios.delete(`http://localhost:8080/api/billing/invoice/${invoice.id}`);
+      }
+      
+      // Now delete the customer
+      const response = await axios.delete(
         `http://localhost:8080/api/billing/customer/${customerId}`
       );
-      setCustomers(customers.filter(c => c.id !== customerId));
+      
+      if (response.status === 200 || response.status === 204) {
+        setCustomers(customers.filter(c => c.id !== customerId));
+        alert(`Customer and ${customerInvoices.length} related invoice(s) deleted successfully!`);
+      }
     } catch (error) {
       console.error('Error deleting customer:', error);
+      alert('Failed to delete customer. Error: ' + (error.response?.data?.message || error.message));
     }
   };
 

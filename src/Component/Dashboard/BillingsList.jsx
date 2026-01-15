@@ -14,6 +14,8 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
   const [showUpdateModal, setShowUpdateModal] = React.useState(false);
   const [updateBill, setUpdateBill] = React.useState(null);
   const [selectedDate, setSelectedDate] = React.useState('');
+  const [companyLogo, setCompanyLogo] = React.useState(null);
+  const [digitalSignature, setDigitalSignature] = React.useState(null);
 
   // Fetch complete invoice data with all related entities
   const fetchCompleteInvoiceData = async (invoiceId) => {
@@ -78,7 +80,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
           date: invoice.invoiceDate ? new Date(invoice.invoiceDate).toLocaleDateString() : new Date().toLocaleDateString(),
           amount: calculatedAmount,
           status: 'Completed',
-          paymentStatus: (invoice.paymentStatus === 'PAID' || (invoice.balanceAmount || 0) === 0) ? 'Paid' : 'Unpaid',
+          paymentStatus: (invoice.paymentStatus === 'PAID' || invoice.paymentStatus === 'Paid' || (invoice.balanceAmount || 0) === 0) ? 'Paid' : 'Unpaid',
           items: invoice.items || [],
           totals: {
             subtotal: invoice.subTotal || 0,
@@ -188,7 +190,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
           date: invoice.invoiceDate ? new Date(invoice.invoiceDate).toLocaleDateString() : new Date().toLocaleDateString(),
           amount: calculatedAmount,
           status: 'Completed',
-          paymentStatus: (invoice.paymentStatus === 'PAID' || (invoice.balanceAmount || 0) === 0) ? 'Paid' : 'Unpaid',
+          paymentStatus: (invoice.paymentStatus === 'PAID' || invoice.paymentStatus === 'Paid' || (invoice.balanceAmount || 0) === 0) ? 'Paid' : 'Unpaid',
           items: invoice.items || [],
           totals: {
             subtotal: invoice.subTotal || 0,
@@ -256,6 +258,17 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
   // Load invoices on component mount
   React.useEffect(() => {
     fetchInvoices();
+    
+    // Load saved logo and signature
+    const savedLogo = localStorage.getItem('companyLogo');
+    if (savedLogo) {
+      setCompanyLogo(savedLogo);
+    }
+    
+    const savedSignature = localStorage.getItem('digitalSignature');
+    if (savedSignature) {
+      setDigitalSignature(savedSignature);
+    }
   }, []);
 
   const viewBill = async (bill) => {
@@ -413,7 +426,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
         <div class="invoice-container">
           <div class="header-section">
             <div class="logo-section">
-              <div class="logo-box">YOUR<br>LOGO</div>
+              <div class="logo-box">${companyLogo ? `<img src="${companyLogo}" alt="Logo" style="width:100%;height:100%;object-fit:contain;">` : 'YOUR<br>LOGO'}</div>
               <div class="company-info">
                 <div class="company-name">${billData.company?.name || 'Smart Sales'}</div>
                 <div class="company-details">${billData.company?.address || '123 Business Street, City - 400001'}<br>Phone: ${billData.company?.phone || '+91 98765 43210'}<br>GST: ${billData.company?.gst || '27XXXXX1234X1ZX'}</div>
@@ -458,13 +471,13 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
               ${calculatedTotals.cgstAmount > 0 ? `<div class="amount-row"><span>CGST (9%):</span><span>₹${calculatedTotals.cgstAmount.toFixed(2)}</span></div>` : ''}
               ${calculatedTotals.sgstAmount > 0 ? `<div class="amount-row"><span>SGST (9%):</span><span>₹${calculatedTotals.sgstAmount.toFixed(2)}</span></div>` : ''}
               <div class="amount-row total-amount"><span>Total Amount:</span><span>₹${calculatedTotals.grandTotal.toFixed(2)}</span></div>
-              <div class="amount-row"><span>Advance Amount:</span><span>₹${(billData.totals?.advanceAmount || 0).toFixed(2)}</span></div>
+              <div class="amount-row"><span>Paid Amount:</span><span>₹${(billData.totals?.advanceAmount || 0).toFixed(2)}</span></div>
               <div class="amount-row" style="background: #fef3cd; border-top: 2px solid #f59e0b;"><span style="color: #92400e; font-weight: bold;">Balance Amount:</span><span style="color: #92400e; font-weight: bold;">₹${calculatedTotals.balanceAmount.toFixed(2)}</span></div>
             </div>
           </div>
-          <div class="signatures">
-            <div class="signature-box">Owner Signature</div>
-            <div class="signature-box">Customer Signature</div>
+          <div style="border: 3px solid #000; border-top: none; padding: 60px 20px 20px; text-align: right; background: #fafafa; min-height: 120px; position: relative;">
+            ${digitalSignature ? `<img src="${digitalSignature}" alt="Signature" style="width: 150px; height: 60px; object-fit: contain; position: absolute; top: 20px; right: 50px;">` : ''}
+            <div style="border-top: 1px solid #000; display: inline-block; min-width: 200px; padding-top: 10px; font-size: 14px; font-weight: bold; color: #000;">Authorized Signature</div>
           </div>
         </div>
       </body>
@@ -1007,8 +1020,12 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start mb-4 md:mb-6 pb-3 md:pb-4 border-b border-black md:border-b-2">
                   <div className="flex items-start w-full md:w-auto mb-3 md:mb-0">
-                    <div className="w-12 h-12 md:w-16 md:h-16 border border-black md:border-2 flex items-center justify-center text-xs font-bold mr-3 md:mr-4 bg-gray-100">
-                      YOUR<br/>LOGO
+                    <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center text-xs font-bold mr-3 md:mr-4">
+                      {companyLogo ? (
+                        <img src={companyLogo} alt="Logo" className="w-full h-full object-contain" />
+                      ) : (
+                        'YOUR LOGO'
+                      )}
                     </div>
                     <div className="flex-1">
                       <h1 className="text-lg md:text-xl font-bold">{selectedBill.company?.name || 'Smart Sales'}</h1>
@@ -1190,7 +1207,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                               <span>₹{calculatedTotals.grandTotal.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between py-1 border-b">
-                              <span>Advance Amount:</span>
+                              <span>Paid Amount:</span>
                               <span>₹{(selectedBill.totals?.advanceAmount || 0).toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between py-2 bg-orange-100 px-3 font-bold text-sm md:text-lg border border-orange-300">
@@ -1206,12 +1223,14 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                 </div>
                 
                 {/* Signatures */}
-                <div className="grid grid-cols-2 gap-4 md:gap-6 mt-6 md:mt-8 pt-6 md:pt-8 border-t border-black md:border-t-2">
-                  <div className="text-center">
-                    <div className="border-t border-black mt-8 md:mt-12 pt-2 font-bold text-xs md:text-sm">Owner Signature</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="border-t border-black mt-8 md:mt-12 pt-2 font-bold text-xs md:text-sm">Customer Signature</div>
+                <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-black md:border-t-2">
+                  <div className="text-right relative" style={{minHeight: '100px', paddingTop: '20px'}}>
+                    {digitalSignature && (
+                      <img src={digitalSignature} alt="Signature" className="w-32 h-16 object-contain absolute top-0 right-8" />
+                    )}
+                    <div className="border-t border-black pt-2 font-bold text-xs md:text-sm inline-block min-w-[200px]" style={{marginTop: '60px'}}>
+                      Authorized Signature
+                    </div>
                   </div>
                 </div>
               </div>

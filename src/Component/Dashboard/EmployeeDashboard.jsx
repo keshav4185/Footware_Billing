@@ -44,9 +44,44 @@ const EmployeeDashboard = ({ isDarkMode }) => {
       
       let recentInvoices = [];
       let paidBillsCount = 0;
+      let totalSales = 0;
+      let totalInvoices = 0;
       if (invoicesResponse.ok) {
         const invoicesText = await invoicesResponse.text();
-        const invoicesData = JSON.parse(invoicesText);
+        let invoicesData = JSON.parse(invoicesText);
+        
+        // Filter by date range
+        if (dateRange === 'today') {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          invoicesData = invoicesData.filter(invoice => {
+            const invoiceDate = new Date(invoice.invoiceDate);
+            invoiceDate.setHours(0, 0, 0, 0);
+            return invoiceDate.getTime() === today.getTime();
+          });
+        } else if (dateRange === 'week') {
+          const weekAgo = new Date();
+          weekAgo.setDate(weekAgo.getDate() - 7);
+          weekAgo.setHours(0, 0, 0, 0);
+          invoicesData = invoicesData.filter(invoice => {
+            const invoiceDate = new Date(invoice.invoiceDate);
+            return invoiceDate >= weekAgo;
+          });
+        } else if (dateRange === 'month') {
+          const monthAgo = new Date();
+          monthAgo.setDate(monthAgo.getDate() - 30);
+          monthAgo.setHours(0, 0, 0, 0);
+          invoicesData = invoicesData.filter(invoice => {
+            const invoiceDate = new Date(invoice.invoiceDate);
+            return invoiceDate >= monthAgo;
+          });
+        }
+        
+        // Calculate totals from filtered data
+        totalSales = invoicesData.reduce((sum, inv) => sum + (inv.totalAmount || 0), 0);
+        totalInvoices = invoicesData.length;
+        paidBillsCount = invoicesData.filter(invoice => invoice.paymentStatus === 'PAID').length;
+        
         recentInvoices = invoicesData.slice(-5).map(invoice => ({
           id: invoice.id,
           invoiceNo: invoice.invoiceNumber,
@@ -55,15 +90,14 @@ const EmployeeDashboard = ({ isDarkMode }) => {
           amount: invoice.totalAmount,
           paymentStatus: invoice.paymentStatus === 'PAID' ? 'Paid' : 'Unpaid'
         }));
-        paidBillsCount = invoicesData.filter(invoice => invoice.paymentStatus === 'PAID').length;
       }
       
       // Calculate average sale
-      const avgSale = data.totalInvoices > 0 ? data.totalSales / data.totalInvoices : 0;
+      const avgSale = totalInvoices > 0 ? totalSales / totalInvoices : 0;
       
       setDashboardData({
-        totalSales: data.totalSales || 0,
-        totalInvoices: data.totalInvoices || 0,
+        totalSales: totalSales,
+        totalInvoices: totalInvoices,
         paidBills: paidBillsCount,
         avgSale: avgSale,
         topCustomers: data.topCustomers || [],
@@ -196,7 +230,7 @@ const EmployeeDashboard = ({ isDarkMode }) => {
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10">
+      <div className="grid grid-cols-1 gap-6 relative z-10">
         {/* Daily Sales */}
         <div className="bg-white rounded-xl shadow-lg p-6 backdrop-blur-sm bg-white/90 hover:shadow-2xl hover:shadow-blue-200/50 transition-all duration-500 transform hover:scale-[1.02] border border-gray-100 group">
           <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
@@ -234,29 +268,6 @@ const EmployeeDashboard = ({ isDarkMode }) => {
                 </div>
               ))
             )}
-          </div>
-        </div>
-
-        {/* Top Customers */}
-        <div className="bg-white rounded-xl shadow-lg p-6 backdrop-blur-sm bg-white/90 hover:shadow-2xl hover:shadow-purple-200/50 transition-all duration-500 transform hover:scale-[1.02] border border-gray-100 group">
-          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span className="text-xl">👥</span> Top Customers
-          </h3>
-          <div className="space-y-3">
-            {dashboardData.topCustomers.map((customer, index) => (
-              <div key={customer.name || index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg transform hover:scale-[1.02] transition-all duration-300 hover:shadow-md hover:shadow-purple-200/30 animate-slideInUp group" style={{animationDelay: `${index * 0.1}s`}}>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                    {index + 1}
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-800">{customer.name || 'N/A'}</p>
-                    <p className="text-xs text-gray-500">{customer.bills || 0} bills</p>
-                  </div>
-                </div>
-                <span className="font-bold text-green-600">₹{(customer.amount || 0).toFixed(2)}</span>
-              </div>
-            ))}
           </div>
         </div>
       </div>
