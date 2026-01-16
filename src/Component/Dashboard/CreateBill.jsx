@@ -41,9 +41,9 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   const [loading, setLoading] = React.useState(false);
   const [companyId, setCompanyId] = React.useState(null);
   const [companyDetails, setCompanyDetails] = React.useState({
-    name: 'Smart Sales',
-    address: '123 Business Street, City - 400001',
-    phone: '+91 98765 43210',
+    name: 'SMARTMATRIX Digital Services ',
+    address: ' First Floor, Survey No. 21, Ganesham Commercial -A, Office No, 102-A, Aundh - Ravet BRTS Rd, Pimple Saudagar, Pune, Maharashtra 411027',
+    phone: '9112108484',
     gst: '27XXXXX1234X1ZX',
     brands: 'RELAXO adidas Bata Paragon FILA campus'
   });
@@ -148,9 +148,9 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       if (response.data && response.data.length > 0) {
         const latestCompany = response.data[response.data.length - 1];
         setCompanyDetails({
-          name: latestCompany.name || 'Smart Sales',
-          address: latestCompany.address || '123 Business Street, City - 400001',
-          phone: latestCompany.phone || '+91 98765 43210',
+          name: latestCompany.name || 'SMARTMATRIX Digital Services ',
+          address: latestCompany.address || ' First Floor, Survey No. 21, Ganesham Commercial -A, Office No, 102-A, Aundh - Ravet BRTS Rd, Pimple Saudagar, Pune, Maharashtra 411027',
+          phone: latestCompany.phone || '9112108484',
           gst: latestCompany.gst || '27XXXXX1234X1ZX',
           brands: latestCompany.brands || 'RELAXO adidas Bata Paragon FILA campus'
         });
@@ -334,19 +334,36 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
     const items = products
       .filter(p => p.name.trim())
       .map(product => {
-        const subtotal = product.qty * product.price;
-        const afterDiscount = subtotal * (1 - product.discount/100);
-        const cgst = cgstEnabled ? afterDiscount * cgstRate / 100 : 0;
-        const sgst = sgstEnabled ? afterDiscount * sgstRate / 100 : 0;
-        const totalWithTax = afterDiscount + cgst + sgst;
+        const unitPrice = product.price;
+        const quantity = product.qty;
+        const subtotal = quantity * unitPrice;
+        const discountAmount = subtotal * (product.discount / 100);
+        const afterDiscount = subtotal - discountAmount;
+        
+        // Calculate tax ONLY if discount is applied, otherwise on full price
+        const taxableAmount = afterDiscount;
+        const itemCgst = cgstEnabled ? taxableAmount * cgstRate / 100 : 0;
+        const itemSgst = sgstEnabled ? taxableAmount * sgstRate / 100 : 0;
+        const priceWithTax = taxableAmount + itemCgst + itemSgst;
+        
+        console.log(`\n=== Product: ${product.name} ===`);
+        console.log(`Unit Price: ₹${unitPrice}`);
+        console.log(`Quantity: ${quantity}`);
+        console.log(`Subtotal: ₹${subtotal}`);
+        console.log(`Discount ${product.discount}%: -₹${discountAmount}`);
+        console.log(`After Discount: ₹${afterDiscount}`);
+        console.log(`CGST ${cgstRate}%: +₹${itemCgst}`);
+        console.log(`SGST ${sgstRate}%: +₹${itemSgst}`);
+        console.log(`FINAL Price (WITH TAX): ₹${priceWithTax}`);
+        console.log(`===========================\n`);
         
         return {
           productName: product.name,
-          quantity: product.qty,
-          price: product.price,
-          tax: product.tax,
+          quantity: quantity,
+          unitPrice: unitPrice,
           discount: product.discount,
-          amount: totalWithTax
+          afterDiscount: afterDiscount,
+          priceWithTax: priceWithTax
         };
       });
 
@@ -357,19 +374,18 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       try {
         const productResponse = await productAPI.create({
           name: item.productName,
-          price: item.price,
-          tax: item.tax
+          price: item.unitPrice,
+          tax: 0
         });
 
         itemsWithProducts.push({
           itemName: item.productName,
           product: { id: productResponse.data.id },
           quantity: item.quantity,
-          rate: item.price,
-          price: parseFloat(item.amount.toFixed(2)),
-          tax: item.tax || 0,
+          rate: item.unitPrice,
+          price: parseFloat(item.priceWithTax.toFixed(2)),  // ✅ Price WITH TAX
           discount: item.discount,
-          rowTotal: parseFloat(item.amount.toFixed(2))
+          rowTotal: parseFloat(item.priceWithTax.toFixed(2))  // ✅ Total WITH TAX
         });
       } catch (error) {
         console.error("Error creating product:", error);
@@ -378,17 +394,25 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
           itemName: item.productName,
           product: null,
           quantity: item.quantity,
-          rate: item.price,
-          price: parseFloat(item.amount.toFixed(2)),
-          tax: item.tax || 0,
+          rate: item.unitPrice,
+          price: parseFloat(item.priceWithTax.toFixed(2)),  // ✅ Price WITH TAX
           discount: item.discount,
-          rowTotal: parseFloat(item.amount.toFixed(2))
+          rowTotal: parseFloat(item.priceWithTax.toFixed(2))  // ✅ Total WITH TAX
         });
       }
     }
 
     const totals = calculateTotals();
     const invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
+
+    console.log("\n========== CALCULATION BREAKDOWN ==========");
+    console.log("Subtotal (before discount):", totals.subtotal);
+    console.log("Total Discount:", totals.totalDiscount);
+    console.log("Taxable Amount (after discount):", totals.taxableAmount);
+    console.log("CGST Amount (9%):", totals.cgstAmount);
+    console.log("SGST Amount (9%):", totals.sgstAmount);
+    console.log("GRAND TOTAL (with tax):", totals.grandTotal);
+    console.log("==========================================\n");
 
     // ✅ FINAL invoice payload (CORRECT)
     const invoiceData = {
@@ -406,18 +430,29 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       totalDiscount: parseFloat(totals.totalDiscount.toFixed(2)),
       advanceAmount: parseFloat(advance.toFixed(2)),
       balanceAmount: parseFloat(totals.balanceAmount.toFixed(2)),
-      price: parseFloat(totals.balanceAmount.toFixed(2)),
+      price: parseFloat(totals.grandTotal.toFixed(2)),
       paymentStatus: paymentStatus === "Paid" ? "PAID" : "UNPAID"
     };
 
-    console.log("Invoice data being sent:", invoiceData);
-    console.log("Calculated totals:", totals);
-    console.log("Total amount being sent:", totals.grandTotal);
-    console.log("Balance amount (price field):", totals.balanceAmount);
+    console.log("\n========== INVOICE PAYLOAD BEING SENT ==========");
+    console.log("Invoice Number:", invoiceData.invoiceNumber);
+    console.log("SubTotal:", invoiceData.subTotal);
+    console.log("Total Discount:", invoiceData.totalDiscount);
+    console.log("CGST Amount:", invoiceData.cgstAmount);
+    console.log("SGST Amount:", invoiceData.sgstAmount);
+    console.log("Total Amount:", invoiceData.totalAmount);
+    console.log("Price Field:", invoiceData.price);
+    console.log("Advance Amount:", invoiceData.advanceAmount);
+    console.log("Balance Amount:", invoiceData.balanceAmount);
+    console.log("Full Invoice Data:", JSON.stringify(invoiceData, null, 2));
+    console.log("===============================================\n");
 
     // ✅ Create invoice
     const invoiceResponse = await invoiceAPI.create(invoiceData);
+    console.log("\n========== BACKEND RESPONSE ==========");
     console.log("Invoice created with ID:", invoiceResponse.data.id);
+    console.log("Backend returned data:", JSON.stringify(invoiceResponse.data, null, 2));
+    console.log("======================================\n");
 
     // ✅ Create payment if advance exists
     if (advance > 0) {
@@ -891,7 +926,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
               <div class="amount-row"><span>Discount:</span><span>₹${totals.totalDiscount.toFixed(2)}</span></div>
               ${cgstEnabled ? `<div class="amount-row"><span>CGST (${cgstRate}%):</span><span>₹${totals.cgstAmount.toFixed(2)}</span></div>` : ''}
               ${sgstEnabled ? `<div class="amount-row"><span>SGST (${sgstRate}%):</span><span>₹${totals.sgstAmount.toFixed(2)}</span></div>` : ''}
-              <div className="amount-row total-amount"><span>Total Amount:</span><span>₹${totals.grandTotal.toFixed(2)} ${paymentStatus === 'Paid' ? '✅' : '❌'}</span></div>
+              <div class="amount-row total-amount"><span>Total Amount:</span><span>₹${totals.grandTotal.toFixed(2)} ${paymentStatus === 'Paid' ? '✅' : '❌'}</span></div>
               <div class="amount-row"><span>Paid Amount:</span><span>₹${advance.toFixed(2)}</span></div>
               <div class="amount-row" style="background: #fef3cd; border-top: 2px solid #f59e0b;"><span style="color: #92400e; font-weight: bold;">Balance Amount:</span><span style="color: #92400e; font-weight: bold;">₹${totals.balanceAmount.toFixed(2)}</span></div>
             </div>
@@ -1427,39 +1462,35 @@ setLoggedInEmployee(employee?.name || "Sales Person");
               isDarkMode ? 'text-gray-100' : 'text-gray-800'
             }`}>₹ {calculateTotals().sgstAmount.toFixed(2)}</span>
           </div>
-          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b ${
-            isDarkMode ? 'border-gray-600' : 'border-gray-100'
-          }`}>
-            <div className="flex flex-wrap items-center gap-2 mb-1 sm:mb-0">
-              <span className={`text-sm ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-600'
-              }`}>Advance Amount:</span>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg px-4 border-2 border-blue-200">
+            <span className="text-base sm:text-lg font-bold text-blue-800 mb-1 sm:mb-0">Total Amount:</span>
+            <span className="text-lg sm:text-xl font-bold text-blue-800">₹ {calculateTotals().grandTotal.toFixed(2)}</span>
+          </div>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg px-4 border-2 border-green-200 mt-2">
+            <span className="text-base sm:text-lg font-bold text-green-800 mb-1 sm:mb-0">Advance Amount:</span>
+            <div className="flex items-center gap-2">
               <input 
                 type="number" 
-                className={`w-20 p-1 border rounded text-xs text-center ${
-                  isDarkMode 
-                    ? 'border-gray-600 bg-gray-700 text-white' 
-                    : 'border-gray-300 bg-white text-gray-900'
-                }`} 
+                className="w-24 p-2 border-2 border-green-300 rounded-lg text-base font-bold text-green-800 text-center focus:border-green-500 focus:ring-2 focus:ring-green-200" 
                 value={advance} 
                 min="0" 
                 step="0.01"
                 onChange={(e) => {
                   const advanceValue = parseFloat(e.target.value) || 0;
+                  const grandTotal = calculateTotals().grandTotal;
                   setAdvance(advanceValue);
-                  setBalance(calculateTotals().grandTotal - advanceValue);
+                  setBalance(grandTotal - advanceValue);
+                  if (advanceValue >= grandTotal) {
+                    setPaymentStatus('Paid');
+                  } else {
+                    setPaymentStatus('Unpaid');
+                  }
                 }}
                 onFocus={(e) => { if(e.target.value == '0') e.target.select(); }}
                 onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
               />
+              <span className="text-lg sm:text-xl font-bold text-green-800">₹</span>
             </div>
-            <span className={`font-semibold ${
-              isDarkMode ? 'text-gray-100' : 'text-gray-800'
-            }`}>₹ {advance.toFixed(2)}</span>
-          </div>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg px-4 border-2 border-blue-200">
-            <span className="text-base sm:text-lg font-bold text-blue-800 mb-1 sm:mb-0">Total Amount:</span>
-            <span className="text-lg sm:text-xl font-bold text-blue-800">₹ {calculateTotals().grandTotal.toFixed(2)}</span>
           </div>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg px-4 border-2 border-orange-200 mt-2">
             <span className="text-base sm:text-lg font-bold text-orange-800 mb-1 sm:mb-0">Balance Amount:</span>

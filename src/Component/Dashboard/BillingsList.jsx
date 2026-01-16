@@ -283,7 +283,8 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
 
   // Calculation functions from CreateBill
   const calculateRowAmount = (product) => {
-    const subtotal = product.quantity * product.price;
+    const unitPrice = product.rate || product.price;
+    const subtotal = product.quantity * unitPrice;
     const afterDiscount = subtotal * (1 - (product.discount || 0)/100);
     return afterDiscount;
   };
@@ -1100,7 +1101,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                         </div>
                         <div className="grid grid-cols-3 gap-2 text-xs text-gray-600">
                           <span>Qty: {item.quantity || 1}</span>
-                          <span>Rate: ₹{(item.price || 0).toFixed(2)}</span>
+                          <span>Rate: ₹{(item.rate || item.price || 0).toFixed(2)}</span>
                           <span>Disc: {item.discount || 0}%</span>
                         </div>
                       </div>
@@ -1140,7 +1141,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                             <td className="border border-black p-2 text-center text-sm">{index + 1}</td>
                             <td className="border border-black p-2 text-sm">{item.itemName || item.productName || item.product?.name || 'Product'}</td>
                             <td className="border border-black p-2 text-center text-sm">{item.quantity || 1}</td>
-                            <td className="border border-black p-2 text-center text-sm">₹{(item.price || 0).toFixed(2)}</td>
+                            <td className="border border-black p-2 text-center text-sm">₹{(item.rate || item.price || 0).toFixed(2)}</td>
                             <td className="border border-black p-2 text-center text-sm">{item.discount || 0}%</td>
                             <td className="border border-black p-2 text-center text-sm">₹{calculateRowAmount(item).toFixed(2)}</td>
                           </tr>
