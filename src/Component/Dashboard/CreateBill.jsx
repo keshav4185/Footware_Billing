@@ -161,131 +161,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
     }
   };
 
-  // const saveBillToAPI = async () => {
-  //   setLoading(true);
-  //   try {
-  //     // Get logged-in employee ID directly from localStorage
-  //     // const employeeId = localStorage.getItem('employeeId'); // This is the empId from login
-  //     // const employeeName = localStorage.getItem('loggedInEmployee') || 'Sales Person';
-  //     const employee = JSON.parse(localStorage.getItem("employee"));
-  //     const employeeDbId = employee?.id;   // OR employee?.id (based on backend)
-  //     const employeeName = employee?.name;
-      
-  //     console.log('Employee ID being sent:', employeeId); // Debug log
-      
-  //     // Create company first
-  //     const companyResponse = await companyAPI.create({
-  //       name: companyDetails.name,
-  //       address: companyDetails.address,
-  //       phone: companyDetails.phone,
-  //       gst: companyDetails.gst,
-  //       brands: companyDetails.brands
-  //     });
-  //     const companyId = companyResponse.data.id;
-  //     console.log('Company created with ID:', companyId);
-
-  //     // Create customer
-  //     const customerResponse = await customerAPI.create({
-  //       name: customerFormData.name,
-  //       phone: customerFormData.phone,
-  //       gst: customerFormData.gst,
-  //       address: customerFormData.address
-  //     });
-  //     const customerId = customerResponse.data.id;
-  //     console.log('Customer created with ID:', customerId);
-
-  //     // Prepare invoice items from products
-  //     const items = products.filter(p => p.name.trim()).map(product => ({
-  //       productName: product.name,
-  //       quantity: product.qty,
-  //       price: product.price,
-  //       tax: product.tax,
-  //       discount: product.discount,
-  //       amount: calculateRowAmount(product)
-  //     }));
-
-  //     // Create or find products for each item
-  //     const itemsWithProducts = [];
-  //     for (const item of items) {
-  //       try {
-  //         // Try to create a product with the entered name
-  //         const productResponse = await productAPI.create({
-  //           name: item.productName,
-  //           price: item.price,
-  //           tax: item.tax
-  //         });
-          
-  //         itemsWithProducts.push({
-  //            itemName: item.productName,
-  //           product: { id: productResponse.data.id },
-  //           quantity: item.quantity,
-  //           price: item.price,
-  //           tax: item.tax,
-  //           discount: item.discount,
-  //           rowTotal: item.amount
-  //         });
-  //       } catch (error) {
-  //         console.error('Error creating product:', error);
-  //         // If product creation fails, use a default product ID or create without product reference
-  //         itemsWithProducts.push({
-  //            itemName: item.productName,
-  //           product: null, // or { id: 1 } if you have a default product
-  //           quantity: item.quantity,
-  //           price: item.price,
-  //           tax: item.tax,
-  //           discount: item.discount,
-  //           rowTotal: item.amount
-  //         });
-  //       }
-  //     }
-
-  //     const totals = calculateTotals();
-  //     const invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
-
-  //     // Create invoice with employee ID
-  //     const invoiceData = {
-  //       invoiceNumber: invoiceNumber,
-  //       company: { id: companyId },
-  //       customer: { id: customerId },
-  //       employee: { id: employeeDbId }, // Send employee ID to backend
-  //       salesperson: employeeName,
-  //       items: itemsWithProducts,
-  //       subTotal: totals.subtotal,
-  //       totalAmount: totals.grandTotal,
-  //       advanceAmount: advance,
-  //       balanceAmount: totals.balanceAmount,
-  //       paymentStatus: paymentStatus === 'Paid' ? 'PAID' : 'UNPAID'
-  //     };
-      
-  //     console.log('Invoice data being sent:', invoiceData); // Debug log
-  //     console.log("Employee DB ID:", employeeDbId);
-  //     const invoiceResponse = await invoiceAPI.create(invoiceData);
-  //     console.log('Invoice created with ID:', invoiceResponse.data.id);
-      
-  //     // Create payment if advance amount is provided
-  //     if (advance > 0) {
-  //       await paymentAPI.create({
-  //         paymentMethod: 'CASH',
-  //         amount: advance,
-  //         paymentDate: new Date().toISOString(),
-  //         invoice: { id: invoiceResponse.data.id }
-  //       });
-  //       console.log('Payment created for advance amount');
-  //     }
-
-  //     alert('💾 Bill saved to database successfully!');
-  //     saveBill();
-      
-  //   } catch (error) {
-  //     console.error('Error saving to API:', error);
-  //     console.log('Error response:', error.response?.data);
-  //     console.log('Error status:', error.response?.status);
-  //     alert('Error saving to database: ' + (error.response?.data?.message || error.message) + '. Saved locally instead.');
-  //     saveBill();
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  
 
 
 
@@ -467,7 +343,10 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
     }
 
     alert("💾 Bill saved to database successfully!");
-    saveBill();
+    
+    // Reset form after successful save
+    setCustomerFormData({ name: "", phone: "", gst: "", address: "" });
+    setProducts([{ id: 1, name: "", qty: 1, price: 0, discount: 0 }]);
 
   } catch (error) {
     console.error("Error saving to API:", error);
