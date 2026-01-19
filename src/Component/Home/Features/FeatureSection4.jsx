@@ -1,17 +1,31 @@
-// src/Component/Home/Features/FeaturesSection5.jsx
+// Essential Reporting Features for Footwear Billing
 import React, { useState, useEffect } from 'react';
 
 const reportFeatures = [
     {
-        title: "Invoice analysis report",
-        description: "Get a comprehensive overview of your invoices and sales status.",
+        title: "Bill History & Search",
+        description: "View and search through all your billing history with detailed invoice records.",
     },
     {
-        title: "Sales reports",
-        description: "Get direct access to key information with dynamic and customizable dashboards.",
+        title: "Customer Reports",
+        description: "Track customer purchase history, payment patterns, and outstanding balances.",
     },
-    // Note: The source image only provides two main reports. You could expand this list 
-    // with typical accounting reports if needed, but for now, we stick to the source.
+    {
+        title: "Daily Sales Summary",
+        description: "Get daily, weekly, and monthly sales summaries with revenue tracking.",
+    },
+    {
+        title: "Payment Status Reports",
+        description: "Monitor payment collection rates and identify overdue accounts.",
+    },
+    {
+        title: "Tax Reports",
+        description: "Generate CGST and SGST reports for tax compliance and filing.",
+    },
+    {
+        title: "Employee Performance",
+        description: "Track individual employee sales performance and billing activity.",
+    },
 ];
 
 const FeaturesSection4 = () => {
@@ -31,7 +45,7 @@ const FeaturesSection4 = () => {
 
     return (
         <section className="py-24 bg-gray-50 relative overflow-hidden">
-            {/* Billing Reports Parallax Background */}
+            {/* Reporting Dashboard Parallax Background */}
             <div className="absolute inset-0 overflow-hidden">
                 {/* Layer 1 - Analytics Dashboard */}
                 <div 
@@ -42,18 +56,19 @@ const FeaturesSection4 = () => {
                 >
                     {/* Sales Analytics Chart */}
                     <div className="absolute top-20 left-16 w-80 h-56 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-blue-500/20 p-4 transform rotate-3">
-                        <div className="text-sm font-bold text-gray-800 mb-3">Sales Analytics</div>
+                        <div className="text-sm font-bold text-gray-800 mb-3">Sales Dashboard</div>
                         <div className="space-y-2">
                             <div className="flex justify-between items-center text-xs">
-                                <span>This Month</span>
-                                <span className="text-green-600 font-bold">₹4,85,000</span>
+                                <span>Today's Sales</span>
+                                <span className="text-green-600 font-bold">₹45,000</span>
                             </div>
                             <div className="flex justify-between items-center text-xs">
-                                <span>Growth Rate</span>
-                                <span className="text-blue-600 font-bold">+23.5%</span>
+                                <span>This Month</span>
+                                <span className="text-blue-600 font-bold">₹4,85,000</span>
                             </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
-                                <div className="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full" style={{width: '75%'}}></div>
+                            <div className="flex justify-between items-center text-xs">
+                                <span>Bills Created</span>
+                                <span className="text-purple-600 font-bold">156</span>
                             </div>
                         </div>
                         <div className="mt-3 pt-2 border-t">
@@ -61,89 +76,35 @@ const FeaturesSection4 = () => {
                         </div>
                     </div>
                     
-                    {/* Invoice Status Report */}
+                    {/* Customer Analytics */}
                     <div className="absolute bottom-24 right-20 w-72 h-48 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-green-500/20 p-4 transform -rotate-6">
-                        <div className="text-sm font-bold text-gray-800 mb-3">Invoice Status</div>
+                        <div className="text-sm font-bold text-gray-800 mb-3">Customer Insights</div>
                         <div className="space-y-2">
                             <div className="flex justify-between text-xs">
-                                <span>Paid Invoices</span>
-                                <span className="text-green-600 font-bold">142 (85%)</span>
+                                <span>Total Customers</span>
+                                <span className="text-green-600 font-bold">342</span>
                             </div>
                             <div className="flex justify-between text-xs">
-                                <span>Pending</span>
-                                <span className="text-orange-600 font-bold">18 (11%)</span>
+                                <span>Active This Month</span>
+                                <span className="text-blue-600 font-bold">156</span>
                             </div>
                             <div className="flex justify-between text-xs">
-                                <span>Overdue</span>
-                                <span className="text-red-600 font-bold">7 (4%)</span>
+                                <span>Repeat Customers</span>
+                                <span className="text-purple-600 font-bold">89</span>
                             </div>
                         </div>
                         <div className="mt-3 pt-2 border-t">
-                            <div className="text-xs text-green-600 font-bold">✅ Comprehensive Overview</div>
-                        </div>
-                    </div>
-                </div>
-                
-                {/* Layer 2 - Dynamic Reports */}
-                <div 
-                    className="absolute inset-0 opacity-10 transition-transform duration-700 ease-out"
-                    style={{
-                        transform: `translate(${mousePosition.x * 0.025}px, ${mousePosition.y * 0.025}px)`
-                    }}
-                >
-                    {/* Custom Dashboard */}
-                    <div className="absolute top-1/3 right-1/4 w-64 h-40 bg-white/85 backdrop-blur-sm rounded-xl shadow-lg border border-purple-500/25 p-3 transform rotate-12">
-                        <div className="text-sm font-bold text-gray-800 mb-2">Custom Dashboard</div>
-                        <div className="space-y-1 text-xs">
-                            <div className="flex justify-between">
-                                <span>Active Reports</span>
-                                <span className="text-purple-600 font-bold">12</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Scheduled</span>
-                                <span className="text-blue-600 font-bold">5</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Automated</span>
-                                <span className="text-green-600 font-bold">8</span>
-                            </div>
-                        </div>
-                        <div className="mt-2 pt-2 border-t">
-                            <div className="text-xs text-purple-600 font-bold">🎯 Customizable</div>
-                        </div>
-                    </div>
-                    
-                    {/* Performance Metrics */}
-                    <div className="absolute bottom-1/3 left-1/4 w-56 h-36 bg-white/85 backdrop-blur-sm rounded-xl shadow-lg border border-indigo-500/25 p-3 transform -rotate-9">
-                        <div className="text-sm font-bold text-gray-800 mb-2">Performance KPIs</div>
-                        <div className="space-y-1 text-xs">
-                            <div className="flex justify-between">
-                                <span>Collection Rate</span>
-                                <span className="text-green-600 font-bold">94.2%</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Avg. Payment Time</span>
-                                <span className="text-blue-600 font-bold">12 days</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Revenue Growth</span>
-                                <span className="text-indigo-600 font-bold">+18.7%</span>
-                            </div>
-                        </div>
-                        <div className="mt-2 pt-2 border-t">
-                            <div className="text-xs text-indigo-600 font-bold">📈 Key Insights</div>
+                            <div className="text-xs text-green-600 font-bold">👥 Customer Analytics</div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
-                {/* Title: "Reports" */}
-                <h2 className="font-extrabold text-3xl md:text-4xl leading-tight mb-16 text-center md:text-left text-green-700">
-                    Reports
+                <h2 className="font-extrabold text-3xl md:text-4xl leading-tight mb-16 text-center md:text-left bg-gradient-to-r from-[#4A4A4A] via-[#8BC34A] to-[#2E4F7A] bg-clip-text text-transparent">
+                    Reports & Analytics
                 </h2>
 
-                {/* Features Grid (Responsive: 1 col on mobile, 2 on tablet/desktop) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12">
                     {reportFeatures.map((feature, index) => (
                         <div key={index} className="flex flex-col">
@@ -156,7 +117,6 @@ const FeaturesSection4 = () => {
                         </div>
                     ))}
                 </div>
-                
             </div>
         </section>
     );

@@ -7,24 +7,17 @@ import {
   FaBuilding, 
   FaMapMarkerAlt, 
   FaFileInvoice, 
-  FaEdit, 
-  FaTrash, 
   FaPlus, 
-  FaTimes,
   FaClock
 } from 'react-icons/fa';
 
 const CustomersList = ({ isDarkMode, onCreateInvoice }) => {
   const [customerSearchTerm, setCustomerSearchTerm] = React.useState('');
-  const [editingCustomer, setEditingCustomer] = React.useState(null);
-  const [showAddModal, setShowAddModal] = React.useState(false);
   const [customers, setCustomers] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
-  const [customerFormData, setCustomerFormData] = React.useState({
-    name: '',
-    phone: '',
-    gst: '',
-    address: ''
+  const [showAddCustomer, setShowAddCustomer] = React.useState(false);
+  const [newCustomer, setNewCustomer] = React.useState({
+    name: '', phone: '', gst: '', address: ''
   });
 
   // Fetch customers from API
@@ -76,66 +69,36 @@ const CustomersList = ({ isDarkMode, onCreateInvoice }) => {
     }
   };
 
+  // Add new customer
+  const addNewCustomer = async () => {
+    if (!newCustomer.name.trim() || !newCustomer.phone.trim()) {
+      alert('❌ Name and phone are required!');
+      return;
+    }
+    
+    try {
+      const response = await customerAPI.create(newCustomer);
+      setCustomers([...customers, {
+        id: response.data.id,
+        ...newCustomer,
+        totalBills: 0,
+        lastBillDate: 'Never'
+      }]);
+      setNewCustomer({ name: '', phone: '', gst: '', address: '' });
+      setShowAddCustomer(false);
+      alert('✅ Customer added successfully!');
+    } catch (error) {
+      console.error('Error adding customer:', error);
+      alert('❌ Error adding customer!');
+    }
+  };
+
   // Load customers on component mount
   React.useEffect(() => {
     fetchCustomers();
   }, []);
 
-  const addNewCustomer = async () => {
-    try {
-      const response = await customerAPI.create(customerFormData);
-      console.log('Customer created:', response.data);
-      await fetchCustomers(); // Refresh the list
-      setShowAddModal(false);
-      setCustomerFormData({ name: '', phone: '', gst: '', address: '' });
-      alert('Customer added successfully!');
-    } catch (error) {
-      console.error('Error creating customer:', error);
-      alert('Error adding customer: ' + (error.response?.data?.message || error.message));
-    }
-  };
 
-  const editCustomer = (customer) => {
-    setEditingCustomer(customer);
-    setCustomerFormData({
-      name: customer.name,
-      phone: customer.phone,
-      gst: customer.gst,
-      address: customer.address
-    });
-  };
-
-  const deleteCustomer = async (customerId) => {
-    if (confirm('Are you sure you want to delete this customer?')) {
-      try {
-        await customerAPI.delete(customerId);
-        await fetchCustomers(); // Refresh the list
-        alert('Customer deleted successfully!');
-      } catch (error) {
-        console.error('Error deleting customer:', error);
-        alert('Error deleting customer: ' + (error.response?.data?.message || error.message));
-      }
-    }
-  };
-
-  const saveCustomerEdit = async () => {
-    try {
-      await customerAPI.update(editingCustomer.id, customerFormData);
-      await fetchCustomers(); // Refresh the list
-      setEditingCustomer(null);
-      setCustomerFormData({ name: '', phone: '', gst: '', address: '' });
-      alert('Customer updated successfully!');
-    } catch (error) {
-      console.error('Error updating customer:', error);
-      alert('Error updating customer: ' + (error.response?.data?.message || error.message));
-    }
-  };
-
-  const closeCustomerEdit = () => {
-    setEditingCustomer(null);
-    setShowAddModal(false);
-    setCustomerFormData({ name: '', phone: '', gst: '', address: '' });
-  };
 
   const setActiveSection = (section) => {
     console.log('Navigate to:', section);
@@ -166,15 +129,23 @@ const CustomersList = ({ isDarkMode, onCreateInvoice }) => {
             </h2>
             <p className="text-sm text-gray-600">Manage your customer database</p>
           </div>
-          <div className="relative w-full md:w-auto">
-            <input 
-              type="text" 
-              placeholder="Search customers..."
-              className="w-full md:w-80 pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-              value={customerSearchTerm}
-              onChange={(e) => setCustomerSearchTerm(e.target.value)}
-            />
-            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+            <button 
+              className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all shadow-md flex items-center gap-2"
+              onClick={() => setShowAddCustomer(true)}
+            >
+              <FaPlus /> Add Customer
+            </button>
+            <div className="relative">
+              <input 
+                type="text" 
+                placeholder="Search customers..."
+                className="w-full md:w-80 pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                value={customerSearchTerm}
+                onChange={(e) => setCustomerSearchTerm(e.target.value)}
+              />
+              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            </div>
           </div>
         </div>
         
@@ -213,108 +184,96 @@ const CustomersList = ({ isDarkMode, onCreateInvoice }) => {
                   </div>
                   <div className="flex gap-2">
                     <button 
-                      className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-2 rounded text-sm hover:from-green-600 hover:to-green-700 transition-all duration-300 transform hover:scale-110 shadow-md hover:shadow-lg flex items-center justify-center gap-1 group-hover:animate-pulse"
+                      className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-2 rounded text-sm hover:from-green-600 hover:to-green-700 transition-all duration-300 transform hover:scale-110 shadow-md hover:shadow-lg flex items-center justify-center gap-1 group-hover:animate-pulse"
                       onClick={() => onCreateInvoice && onCreateInvoice(customer)}
                     >
-                      <FaFileInvoice className="animate-bounce" /> Invoice
-                    </button>
-                    <button 
-                      className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 rounded text-sm hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-110 shadow-md hover:shadow-lg flex items-center justify-center gap-1"
-                      onClick={() => editCustomer(customer)}
-                    >
-                      <FaEdit className="hover:animate-spin" /> Edit
-                    </button>
-                    <button 
-                      className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white py-2 rounded text-sm hover:from-red-600 hover:to-red-700 transition-all duration-300 transform hover:scale-110 shadow-md hover:shadow-lg flex items-center justify-center gap-1"
-                      onClick={() => deleteCustomer(customer.id)}
-                    >
-                      <FaTrash className="hover:animate-bounce" /> Delete
+                      <FaFileInvoice className="animate-bounce" /> View Invoices
                     </button>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="text-center">
-              <button 
-                className="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all shadow-md flex items-center gap-2 mx-auto"
-                onClick={() => setShowAddModal(true)}
-              >
-                <FaPlus /> Add New Customer
-              </button>
-            </div>
+
           </>
         )}
       </div>
-      
-      {/* Customer Edit/Add Modal */}
-      {(editingCustomer || showAddModal) && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+
+      {/* Add Customer Modal */}
+      {showAddCustomer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setShowAddCustomer(false)}>
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md m-4" onClick={(e) => e.stopPropagation()}>
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-gray-800">
-                  {editingCustomer ? 'Edit Customer Details' : 'Add New Customer'}
+                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                  <FaPlus className="text-green-600" /> Add New Customer
                 </h3>
-                <button onClick={closeCustomerEdit} className="text-gray-500 hover:text-gray-700 text-2xl">
-                  <FaTimes />
+                <button onClick={() => setShowAddCustomer(false)} className="text-gray-500 hover:text-gray-700 text-2xl">
+                  ×
                 </button>
               </div>
+              
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Customer Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name *</label>
                   <input 
                     type="text" 
-                    value={customerFormData.name}
-                    onChange={(e) => setCustomerFormData({...customerFormData, name: e.target.value})}
-                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
+                    placeholder="Enter customer name"
+                    value={newCustomer.name}
+                    onChange={(e) => setNewCustomer({...newCustomer, name: e.target.value})}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
                   <input 
                     type="tel" 
-                    value={customerFormData.phone}
-                    onChange={(e) => setCustomerFormData({...customerFormData, phone: e.target.value})}
-                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
+                    placeholder="Enter phone number"
+                    value={newCustomer.phone}
+                    onChange={(e) => setNewCustomer({...newCustomer, phone: e.target.value})}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">GST Number</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">GST Number</label>
                   <input 
                     type="text" 
-                    value={customerFormData.gst}
-                    onChange={(e) => setCustomerFormData({...customerFormData, gst: e.target.value})}
-                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
+                    placeholder="Enter GST number (optional)"
+                    value={newCustomer.gst}
+                    onChange={(e) => setNewCustomer({...newCustomer, gst: e.target.value})}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
                   <textarea 
-                    value={customerFormData.address}
-                    onChange={(e) => setCustomerFormData({...customerFormData, address: e.target.value})}
-                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all resize-none"
-                    rows="3"
+                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all resize-none" 
+                    rows="3" 
+                    placeholder="Enter address (optional)"
+                    value={newCustomer.address}
+                    onChange={(e) => setNewCustomer({...newCustomer, address: e.target.value})}
                   ></textarea>
                 </div>
               </div>
+              
               <div className="flex gap-3 mt-6">
                 <button 
-                  onClick={editingCustomer ? saveCustomerEdit : addNewCustomer} 
-                  className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-all"
-                >
-                  {editingCustomer ? 'Save Changes' : 'Add Customer'}
-                </button>
-                <button 
-                  onClick={closeCustomerEdit} 
+                  onClick={() => setShowAddCustomer(false)}
                   className="flex-1 bg-gray-500 text-white py-3 rounded-lg font-medium hover:bg-gray-600 transition-all"
                 >
                   Cancel
+                </button>
+                <button 
+                  onClick={addNewCustomer}
+                  className="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white py-3 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all shadow-md"
+                >
+                  Add Customer
                 </button>
               </div>
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 };

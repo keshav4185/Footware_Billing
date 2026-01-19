@@ -40,6 +40,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   const [apiProducts, setApiProducts] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [companyId, setCompanyId] = React.useState(null);
+  const [invoiceDate, setInvoiceDate] = React.useState(new Date().toISOString().split('T')[0]);
   const [companyDetails, setCompanyDetails] = React.useState({
     name: 'SMARTMATRIX Digital Services ',
     address: ' First Floor, Survey No. 21, Ganesham Commercial -A, Office No, 102-A, Aundh - Ravet BRTS Rd, Pimple Saudagar, Pune, Maharashtra 411027',
@@ -48,19 +49,241 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
     brands: 'RELAXO adidas Bata Paragon FILA campus'
   });
 
+  // Comprehensive validation criteria
   const validateBasicForm = () => {
+    // Product validation criteria
     if (!products.some(p => p.name.trim())) {
-      alert('Please add at least one product!');
+      alert('❌ Validation Error: Please add at least one product!');
       return false;
     }
+    
+    // Check for valid product details
+    for (let i = 0; i < products.length; i++) {
+      const product = products[i];
+      if (product.name.trim()) {
+        if (product.qty <= 0) {
+          alert(`❌ Validation Error: Product "${product.name}" must have quantity greater than 0!`);
+          return false;
+        }
+        if (product.price <= 0) {
+          alert(`❌ Validation Error: Product "${product.name}" must have price greater than 0!`);
+          return false;
+        }
+        if (product.discount < 0 || product.discount > 100) {
+          alert(`❌ Validation Error: Product "${product.name}" discount must be between 0-100%!`);
+          return false;
+        }
+      }
+    }
+    
+    // Tax rate validation criteria
+    if (cgstEnabled && (cgstRate < 0 || cgstRate > 9)) {
+      alert('❌ Validation Error: CGST rate must be between 0-9%!');
+      return false;
+    }
+    
+    if (sgstEnabled && (sgstRate < 0 || sgstRate > 9)) {
+      alert('❌ Validation Error: SGST rate must be between 0-9%!');
+      return false;
+    }
+    
+    // Advance payment validation criteria
+    if (advance < 0) {
+      alert('❌ Validation Error: Advance amount cannot be negative!');
+      return false;
+    }
+    
     return true;
   };
   
   const validateCustomerForm = () => {
+    // Customer name validation criteria
     if (!customerFormData.name.trim()) {
-      alert('Customer name is required!');
+      alert('❌ Validation Error: Customer name is required!');
       return false;
     }
+    
+    if (customerFormData.name.trim().length < 2) {
+      alert('❌ Validation Error: Customer name must be at least 2 characters!');
+      return false;
+    }
+    
+    // Check if name contains numbers
+    if (/\d/.test(customerFormData.name)) {
+      alert('❌ Validation Error: Customer name cannot contain numbers!');
+      return false;
+    }
+    
+    // Phone number validation criteria
+    if (customerFormData.phone && customerFormData.phone.trim()) {
+      const phoneRegex = /^[6-9]\d{9}$/;
+      if (!phoneRegex.test(customerFormData.phone.trim())) {
+        alert('❌ Validation Error: Please enter a valid 10-digit Indian mobile number!');
+        return false;
+      }
+    }
+    
+    return true;
+  };
+  
+  // Input validation handlers
+  const handleCustomerNameChange = (e) => {
+    const value = e.target.value;
+    // Only allow letters and spaces
+    if (/^[a-zA-Z\s]*$/.test(value)) {
+      setCustomerFormData(prev => ({ ...prev, name: value }));
+    } else {
+      alert('❌ Only letters and spaces are allowed in customer name!');
+    }
+  };
+
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+    // Only allow numbers and limit to 10 digits
+    if (/^\d{0,10}$/.test(value)) {
+      setCustomerFormData(prev => ({ ...prev, phone: value }));
+    } else {
+      alert('❌ Only numbers are allowed in phone field (max 10 digits)!');
+    }
+  };
+
+  const handleCgstChange = (e) => {
+    const value = parseFloat(e.target.value);
+    if (isNaN(value) || value < 0 || value > 9) {
+      alert('❌ CGST rate must be between 0-9%!');
+      return;
+    }
+    setCgstRate(value);
+  };
+
+  const handleSgstChange = (e) => {
+    const value = parseFloat(e.target.value);
+    if (isNaN(value) || value < 0 || value > 9) {
+      alert('❌ SGST rate must be between 0-9%!');
+      return;
+    }
+    setSgstRate(value);
+  };
+
+  const handleAdvanceChange = (e) => {
+    const value = e.target.value;
+    // Only allow positive numbers
+    if (/^\d*\.?\d*$/.test(value) && parseFloat(value) >= 0) {
+      setAdvance(parseFloat(value) || 0);
+    } else {
+      alert('❌ Only positive numbers are allowed in advance field!');
+    }
+  };
+
+  const handleProductPriceChange = (index, value) => {
+    // Only allow positive numbers
+    if (/^\d*\.?\d*$/.test(value) && parseFloat(value) >= 0) {
+      const updatedProducts = [...products];
+      updatedProducts[index].price = parseFloat(value) || 0;
+      setProducts(updatedProducts);
+    } else {
+      alert('❌ Only positive numbers are allowed in price field!');
+    }
+  };
+
+  const handleProductQtyChange = (index, value) => {
+    // Only allow positive integers
+    if (/^\d+$/.test(value) && parseInt(value) > 0) {
+      const updatedProducts = [...products];
+      updatedProducts[index].qty = parseInt(value);
+      setProducts(updatedProducts);
+    } else {
+      alert('❌ Only positive whole numbers are allowed in quantity field!');
+    }
+  };
+
+  const handleProductDiscountChange = (index, value) => {
+    // Only allow numbers between 0-100
+    if (/^\d*\.?\d*$/.test(value)) {
+      const numValue = parseFloat(value);
+      if (numValue >= 0 && numValue <= 100) {
+        const updatedProducts = [...products];
+        updatedProducts[index].discount = numValue || 0;
+        setProducts(updatedProducts);
+      } else {
+        alert('❌ Discount must be between 0-100%!');
+      }
+    } else {
+      alert('❌ Only numbers are allowed in discount field!');
+    }
+  };
+
+  // Company details input validation handlers
+  const handleCompanyNameChange = (e) => {
+    const value = e.target.value;
+    // Only allow letters, spaces, and basic business characters
+    if (/^[a-zA-Z\s&.-]*$/.test(value)) {
+      setCompanyDetails(prev => ({ ...prev, name: value }));
+    } else {
+      alert('❌ Only letters, spaces, and basic business characters (&.-) are allowed in company name!');
+    }
+  };
+
+  const handleCompanyPhoneChange = (e) => {
+    const value = e.target.value;
+    // Only allow numbers and limit to 10 digits
+    if (/^\d{0,10}$/.test(value)) {
+      setCompanyDetails(prev => ({ ...prev, phone: value }));
+    } else {
+      alert('❌ Only numbers are allowed in company phone field (max 10 digits)!');
+    }
+  };
+
+  const handleCompanyGstChange = (e) => {
+    const value = e.target.value.toUpperCase();
+    // GST format: 2 digits + 5 letters + 4 digits + 1 letter + 1 alphanumeric + Z + 1 alphanumeric
+    if (/^[0-9A-Z]{0,15}$/.test(value)) {
+      setCompanyDetails(prev => ({ ...prev, gst: value }));
+    } else {
+      alert('❌ GST number can only contain numbers and letters (max 15 characters)!');
+    }
+  };
+
+  // Company details validation criteria
+  const validateCompanyDetails = () => {
+    if (!companyDetails.name.trim()) {
+      alert('❌ Validation Error: Company name is required!');
+      return false;
+    }
+    
+    if (companyDetails.name.trim().length < 2) {
+      alert('❌ Validation Error: Company name must be at least 2 characters!');
+      return false;
+    }
+    
+    if (!companyDetails.address.trim()) {
+      alert('❌ Validation Error: Company address is required!');
+      return false;
+    }
+    
+    if (!companyDetails.phone.trim()) {
+      alert('❌ Validation Error: Company phone is required!');
+      return false;
+    }
+    
+    // Company phone validation
+    if (companyDetails.phone && companyDetails.phone.trim()) {
+      const phoneRegex = /^[6-9]\d{9}$/;
+      if (!phoneRegex.test(companyDetails.phone.trim())) {
+        alert('❌ Validation Error: Please enter a valid 10-digit Indian mobile number for company!');
+        return false;
+      }
+    }
+    
+    // Company GST validation
+    if (companyDetails.gst && companyDetails.gst.trim()) {
+      const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+      if (!gstRegex.test(companyDetails.gst.trim())) {
+        alert('❌ Validation Error: Please enter a valid company GST number (15 characters)!');
+        return false;
+      }
+    }
+    
     return true;
   };
 
@@ -71,11 +294,21 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
     }
     
     const totals = calculateTotals();
+    const productsText = products
+      .filter(p => p.name.trim())
+      .map((p, i) => {
+        const subtotal = p.qty * p.price;
+        const afterDiscount = subtotal * (1 - p.discount/100);
+        return `${i + 1}. ${p.name} - Qty: ${p.qty}, Rate: ₹${p.price.toFixed(2)}, Total: ₹${afterDiscount.toFixed(2)}`;
+      })
+      .join('\n');
+    
     const invoiceText = `🧾 *INVOICE FROM ${companyDetails.name.toUpperCase()}*\n\n` +
       `📋 Invoice No: INV-${Date.now().toString().slice(-6)}\n` +
-      `📅 Date: ${new Date().toLocaleDateString()}\n` +
+      `📅 Date: ${new Date(invoiceDate).toLocaleDateString()}\n` +
       `👤 Customer: ${customerFormData.name}\n` +
       `📞 Phone: ${customerFormData.phone}\n\n` +
+      `📦 *PRODUCTS:*\n${productsText}\n\n` +
       `💰 *BILL SUMMARY:*\n` +
       `Subtotal: ₹${totals.subtotal.toFixed(2)}\n` +
       `Discount: ₹${totals.totalDiscount.toFixed(2)}\n` +
@@ -95,8 +328,18 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   };
 
   const handleAction = (action) => {
+    // Apply validation criteria before any action
+    if (!validateCompanyDetails()) return;
     if (!validateBasicForm()) return;
     if (!validateCustomerForm()) return;
+    
+    // Additional validation for specific actions
+    if (action === 'send') {
+      if (!customerFormData.phone || !customerFormData.phone.trim()) {
+        alert('❌ Validation Error: Customer phone number is required to send invoice!');
+        return;
+      }
+    }
     
     if (action === 'print') openDirectPrintPreview();
     else if (action === 'preview') setShowPreview(true);
@@ -184,27 +427,42 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
 
     console.log("Employee object:", employee);
     console.log("Employee DB ID:", employeeDbId);
+    console.log("Editing bill:", editingBill);
+    console.log("Is Edit Mode:", editingBill?.isEdit);
 
-    // ✅ Create company
-    const companyResponse = await companyAPI.create({
-      name: companyDetails.name,
-      address: companyDetails.address,
-      phone: companyDetails.phone,
-      gst: companyDetails.gst,
-      brands: companyDetails.brands
-    });
-    const companyId = companyResponse.data.id;
-    console.log("Company created with ID:", companyId);
+    // Check if this is an edit operation
+    const isEditMode = editingBill && editingBill.isEdit;
+    
+    let companyId, customerId;
+    
+    if (isEditMode) {
+      // Use existing company and customer IDs
+      companyId = editingBill.companyId;
+      customerId = editingBill.customerId;
+      
+      console.log("Edit mode - using existing IDs:", { companyId, customerId });
+    } else {
+      // ✅ Create company
+      const companyResponse = await companyAPI.create({
+        name: companyDetails.name,
+        address: companyDetails.address,
+        phone: companyDetails.phone,
+        gst: companyDetails.gst,
+        brands: companyDetails.brands
+      });
+      companyId = companyResponse.data.id;
+      console.log("Company created with ID:", companyId);
 
-    // ✅ Create customer
-    const customerResponse = await customerAPI.create({
-      name: customerFormData.name,
-      phone: customerFormData.phone,
-      gst: customerFormData.gst,
-      address: customerFormData.address
-    });
-    const customerId = customerResponse.data.id;
-    console.log("Customer created with ID:", customerId);
+      // ✅ Create customer
+      const customerResponse = await customerAPI.create({
+        name: customerFormData.name,
+        phone: customerFormData.phone,
+        gst: customerFormData.gst,
+        address: customerFormData.address
+      });
+      customerId = customerResponse.data.id;
+      console.log("Customer created with ID:", customerId);
+    }
 
     // ✅ Prepare invoice items
     const items = products
@@ -279,7 +537,8 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
     }
 
     const totals = calculateTotals();
-    const invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
+    // Use existing invoice number if editing, otherwise generate new one
+    const invoiceNumber = isEditMode ? editingBill.invoiceNo : `INV-${Date.now().toString().slice(-6)}`;
 
     console.log("\n========== CALCULATION BREAKDOWN ==========");
     console.log("Subtotal (before discount):", totals.subtotal);
@@ -288,6 +547,8 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
     console.log("CGST Amount (9%):", totals.cgstAmount);
     console.log("SGST Amount (9%):", totals.sgstAmount);
     console.log("GRAND TOTAL (with tax):", totals.grandTotal);
+    console.log("Invoice Number:", invoiceNumber);
+    console.log("Is Edit Mode:", isEditMode);
     console.log("==========================================\n");
 
     // ✅ FINAL invoice payload (CORRECT)
@@ -323,12 +584,23 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
     console.log("Full Invoice Data:", JSON.stringify(invoiceData, null, 2));
     console.log("===============================================\n");
 
-    // ✅ Create invoice
-    const invoiceResponse = await invoiceAPI.create(invoiceData);
-    console.log("\n========== BACKEND RESPONSE ==========");
-    console.log("Invoice created with ID:", invoiceResponse.data.id);
-    console.log("Backend returned data:", JSON.stringify(invoiceResponse.data, null, 2));
-    console.log("======================================\n");
+    let invoiceResponse;
+    if (isEditMode) {
+      // ✅ Update existing invoice
+      console.log("Updating existing invoice with ID:", editingBill.id);
+      invoiceResponse = await invoiceAPI.update(editingBill.id, invoiceData);
+      console.log("\n========== BACKEND UPDATE RESPONSE ==========");
+      console.log("Invoice updated with ID:", invoiceResponse.data.id);
+      console.log("Backend returned data:", JSON.stringify(invoiceResponse.data, null, 2));
+      console.log("==========================================\n");
+    } else {
+      // ✅ Create new invoice
+      invoiceResponse = await invoiceAPI.create(invoiceData);
+      console.log("\n========== BACKEND CREATE RESPONSE ==========");
+      console.log("Invoice created with ID:", invoiceResponse.data.id);
+      console.log("Backend returned data:", JSON.stringify(invoiceResponse.data, null, 2));
+      console.log("======================================\n");
+    }
 
     // ✅ Create payment if advance exists
     if (advance > 0) {
@@ -342,7 +614,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       console.log("Advance payment saved");
     }
 
-    alert("💾 Bill saved to database successfully!");
+    alert(isEditMode ? "💾 Invoice updated successfully!" : "💾 Bill saved to database successfully!");
     
     // Reset form after successful save
     setCustomerFormData({ name: "", phone: "", gst: "", address: "" });
@@ -784,7 +1056,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
             <div class="invoice-info">
               <table class="invoice-info-table">
                 <tr><td>Invoice No.:</td><td>INV-${Date.now().toString().slice(-6)}</td></tr>
-                <tr><td>Invoice Date:</td><td>${new Date().toLocaleDateString('en-GB')}</td></tr>
+                <tr><td>Invoice Date:</td><td>${new Date(invoiceDate).toLocaleDateString('en-GB')}</td></tr>
                 <tr><td>Salesperson:</td><td><strong>${loggedInEmployee}</strong></td></tr>
                 <tr><td>Payment Method:</td><td><span class="payment-method">💵 Cash</span></td></tr>
                 <tr><td>Payment Status:</td><td><span class="payment-status">${paymentStatus}</span></td></tr>
@@ -883,9 +1155,9 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                     ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400 hover:border-blue-500' 
                     : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500 hover:border-blue-300'
                 }`} 
-                placeholder="Enter customer name"
+                placeholder="Enter customer name (letters only)"
                 value={customerFormData.name}
-                onChange={(e) => setCustomerFormData({...customerFormData, name: e.target.value})}
+                onChange={handleCustomerNameChange}
               />
             </div>
             <div className="animate-fadeInUp" style={{animationDelay: '0.2s'}}>
@@ -893,10 +1165,10 @@ setLoggedInEmployee(employee?.name || "Sales Person");
               <input 
                 type="tel" 
                 className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 hover:border-blue-300 hover:shadow-md" 
-                placeholder="Enter phone number" 
-                pattern="[0-9]*"
+                placeholder="Enter phone number (numbers only)" 
+                maxLength="10"
                 value={customerFormData.phone}
-                onChange={(e) => setCustomerFormData({...customerFormData, phone: e.target.value.replace(/[^0-9]/g, '')})}
+                onChange={handlePhoneChange}
               />
             </div>
             {/* <div className="animate-fadeInUp" style={{animationDelay: '0.3s'}}>
@@ -971,8 +1243,9 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                     ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400' 
                     : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500'
                 }`} 
+                placeholder="Enter company name (letters & business chars only)"
                 value={companyDetails.name}
-                onChange={(e) => setCompanyDetails({...companyDetails, name: e.target.value})}
+                onChange={handleCompanyNameChange}
               />
             </div>
             <div>
@@ -1001,8 +1274,10 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                     ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400' 
                     : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500'
                 }`} 
+                placeholder="Enter phone number (numbers only)"
+                maxLength="10"
                 value={companyDetails.phone}
-                onChange={(e) => setCompanyDetails({...companyDetails, phone: e.target.value})}
+                onChange={handleCompanyPhoneChange}
               />
             </div>
             {/* <div>
@@ -1299,8 +1574,9 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                 }`} 
                 value={cgstRate} 
                 min="0" 
+                max="9"
                 step="0.01"
-                onChange={(e) => setCgstRate(parseFloat(e.target.value) || 0)}
+                onChange={handleCgstChange}
                 onFocus={(e) => { if(e.target.value == '0') e.target.select(); }}
                 onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
               />%
@@ -1331,8 +1607,9 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                 }`} 
                 value={sgstRate} 
                 min="0" 
+                max="9"
                 step="0.01"
-                onChange={(e) => setSgstRate(parseFloat(e.target.value) || 0)}
+                onChange={handleSgstChange}
                 onFocus={(e) => { if(e.target.value == '0') e.target.select(); }}
                 onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
               />%
@@ -1517,7 +1794,12 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                       </div>
                       <div className="flex justify-between">
                         <span className="font-bold">Invoice Date:</span>
-                        <span>{new Date().toLocaleDateString()}</span>
+                        <input 
+                          type="date" 
+                          value={invoiceDate}
+                          onChange={(e) => setInvoiceDate(e.target.value)}
+                          className="text-sm border border-gray-300 rounded px-2 py-1 focus:border-blue-500 focus:outline-none"
+                        />
                       </div>
                       <div className="flex justify-between">
                         <span className="font-bold">Salesperson:</span>

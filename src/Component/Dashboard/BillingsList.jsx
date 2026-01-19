@@ -565,11 +565,12 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
               <div className="relative w-full md:w-64">
                 <input 
                   type="date" 
-                  className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                  className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all cursor-pointer"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
+                  onClick={(e) => e.target.showPicker && e.target.showPicker()}
                 />
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">📅</span>
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">📅</span>
               </div>
               <div className="relative w-full md:w-80">
                 <input 
@@ -625,7 +626,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                 <tbody>
                   {filteredBills.map(bill => (
                     <tr key={bill.id} className="border-b hover:bg-gray-50 transition-colors">
-                      <td className="p-4 font-medium text-blue-600 cursor-pointer hover:text-blue-800 hover:underline" onClick={() => onEditBill(bill)}>{bill.invoiceNo}</td>
+                      <td className="p-4 font-medium text-blue-600 cursor-pointer hover:text-blue-800 hover:underline" onClick={() => onEditBill && onEditBill({...bill, isEdit: true})}>{bill.invoiceNo}</td>
                       <td className="p-4 text-gray-800">{bill.customerName}</td>
                       <td className="p-4 text-gray-600">{bill.date}</td>
                       <td className="p-4 font-semibold text-green-600">₹{bill.amount.toFixed(2)}</td>
@@ -705,7 +706,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                 <div key={bill.id} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] hover:shadow-blue-200/30 animate-slideInUp group" style={{animationDelay: `${index * 0.1}s`}}>
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <h3 className="font-bold text-blue-600 cursor-pointer hover:text-blue-800 hover:underline" onClick={() => onEditBill(bill)}>{bill.invoiceNo}</h3>
+                      <h3 className="font-bold text-blue-600 cursor-pointer hover:text-blue-800 hover:underline" onClick={() => onEditBill && onEditBill({...bill, isEdit: true})}>{bill.invoiceNo}</h3>
                       <p className="text-gray-800 font-medium">{bill.customerName}</p>
                     </div>
                     <div className="flex flex-col gap-1 items-end">

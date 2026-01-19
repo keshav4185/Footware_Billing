@@ -93,17 +93,17 @@ const Homesection9 = () => {
                         style={{transform: `translate(${mousePosition.x * -0.1}px, ${mousePosition.y * 0.1}px) rotate(45deg)`}}
                     >★</span>
                     
-                    {/* Headline: "Reignite the spark of accomplishment" */}
-                    <h2 className="text-4xl md:text-4xl font-headline text-green-700  leading-none elc font-extrabold">
-                        Reignite the <span className="text-purple-main">spark</span>
+                    {/* Headline: "Start your footwear billing journey" */}
+                    <h2 className="text-4xl md:text-4xl font-headline text-green-700 leading-none font-extrabold">
+                        Start your Billing Software
                     </h2>
-                    <h2 className="text-4xl md:text-4xl font-headline text-teal-highlight leading-none elc text-green-700  font-extrabold">
-                        of accomplishment
+                    <h2 className="text-4xl md:text-4xl font-headline text-green-700 leading-none font-extrabold">
+                        journey today
                     </h2>
                 </div>
                 
                 {/* CTA Button (Matches the style in the image) */}
-               <a href="trypage"> <button 
+               <a href="/Account"> <button 
                     className="px-10 py-4 font-semibold rounded-lg transition duration-200 
                                bg-purple-main hover:bg-indigo-200  text-black text-xl shadow-lg mt-8 "
                 >

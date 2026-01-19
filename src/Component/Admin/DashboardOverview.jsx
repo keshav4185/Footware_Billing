@@ -1,5 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
 
 const DashboardOverview = () => {
   const [bills, setBills] = useState([]);
@@ -128,6 +141,44 @@ const DashboardOverview = () => {
 
   const recentBills = filteredBills.slice(-6).reverse();
 
+  // Chart data preparation
+  const pieChartData = [
+    {
+      name: 'Paid',
+      value: filteredBills.filter(b => b.paymentStatus === 'paid' || b.paymentStatus === 'PAID').length,
+      color: '#10B981'
+    },
+    {
+      name: 'Unpaid',
+      value: filteredBills.filter(b => b.paymentStatus === 'unpaid' || b.paymentStatus === 'UNPAID' || !b.paymentStatus || b.paymentStatus === 'pending').length,
+      color: '#EF4444'
+    }
+  ].filter(item => item.value > 0);
+
+  const lineChartData = () => {
+    const last7Days = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dayRevenue = bills
+        .filter(b => {
+          const billDate = new Date(b.date);
+          return billDate.toDateString() === date.toDateString();
+        })
+        .reduce((sum, b) => sum + (b.grandTotal || 0), 0);
+      
+      last7Days.push({
+        date: date.toLocaleDateString('en-US', { weekday: 'short' }),
+        revenue: dayRevenue,
+        invoices: bills.filter(b => {
+          const billDate = new Date(b.date);
+          return billDate.toDateString() === date.toDateString();
+        }).length
+      });
+    }
+    return last7Days;
+  };
+
   /* ================= UI ================= */
   return (
     <div className="space-y-6 bg-gray-50 min-h-screen">
@@ -179,6 +230,114 @@ const DashboardOverview = () => {
             <p className="text-xs text-gray-500">{s.change}</p>
           </div>
         ))}
+      </div>
+
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Pie Chart - Payment Status */}
+        <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+          <div className="mb-4">
+            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <span className="text-xl">🍰</span> Payment Status Distribution
+            </h3>
+            <p className="text-sm text-gray-600">Invoice payment breakdown</p>
+          </div>
+          <div className="h-64 sm:h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={pieChartData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={40}
+                  outerRadius={80}
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  {pieChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value) => [`${value} invoices`, 'Count']}
+                  labelStyle={{ color: '#374151' }}
+                />
+                <Legend 
+                  verticalAlign="bottom" 
+                  height={36}
+                  formatter={(value, entry) => (
+                    <span style={{ color: entry.color, fontWeight: 'bold' }}>
+                      {value}
+                    </span>
+                  )}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Line Chart - Revenue Trend */}
+        <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+          <div className="mb-4">
+            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <span className="text-xl">📈</span> Revenue Trend (Last 7 Days)
+            </h3>
+            <p className="text-sm text-gray-600">Daily revenue performance</p>
+          </div>
+          <div className="h-64 sm:h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={lineChartData()}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis 
+                  dataKey="date" 
+                  stroke="#6B7280"
+                  fontSize={12}
+                />
+                <YAxis 
+                  stroke="#6B7280"
+                  fontSize={12}
+                  tickFormatter={(value) => `₹${value.toLocaleString()}`}
+                />
+                <YAxis 
+                  yAxisId="right"
+                  orientation="right"
+                  stroke="#6B7280"
+                  fontSize={12}
+                />
+                <Tooltip 
+                  formatter={(value, name) => [
+                    name === 'revenue' ? `₹${value.toLocaleString()}` : value,
+                    name === 'revenue' ? 'Revenue' : 'Invoices'
+                  ]}
+                  labelStyle={{ color: '#374151' }}
+                  contentStyle={{ 
+                    backgroundColor: '#F9FAFB', 
+                    border: '1px solid #E5E7EB',
+                    borderRadius: '8px'
+                  }}
+                />
+                <Legend />
+                <Line 
+                  type="monotone" 
+                  dataKey="revenue" 
+                  stroke="#3B82F6" 
+                  strokeWidth={3}
+                  dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, stroke: '#3B82F6', strokeWidth: 2 }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="invoices" 
+                  stroke="#10B981" 
+                  strokeWidth={2}
+                  dot={{ fill: '#10B981', strokeWidth: 2, r: 3 }}
+                  yAxisId="right"
+                  name="Invoices"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </div>
 
       {/* Recent Invoices */}

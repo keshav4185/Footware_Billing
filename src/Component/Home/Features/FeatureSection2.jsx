@@ -2,87 +2,67 @@
 import React, { useEffect, useState } from 'react';
 
 const invoiceFeatures = [
-    // --- Features from former FeaturesSection2 (Manage Invoices) ---
+    // --- Core Billing Features ---
     {
-        title: "Create customer invoices",
-        description: "Issue clear, complete and professional invoices in seconds.",
-        group: "Manage invoices"
+        title: "Create Professional Invoices",
+        description: "Generate clear, complete and professional invoices with your company branding in seconds.",
+        group: "Core Billing"
     },
     {
-        title: "Print or send by email",
-        description: "Print a hard copy of your invoices to send them by post or email.",
-        group: "Manage invoices"
+        title: "Customer Management",
+        description: "Add and manage customer details with phone numbers, addresses, and GST information.",
+        group: "Core Billing"
     },
     {
-        title: "Issue refunds",
-        description: "Create credit notes and manage reimbursements.",
-        group: "Manage invoices"
+        title: "Product & Pricing",
+        description: "Add products with quantities, prices, and discount percentages for accurate billing.",
+        group: "Core Billing"
     },
     {
-        title: "Multi-company rules",
-        description: "Automatically mirror orders and invoices in multi-company setup.",
-        group: "Manage invoices"
+        title: "Tax Calculation",
+        description: "Automatic CGST and SGST calculation with configurable tax rates for compliance.",
+        group: "Core Billing"
     },
     {
-        title: "Address autocomplete",
-        description: "Enter a valid VAT number, and Odoo will autocomplete the customer's name and address (Europe only).",
-        group: "Manage invoices"
+        title: "Print & Share",
+        description: "Print professional invoices or share them directly via WhatsApp with customers.",
+        group: "Core Billing"
     },
     {
-        title: "3-Way matching payments",
-        description: "Compare the information on purchase orders, vendor bills, and receipts to determine whether or not your bill should be paid.",
-        group: "Manage invoices"
+        title: "Payment Tracking",
+        description: "Track advance payments, balance amounts, and payment status for each invoice.",
+        group: "Core Billing"
+    },
+    // --- Advanced Features ---
+    {
+        title: "WhatsApp Integration",
+        description: "Send invoices directly to customers via WhatsApp with formatted bill details.",
+        group: "Advanced Features"
     },
     {
-        title: "Manage supplier invoices",
-        description: "Record supplier invoices in the system to manage payments and integrate them into your accounting.",
-        group: "Manage invoices"
+        title: "Digital Signatures",
+        description: "Add your company's digital signature to invoices for professional authentication.",
+        group: "Advanced Features"
     },
     {
-        title: "Handle recurring invoices",
-        description: "Set product invoicing frequency according to contract specifications.",
-        group: "Manage invoices"
-    },
-    // --- Features from former FeaturesSection3 (Compliance/Other) ---
-    {
-        title: "Include Incoterms®",
-        description: "Use Incoterms standards to ensure you have the right contract terms.",
-        group: "Accounting & Compliance"
+        title: "Company Branding",
+        description: "Customize invoices with your company logo, details, and brand information.",
+        group: "Advanced Features"
     },
     {
-        title: "Payments terms",
-        description: "Set up and use your preferred payment terms.",
-        group: "Accounting & Compliance"
+        title: "Bill History",
+        description: "View, search, and manage all your billing history with detailed invoice records.",
+        group: "Advanced Features"
     },
     {
-        title: "Customers payments",
-        description: "Easily keep track of payments with options such as batch deposit.",
-        group: "Accounting & Compliance"
+        title: "Employee Dashboard",
+        description: "Role-based access for employees with personalized dashboards and billing controls.",
+        group: "Advanced Features"
     },
     {
-        title: "Automated tax",
-        description: "Set up your tax rules to automatically calculate taxes on your invoice, and define where rounding occurs to get accurate reports.",
-        group: "Accounting & Compliance"
-    },
-    {
-        title: "Compliance with International invoicing requirements",
-        description: "Germany, Italy, Spain, Belgium, and many more.",
-        group: "Accounting & Compliance"
-    },
-    {
-        title: "Peppol",
-        description: "Odoo supports - but not only - the Peppol electronic invoice format for countries' part of the EAS.",
-        group: "Accounting & Compliance"
-    },
-    {
-        title: "Customization",
-        description: "Choose your preferred design, style, and logo to personalize your invoices.",
-        group: "Accounting & Compliance"
-    },
-    {
-        title: "Vendor bills import",
-        description: "Manage your vendor bills easily with document digitization. Set up an email alias to directly get all your bills on your Odoo database.",
-        group: "Accounting & Compliance"
+        title: "Responsive Design",
+        description: "Works seamlessly on mobile phones, tablets, and desktop computers.",
+        group: "Advanced Features"
     },
 ];
 
@@ -261,13 +241,13 @@ const FeaturesSection2 = () => {
             </div>
             <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
                 
-                {/* --- Group 1: Manage Invoices --- */}
+                {/* --- Group 1: Core Billing ---*/}
                 <h2 className=" font-extrabold text-3xl md:text-4xl font-script text-purple-main leading-tight mb-16 text-center md:text-left font-handwriting bg-gradient-to-r from-[#4A4A4A] via-[#8BC34A] to-[#2E4F7A] bg-clip-text text-transparent">
                     {Object.keys(groupedFeatures)[0]}
                 </h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12 mb-24 ">
-                    {groupedFeatures["Manage invoices"].map((feature, index) => (
+                    {groupedFeatures["Core Billing"].map((feature, index) => (
                         <div key={index} className="flex flex-col">
                             <h3 className="text-2xl font-semibold text-gray-900 mb-2 ">
                                 {feature.title}
@@ -279,13 +259,13 @@ const FeaturesSection2 = () => {
                     ))}
                 </div>
 
-                {/* --- Group 2: Accounting & Compliance --- */}
+                {/* --- Group 2: Advanced Features --- */}
                 <h2 className=" font-extrabold text-3xl md:text-4xl font-script text-teal-highlight leading-tight mb-16 text-center md:text-left border-t pt-16 font-handwriting bg-gradient-to-r from-[#4A4A4A] via-[#8BC34A] to-[#2E4F7A] bg-clip-text text-transparent">
                     {Object.keys(groupedFeatures)[1]}
                 </h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12   ">
-                    {groupedFeatures["Accounting & Compliance"].map((feature, index) => (
+                    {groupedFeatures["Advanced Features"].map((feature, index) => (
                         <div key={index} className="flex flex-col">
                             <h3 className="text-2xl font-semibold text-gray-900 mb-2 ">
                                 {feature.title}

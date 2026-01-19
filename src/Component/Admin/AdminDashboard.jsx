@@ -54,8 +54,6 @@ const AdminDashboard = () => {
       case 'reports':
         return <Reports bills={bills} customers={customers} products={products} />;
       case 'profile':
-        return <Profile />;
-      case 'settings':
         return <Settings />;
       default:
         return <DashboardOverview bills={bills} customers={customers} products={products} />;

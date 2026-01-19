@@ -150,19 +150,19 @@ const Homesection1 = () => {
                 
                 {/* Customer List */}
                 <div className="absolute bottom-1/3 left-1/6 w-40 h-24 bg-white/85 backdrop-blur-sm rounded-lg shadow-xl border border-[#8BC34A]/30 p-2 transform -rotate-12">
-                    <div className="text-xs font-bold text-[#4A4A4A] mb-1">Top Customers</div>
+                    <div className="text-xs font-bold text-[#4A4A4A] mb-1">Recent Customers</div>
                     <div className="space-y-1">
                         <div className="flex justify-between text-xs">
-                            <span>ABC Corp</span>
-                            <span className="text-[#8BC34A] font-bold">₹25K</span>
+                            <span>Shoe Palace</span>
+                            <span className="text-[#8BC34A] font-bold">₹15K</span>
                         </div>
                         <div className="flex justify-between text-xs">
-                            <span>XYZ Ltd</span>
-                            <span className="text-[#2E4F7A] font-bold">₹18K</span>
+                            <span>Style Steps</span>
+                            <span className="text-[#2E4F7A] font-bold">₹12K</span>
                         </div>
                         <div className="flex justify-between text-xs">
-                            <span>Tech Inc</span>
-                            <span className="text-[#4A90E2] font-bold">₹12K</span>
+                            <span>Footwear Hub</span>
+                            <span className="text-[#4A90E2] font-bold">₹8K</span>
                         </div>
                     </div>
                 </div>
@@ -177,12 +177,12 @@ const Homesection1 = () => {
                     transform: `translate(${mousePosition.x * 0.08}px, ${mousePosition.y * 0.08}px)`
                 }}
             >
-                {/* Currency Symbols */}
+                {/* Currency Symbols - Only Rupee */}
                 <div className="absolute top-1/4 left-1/5 text-3xl text-[#8BC34A] opacity-20 animate-bounce">₹</div>
-                <div className="absolute top-1/3 right-1/5 text-2xl text-[#2E4F7A] opacity-15 animate-bounce" style={{animationDelay: '1s'}}>$</div>
-                <div className="absolute bottom-1/3 left-1/3 text-xl text-[#4A90E2] opacity-20 animate-bounce" style={{animationDelay: '2s'}}>€</div>
-                <div className="absolute top-1/2 right-1/3 text-lg text-[#8BC34A] opacity-15 animate-bounce" style={{animationDelay: '3s'}}>£</div>
-                <div className="absolute top-3/4 left-1/2 text-2xl text-[#2E4F7A] opacity-20 animate-bounce" style={{animationDelay: '4s'}}>¥</div>
+                <div className="absolute top-1/3 right-1/5 text-2xl text-[#2E4F7A] opacity-15 animate-bounce" style={{animationDelay: '1s'}}>₹</div>
+                <div className="absolute bottom-1/3 left-1/3 text-xl text-[#4A90E2] opacity-20 animate-bounce" style={{animationDelay: '2s'}}>₹</div>
+                <div className="absolute top-1/2 right-1/3 text-lg text-[#8BC34A] opacity-15 animate-bounce" style={{animationDelay: '3s'}}>₹</div>
+                <div className="absolute top-3/4 left-1/2 text-2xl text-[#2E4F7A] opacity-20 animate-bounce" style={{animationDelay: '4s'}}>₹</div>
                 
                 {/* Financial Icons */}
                 <div className="absolute top-1/6 left-1/4 w-8 h-8 border-2 border-[#8BC34A] opacity-15 rounded-full animate-spin" style={{animationDuration: '10s'}}></div>
@@ -221,17 +221,17 @@ const Homesection1 = () => {
             
             {/* Headline */}
             <h1 className="text-4xl md:text-7xl font-headline leading-none mb-6 bg-gradient-to-r from-[#4A4A4A] via-[#8BC34A] to-[#2E4F7A] bg-clip-text text-transparent font-extrabold drop-shadow-lg">
-             Smart Invoice
+             Billing Software
             </h1>
             
             {/* Sub-headline with custom highlight */}
             <div className="text-2xl md:text-5xl font-headline leading-none mb-12">
-                <span className="highlight-bg pb-2 simple text-gray-600 font-bold drop-shadow-md">Simple. Free.</span>
+                <span className="highlight-bg pb-2 simple text-gray-600 font-bold drop-shadow-md">Simple. Professional.</span>
             </div>
             
             {/* Description */}
             <p className="text-xl text-black max-w-2xl mb-12">
-                Smart Invoicing makes it easy to create professional invoices and customize them to your liking.
+                Complete billing solution with invoice generation, customer management, and WhatsApp integration.
             </p>
 
             {/* Action Buttons */}
@@ -246,7 +246,7 @@ const Homesection1 = () => {
             
             {/* Footer Text */}
             <p className="text-sm text-gray-500">
-                Free, forever, with unlimited users. <a href="#" className="text-blue-500 hover:underline">See why</a>
+                Professional billing software for businesses. <a href="#" className="text-blue-500 hover:underline">Learn more</a>
             </p>
 
 

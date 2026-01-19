@@ -4,19 +4,19 @@ import React, { useEffect, useState } from 'react';
 
 const features = [
     { 
-        icon: '📝', 
-        title: 'Instant Invoicing', 
-        description: 'Create and send professional, branded invoices in seconds, not minutes.'
+        icon: '📱', 
+        title: 'WhatsApp Integration', 
+        description: 'Send invoices directly to customers via WhatsApp with formatted bill details.'
     },
     { 
-        icon: '💵', 
+        icon: '💰', 
         title: 'Payment Tracking', 
-        description: 'Monitor all pending, paid, and overdue invoices with clear, real-time status.'
+        description: 'Track advance payments, balance amounts, and payment status for each invoice.'
     },
     { 
-        icon: '📊', 
-        title: 'Detailed Reporting', 
-        description: 'Access powerful analytics on sales, revenue, and customer payment habits.'
+        icon: '🧾', 
+        title: 'Professional Invoices', 
+        description: 'Generate clear, branded invoices with CGST/SGST calculation and digital signatures.'
     },
 ];
 
@@ -93,10 +93,10 @@ const Homesection2 = () => {
                         transform: `translate(${mousePosition.x * 0.06}px, ${mousePosition.y * 0.06}px)`
                     }}
                 >
-                    {/* Currency symbols */}
+                    {/* Currency symbols - Only Rupee */}
                     <div className="absolute top-1/4 left-1/5 text-2xl text-[#8BC34A] opacity-20 animate-bounce">₹</div>
-                    <div className="absolute top-1/3 right-1/5 text-xl text-[#2E4F7A] opacity-15 animate-bounce" style={{animationDelay: '1s'}}>$</div>
-                    <div className="absolute bottom-1/3 left-1/3 text-lg text-[#4A90E2] opacity-20 animate-bounce" style={{animationDelay: '2s'}}>€</div>
+                    <div className="absolute top-1/3 right-1/5 text-xl text-[#2E4F7A] opacity-15 animate-bounce" style={{animationDelay: '1s'}}>₹</div>
+                    <div className="absolute bottom-1/3 left-1/3 text-lg text-[#4A90E2] opacity-20 animate-bounce" style={{animationDelay: '2s'}}>₹</div>
                     
                     {/* Geometric shapes representing data */}
                     <div className="absolute top-3/4 right-1/4 w-6 h-6 border-2 border-[#8BC34A] opacity-15 transform rotate-45 animate-spin" style={{animationDuration: '8s'}}></div>
@@ -137,10 +137,10 @@ const Homesection2 = () => {
                 
                 {/* Section Header */}
                 <h2 className="text-4xl font-extrabold mb-4 elc bg-gradient-to-r from-[#4A4A4A] via-[#8BC34A] to-[#2E4F7A] bg-clip-text text-transparent">
-                    Everything You Need to Manage Billing
+                    Essential Features for Footwear Billing
                 </h2>
                 <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
-                    Our software simplifies the entire financial lifecycle, giving you more time to focus on your business.
+                    Everything you need to manage your footwear business billing efficiently and professionally.
                 </p>
 
                 {/* Features Grid */}

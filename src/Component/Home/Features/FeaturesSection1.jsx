@@ -75,23 +75,23 @@ const FeaturesSection1 = () => {
                 >
                     {/* Invoice Dashboard */}
                     <div className="absolute top-16 left-16 w-72 h-48 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-[#8BC34A]/20 p-4 transform rotate-8">
-                        <div className="text-sm font-bold text-[#4A4A4A] mb-3">Invoice Dashboard</div>
+                        <div className="text-sm font-bold text-[#4A4A4A] mb-3">Billing Dashboard</div>
                         <div className="space-y-2">
                             <div className="flex justify-between items-center text-xs">
-                                <span>Draft Invoices</span>
-                                <span className="text-[#8BC34A] font-bold">12</span>
+                                <span>Today's Bills</span>
+                                <span className="text-[#8BC34A] font-bold">8</span>
                             </div>
                             <div className="flex justify-between items-center text-xs">
-                                <span>Sent Today</span>
-                                <span className="text-[#2E4F7A] font-bold">25</span>
+                                <span>Total Customers</span>
+                                <span className="text-[#2E4F7A] font-bold">156</span>
                             </div>
                             <div className="flex justify-between items-center text-xs">
-                                <span>Total Revenue</span>
-                                <span className="text-[#4A90E2] font-bold">₹2,45,000</span>
+                                <span>Monthly Revenue</span>
+                                <span className="text-[#4A90E2] font-bold">₹1,25,000</span>
                             </div>
                         </div>
                         <div className="mt-3 pt-2 border-t">
-                            <div className="text-xs text-[#8BC34A] font-bold">📈 Performance: +15%</div>
+                            <div className="text-xs text-[#8BC34A] font-bold">📱 WhatsApp Ready</div>
                         </div>
                     </div>
                     
@@ -101,15 +101,15 @@ const FeaturesSection1 = () => {
                         <div className="space-y-2">
                             <div className="flex items-center text-xs">
                                 <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                                <span>Auto Tax Calculation</span>
+                                <span>CGST/SGST Calculation</span>
                             </div>
                             <div className="flex items-center text-xs">
                                 <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                                <span>Multi-Currency Support</span>
+                                <span>WhatsApp Integration</span>
                             </div>
                             <div className="flex items-center text-xs">
                                 <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                                <span>Recurring Billing</span>
+                                <span>Digital Signatures</span>
                             </div>
                             <div className="flex items-center text-xs">
                                 <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
@@ -140,19 +140,19 @@ const FeaturesSection1 = () => {
                     
                     {/* Customer Management */}
                     <div className="absolute bottom-1/3 right-1/4 w-48 h-32 bg-white/75 backdrop-blur-sm rounded-xl shadow-lg border border-[#2E4F7A]/25 p-3 transform -rotate-8">
-                        <div className="text-sm font-bold text-[#4A4A4A] mb-2">Top Customers</div>
+                        <div className="text-sm font-bold text-[#4A4A4A] mb-2">Recent Customers</div>
                         <div className="space-y-1 text-xs">
                             <div className="flex justify-between">
-                                <span>ABC Corp</span>
-                                <span className="text-[#8BC34A] font-bold">₹55,000</span>
+                                <span>Raj Footwear</span>
+                                <span className="text-[#8BC34A] font-bold">₹15,000</span>
                             </div>
                             <div className="flex justify-between">
-                                <span>XYZ Ltd</span>
-                                <span className="text-[#2E4F7A] font-bold">₹42,500</span>
+                                <span>Shoe Palace</span>
+                                <span className="text-[#2E4F7A] font-bold">₹12,500</span>
                             </div>
                             <div className="flex justify-between">
-                                <span>Tech Inc</span>
-                                <span className="text-[#4A90E2] font-bold">₹38,750</span>
+                                <span>Style Steps</span>
+                                <span className="text-[#4A90E2] font-bold">₹8,750</span>
                             </div>
                         </div>
                     </div>
@@ -166,11 +166,11 @@ const FeaturesSection1 = () => {
                     }}
                 >
                     {/* Billing Feature Icons */}
-                    <div className="absolute top-1/4 right-1/3 text-3xl text-[#8BC34A] opacity-8 animate-bounce">📊</div>
+                    <div className="absolute top-1/4 right-1/3 text-3xl text-[#8BC34A] opacity-8 animate-bounce">📱</div>
                     <div className="absolute top-2/3 left-1/6 text-2xl text-[#2E4F7A] opacity-6 animate-bounce" style={{animationDelay: '1s'}}>💰</div>
                     <div className="absolute bottom-1/4 right-1/5 text-2xl text-[#4A90E2] opacity-8 animate-bounce" style={{animationDelay: '2s'}}>📄</div>
-                    <div className="absolute top-1/2 left-1/8 text-2xl text-[#8BC34A] opacity-6 animate-bounce" style={{animationDelay: '0.5s'}}>⚙️</div>
-                    <div className="absolute top-1/6 right-1/6 text-xl text-[#2E4F7A] opacity-5 animate-bounce" style={{animationDelay: '1.5s'}}>🌍</div>
+                    <div className="absolute top-1/2 left-1/8 text-2xl text-[#8BC34A] opacity-6 animate-bounce" style={{animationDelay: '0.5s'}}>🔍</div>
+                    <div className="absolute top-1/6 right-1/6 text-xl text-[#2E4F7A] opacity-5 animate-bounce" style={{animationDelay: '1.5s'}}>💼</div>
                     
                     {/* Geometric Elements */}
                     <div className="absolute top-1/6 left-1/3 w-6 h-6 border-2 border-[#8BC34A] opacity-5 rounded animate-spin" style={{animationDuration: '30s'}}></div>
@@ -208,7 +208,7 @@ const FeaturesSection1 = () => {
                 
                 {/* Main Headline */}
                 <h1 className="text-3xl md:text-7xl font-handwriting bg-gradient-to-r from-[#4A4A4A] via-[#8BC34A] to-[#2E4F7A] bg-clip-text text-transparent leading-tight mb-4 font-extrabold drop-shadow-lg">
-                    The <span className="text-purple-main">Invoicing</span>
+                    Essential <span className="text-purple-main">Billing</span>
                 </h1>
                 <h1 className="text-3xl md:text-7xl font-handwriting bg-gradient-to-r from-[#4A4A4A] via-[#8BC34A] to-[#2E4F7A] bg-clip-text text-transparent leading-tight mb-8 font-extrabold drop-shadow-lg">
                     Features You Need
@@ -216,12 +216,12 @@ const FeaturesSection1 = () => {
                 
                 {/* Subtext */}
                 <p className="text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto mb-10">
-                    From simple billing to automated payment collection and comprehensive reporting, Odoo does it all seamlessly.
+                    From invoice creation to WhatsApp sharing and payment tracking - everything your footwear business needs.
                 </p>
 
                 {/* Call-to-Action Buttons */}
                 <div className="flex justify-center space-x-4">
-                    <a href="trypage"><Button className="shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 hover:bg-indigo-400 hover:text-white" outline>
+                    <a href="/Account"><Button className="shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 hover:bg-indigo-400 hover:text-white" outline>
                         Try It Free
                     </Button></a>
                     <Button 
@@ -234,7 +234,7 @@ const FeaturesSection1 = () => {
                 
                 {/* Optional: Small trust indicator */}
                 <p className="mt-8 text-sm text-gray-500">
-                    Trusted by 7+ million users worldwide.
+                    Trusted by footwear retailers for professional billing.
                 </p>
 
             </div>

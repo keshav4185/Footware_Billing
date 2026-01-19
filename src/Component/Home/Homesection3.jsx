@@ -62,21 +62,21 @@ const Homesection3 = () => {
                         </div>
                     </div>
                     
-                    {/* Payment Gateway Interface */}
+                    {/* Payment Methods Interface */}
                     <div className="absolute bottom-32 right-16 w-64 h-40 bg-white/90 backdrop-blur-sm rounded-xl shadow-2xl border border-[#2E4F7A]/20 p-4 transform -rotate-3">
                         <div className="text-sm font-bold text-[#4A4A4A] mb-3">Payment Methods</div>
                         <div className="space-y-2">
                             <div className="flex items-center p-2 bg-[#8BC34A]/10 rounded">
                                 <div className="w-3 h-3 bg-[#8BC34A] rounded mr-2"></div>
-                                <span className="text-xs">Credit Card</span>
+                                <span className="text-xs">Cash Payment</span>
                             </div>
                             <div className="flex items-center p-2 bg-[#2E4F7A]/10 rounded">
                                 <div className="w-3 h-3 bg-[#2E4F7A] rounded mr-2"></div>
-                                <span className="text-xs">UPI Payment</span>
+                                <span className="text-xs">WhatsApp Share</span>
                             </div>
                             <div className="flex items-center p-2 bg-[#4A90E2]/10 rounded">
                                 <div className="w-3 h-3 bg-[#4A90E2] rounded mr-2"></div>
-                                <span className="text-xs">Net Banking</span>
+                                <span className="text-xs">Digital Receipt</span>
                             </div>
                         </div>
                     </div>
@@ -165,14 +165,14 @@ const Homesection3 = () => {
                     {/* Left Column */}
                     <div className="lg:w-1/2 space-y-6 mb-12 lg:mb-0 lg:text-left text-center">
                         <span className="text-sm font-semibold uppercase text-blue-600 tracking-wider">
-                            Advanced Functionality
+                            Essential Features
                         </span>
                         <h2 className="text-4xl font-extrabold bg-gradient-to-r from-[#4A4A4A] via-[#8BC34A] to-[#2E4F7A] bg-clip-text text-transparent leading-tight elc">
-                            Automate Your Payments & Reconciliation
+                            Professional Footwear Billing Made Simple
                         </h2>
                         <p className="text-xl text-gray-600">
-                            Stop chasing payments manually. Setup automatic recurring invoices, 
-                            accept payments directly, and let our system handle the reconciliation for you.
+                            Create professional invoices with CGST/SGST calculation, send via WhatsApp, 
+                            and track payments - everything your footwear business needs in one place.
                         </p>
                     </div>
 
