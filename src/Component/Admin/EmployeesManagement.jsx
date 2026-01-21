@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 
-const API = 'http://localhost:8080/api/employees';
+const API = 'https://backend-billing-software-ahxt.onrender.com/api/employees';
 
 const EmployeesManagement = () => {
   const [employees, setEmployees] = React.useState([]);

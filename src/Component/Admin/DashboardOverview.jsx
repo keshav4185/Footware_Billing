@@ -28,9 +28,9 @@ const DashboardOverview = () => {
   const fetchDashboardData = async () => {
     try {
       const [invoiceRes, customerRes, productRes] = await Promise.all([
-        axios.get('http://localhost:8080/api/billing/invoices'),
-        axios.get('http://localhost:8080/api/billing/customers'),
-        axios.get('http://localhost:8080/api/billing/products'),
+        axios.get('https://backend-billing-software-ahxt.onrender.com/api/billing/invoices'),
+        axios.get('https://backend-billing-software-ahxt.onrender.com/api/billing/customers'),
+        axios.get('https://backend-billing-software-ahxt.onrender.com/api/billing/products'),
       ]);
 
       const mappedBills = invoiceRes.data.map(inv => ({

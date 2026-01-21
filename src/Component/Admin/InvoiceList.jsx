@@ -12,7 +12,7 @@ const InvoiceList = ({ bills, setBills }) => {
   useEffect(() => {
     const fetchInvoices = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/api/billing/invoices");
+        const res = await axios.get("https://backend-billing-software-ahxt.onrender.com/api/billing/invoices");
         setBills(
           res.data.sort(
             (a, b) => new Date(b.invoiceDate) - new Date(a.invoiceDate)
@@ -37,7 +37,7 @@ const InvoiceList = ({ bills, setBills }) => {
 
     try {
       await axios.delete(
-        `http://localhost:8080/api/billing/invoice/${id}`
+        `https://backend-billing-software-ahxt.onrender.com/api/billing/invoice/${id}`
       );
       setBills(bills.filter((bill) => bill.id !== id));
       alert("Invoice deleted successfully");

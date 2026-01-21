@@ -24,7 +24,7 @@ const CustomersList = ({ isDarkMode, onCreateInvoice }) => {
   const fetchCustomers = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8080/api/billing/customers', {
+      const response = await fetch('https://backend-billing-software-ahxt.onrender.com/api/billing/customers', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

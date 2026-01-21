@@ -23,9 +23,9 @@ const Reports = () => {
       try {
         setLoading(true);
         const [billsRes, customersRes, productsRes] = await Promise.all([
-          axios.get("http://localhost:8080/api/billing/invoices"),
-          axios.get("http://localhost:8080/api/billing/customers"),
-          axios.get("http://localhost:8080/api/billing/products"),
+          axios.get("https://backend-billing-software-ahxt.onrender.com/api/billing/invoices"),
+          axios.get("https://backend-billing-software-ahxt.onrender.com/api/billing/customers"),
+          axios.get("https://backend-billing-software-ahxt.onrender.com/api/billing/products"),
         ]);
         setBills(billsRes.data);
         setCustomers(customersRes.data);

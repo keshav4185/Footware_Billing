@@ -22,7 +22,7 @@ const CustomersManagement = ({ customers, setCustomers }) => {
   const fetchCustomers = async () => {
     try {
       const res = await axios.get(
-        'http://localhost:8080/api/billing/customers'
+        'https://backend-billing-software-ahxt.onrender.com/api/billing/customers'
       );
       setCustomers(res.data || []);
     } catch (error) {
@@ -45,7 +45,7 @@ const CustomersManagement = ({ customers, setCustomers }) => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        'http://localhost:8080/api/billing/customer',
+        'https://backend-billing-software-ahxt.onrender.com/api/billing/customer',
         formData
       );
       setCustomers([...customers, res.data]);
@@ -77,7 +77,7 @@ const CustomersManagement = ({ customers, setCustomers }) => {
     e.preventDefault();
     try {
       const res = await axios.put(
-        `http://localhost:8080/api/billing/customer/${editingCustomer.id}`,
+        `https://backend-billing-software-ahxt.onrender.com/api/billing/customer/${editingCustomer.id}`,
         formData
       );
       setCustomers(
@@ -101,17 +101,17 @@ const CustomersManagement = ({ customers, setCustomers }) => {
 
     try {
       // First, fetch all invoices for this customer
-      const invoicesResponse = await axios.get('http://localhost:8080/api/billing/invoices');
+      const invoicesResponse = await axios.get('https://backend-billing-software-ahxt.onrender.com/api/billing/invoices');
       const customerInvoices = invoicesResponse.data.filter(inv => inv.customer?.id === customerId);
       
       // Delete all related invoices first
       for (const invoice of customerInvoices) {
-        await axios.delete(`http://localhost:8080/api/billing/invoice/${invoice.id}`);
+        await axios.delete(`https://backend-billing-software-ahxt.onrender.com/api/billing/invoice/${invoice.id}`);
       }
       
       // Now delete the customer
       const response = await axios.delete(
-        `http://localhost:8080/api/billing/customer/${customerId}`
+        `https://backend-billing-software-ahxt.onrender.com/api/billing/customer/${customerId}`
       );
       
       if (response.status === 200 || response.status === 204) {

@@ -20,7 +20,7 @@ const EmployeeDashboard = ({ isDarkMode }) => {
   const fetchDashboardSummary = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:8080/api/billing/dashboard/summary?period=${dateRange}`, {
+      const response = await fetch(`https://backend-billing-software-ahxt.onrender.com/api/billing/dashboard/summary?period=${dateRange}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -35,7 +35,7 @@ const EmployeeDashboard = ({ isDarkMode }) => {
       console.log('Dashboard API Response:', data);
       
       // Fetch recent invoices separately
-      const invoicesResponse = await fetch('http://localhost:8080/api/billing/invoices', {
+      const invoicesResponse = await fetch('https://backend-billing-software-ahxt.onrender.com/api/billing/invoices', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

@@ -24,7 +24,7 @@ const Settings = () => {
 
     try {
       const response = await axios.put(
-        "http://localhost:8080/api/admin/update",
+        "https://backend-billing-software-ahxt.onrender.com/api/admin/update",
         {
           oldUsername: oldAuth.oldUser,
           oldPassword: oldAuth.oldPass,

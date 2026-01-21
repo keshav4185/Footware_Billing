@@ -20,7 +20,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
   // Fetch complete invoice data with all related entities
   const fetchCompleteInvoiceData = async (invoiceId) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/billing/invoice/${invoiceId}`, {
+      const response = await fetch(`https://backend-billing-software-ahxt.onrender.com/api/billing/invoice/${invoiceId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
   const fetchInvoices = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8080/api/billing/invoices', {
+      const response = await fetch('https://backend-billing-software-ahxt.onrender.com/api/billing/invoices', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -154,7 +154,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
         // Fetch company details if company ID exists
         if (invoice.company?.id) {
           try {
-            const companyResponse = await fetch(`http://localhost:8080/api/billing/company/${invoice.company.id}`, {
+            const companyResponse = await fetch(`https://backend-billing-software-ahxt.onrender.com/api/billing/company/${invoice.company.id}`, {
               method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
@@ -490,7 +490,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
   const deleteBill = async (billId) => {
     if (confirm('Are you sure you want to delete this bill?')) {
       try {
-        const response = await fetch(`http://localhost:8080/api/billing/invoice/${billId}`, {
+        const response = await fetch(`https://backend-billing-software-ahxt.onrender.com/api/billing/invoice/${billId}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',

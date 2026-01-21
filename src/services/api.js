@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api/billing';
+const API_BASE_URL = 'https://backend-billing-software-ahxt.onrender.com/api/billing';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -12,12 +12,12 @@ const api = axios.create({
 
 // Employee API
 export const employeeAPI = {
-  login: (credentials) => axios.post('http://localhost:8080/api/employees/login', {
+  login: (credentials) => axios.post('https://backend-billing-software-ahxt.onrender.com/api/employees/login', {
     empId: credentials.empId,
     email: credentials.email,
     password: credentials.password
   }),
-  getById: (id) => axios.get(`http://localhost:8080/api/employees/${id}`),
+  getById: (id) => axios.get(`https://backend-billing-software-ahxt.onrender.com/api/employees/${id}`),
   getAll: () => api.get('/employees'),
 };
 
@@ -60,7 +60,7 @@ export const invoiceAPI = {
   create: (invoice) => api.post('/invoice', invoice),
   getAll: () => api.get('/invoices'),
   update: (id, invoice) => api.put(`/invoice/${id}`, invoice),
-  delete: (id) => axios.delete(`http://localhost:8080/api/billing/invoices/${id}`),
+  delete: (id) => axios.delete(`https://backend-billing-software-ahxt.onrender.com/api/billing/invoices/${id}`),
 };
 
 // Payment API
