@@ -4,7 +4,7 @@ import DashboardContent from '../../Component/Dashboard/DashboardContent';
 import './Dashboard.css';
 
 const Dashboard = () => {
-  const [activeSection, setActiveSection] = useState('create-bill');
+  const [activeSection, setActiveSection] = useState('analytics');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
