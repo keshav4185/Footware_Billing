@@ -79,7 +79,7 @@ const handleUserLogin = async (e) => {
     alert("✅ Login successful");
 
     // ✅ Redirect to dashboard
-    window.location.href = "/dashboard";
+    window.location.href = "/employee/dashboard";
 
   } catch (error) {
     console.error("Login error:", error);

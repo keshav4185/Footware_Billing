@@ -14,7 +14,9 @@ const DashboardSidebar = ({ activeSection, setActiveSection, sidebarOpen, setSid
 
   const handleLogout = () => {
     localStorage.removeItem('isSignedIn');
-    navigate('/');
+    localStorage.removeItem('employee');
+    localStorage.removeItem('loggedInEmployee');
+    navigate('/Account');
   };
 
   const handleMenuClick = (sectionId) => {

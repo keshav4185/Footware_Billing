@@ -43,7 +43,9 @@ const DashboardContent = ({ activeSection, sidebarOpen, setSidebarOpen, setActiv
 
   const handleLogout = () => {
     localStorage.removeItem('isSignedIn');
-    navigate('/');
+    localStorage.removeItem('employee');
+    localStorage.removeItem('loggedInEmployee');
+    navigate('/Account');
   };
 
   const handleCreateBill = () => {

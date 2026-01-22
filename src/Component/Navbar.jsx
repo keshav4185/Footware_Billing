@@ -123,7 +123,7 @@ const Navbar = () => {
                                             </div>
                                         )}
                                     </div>
-                                    <a href="trypage">   <Button outline className="try hover:bg-indigo-400 transform hover:scale-105 transition-all duration-300 hover:shadow-lg">Start Billing</Button> </a>
+                                    <a href="/Account">   <Button outline className="try hover:bg-indigo-400 transform hover:scale-105 transition-all duration-300 hover:shadow-lg">Start Billing</Button> </a>
                                 </>
                             ) : (
                                 <>
@@ -176,12 +176,12 @@ const Navbar = () => {
                                     </div>
                                     <span className="font-medium text-gray-700 group-hover:text-purple-600">{userName}</span>
                                 </Link>
-                                <a href="/trypage">  <Button outline className="w-full try transform hover:scale-105 transition-all duration-300 hover:shadow-lg">Start Billing</Button></a>
+                                <a href="/Account">  <Button outline className="w-full try transform hover:scale-105 transition-all duration-300 hover:shadow-lg">Start Billing</Button></a>
                             </>
                         ) : (
                             <>
                                 <a href="/Account">  <Button outline className="w-full transform hover:scale-105 transition-all duration-300 hover:shadow-lg" >Sign in</Button></a> 
-                                <a href="/trypage">  <Button outline className="w-full try transform hover:scale-105 transition-all duration-300 hover:shadow-lg">Start Billing</Button></a>
+                                <a href="/Account">  <Button outline className="w-full try transform hover:scale-105 transition-all duration-300 hover:shadow-lg">Start Billing</Button></a>
                             </>
                         )}
                     </div>

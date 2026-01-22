@@ -15,8 +15,8 @@ import Welcomepage from './Pages/Home/TryPage/welcomepage';
 
 import Myaccountpage from './Pages/Mypage/myaccountpage';
 import Dashboard from './Pages/Dashboard/Dashboard';
-import AdminPage from './Pages/Admin/AdminPage';
 import AdminDashboardPage from './Pages/Admin/AdminDashboardPage';
+import ProtectedRoute from './components/ProtectedRoute';
 import './Pages/Dashboard/Dashboard.css'; 
 
 // Layout component with navbar and footer
@@ -63,9 +63,9 @@ function App() {
         <Route path="/welcome" element={<Welcomepage />} />
 
         <Route path="/myaccountpage" element={<LayoutWithNavbar><Myaccountpage /></LayoutWithNavbar>} />
-         <Route path="/dashboard" element={<Dashboard />} />
-         <Route path="/admin" element={<AdminPage />} />
-         <Route path="/admin/dashboard" element={<AdminDashboardPage />} /> 
+         <Route path="/dashboard" element={<ProtectedRoute type="employee"><Dashboard /></ProtectedRoute>} />
+         <Route path="/employee/dashboard" element={<ProtectedRoute type="employee"><Dashboard /></ProtectedRoute>} />
+         <Route path="/admin/dashboard" element={<ProtectedRoute type="admin"><AdminDashboardPage /></ProtectedRoute>} /> 
       </Routes>
     </BrowserRouter>
     </div>

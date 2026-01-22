@@ -27,7 +27,7 @@ const AdminHeader = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
   const handleLogout = () => {
     localStorage.removeItem('adminLoggedIn');
-    navigate('/admin');
+    navigate('/Account');
   };
 
   const dayGradient = 'from-blue-400 via-cyan-500 to-blue-600';

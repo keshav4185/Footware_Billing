@@ -21,7 +21,7 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!localStorage.getItem('adminLoggedIn')) navigate('/admin');
+    if (!localStorage.getItem('adminLoggedIn')) navigate('/Account');
     setBills(JSON.parse(localStorage.getItem('bills') || '[]'));
     setCustomers(JSON.parse(localStorage.getItem('customers') || '[]'));
 
