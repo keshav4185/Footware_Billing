@@ -1,6 +1,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { customerAPI, productAPI, invoiceAPI, paymentAPI, companyAPI } from '../../services/api';
+import defaultLogo from '../../assets/smart_logo-Jt0au3tU.webp';
 import { 
   FaFileInvoice, 
   FaPaperPlane, 
@@ -29,7 +30,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   const [cgstRate, setCgstRate] = React.useState(9);
   const [sgstRate, setSgstRate] = React.useState(9);
   const [showPreview, setShowPreview] = React.useState(false);
-  const [companyLogo, setCompanyLogo] = React.useState(null);
+  const [companyLogo, setCompanyLogo] = React.useState(defaultLogo);
   const [advance, setAdvance] = React.useState(0);
   const [balance, setBalance] = React.useState(0);
   const [paymentStatus, setPaymentStatus] = React.useState('Unpaid');
@@ -342,7 +343,11 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
     }
     
     if (action === 'print') openDirectPrintPreview();
-    else if (action === 'preview') setShowPreview(true);
+    else if (action === 'preview') {
+      // Auto-save before showing preview
+      saveBillToAPI();
+      setShowPreview(true);
+    }
     else if (action === 'save') saveBillToAPI();
     else if (action === 'send') sendInvoice();
   };
@@ -636,63 +641,6 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   }
 };
 
-
-
-
-
-
-  // const saveBill = () => {
-  //   try {
-  //     // Get logged-in employee data
-  //     // const employeeName = localStorage.getItem('loggedInEmployee') || 'Sales Person';
-  //     // const employeeId = localStorage.getItem('employeeId') || null;
-
-  //     const employee = JSON.parse(localStorage.getItem("employee"));
-
-  //       const employeeName = employee?.name || "Sales Person";
-  //      const employeeId = employee?.id || null;
-
-
-      
-  //     const billData = {
-  //       id: Date.now(),
-  //       customer: customerFormData,
-  //       products: products.filter(p => p.name.trim()),
-  //       date: new Date().toISOString(),
-  //       invoiceNumber: `INV-${Date.now().toString().slice(-6)}`,
-  //       paymentStatus: paymentStatus,
-  //       salesperson: employeeName,
-  //       employeeId: employee?.id || null
-
-  //     };
-      
-  //     const bills = JSON.parse(localStorage.getItem('bills') || '[]');
-  //     bills.push(billData);
-  //     localStorage.setItem('bills', JSON.stringify(bills));
-      
-  //     const customers = JSON.parse(localStorage.getItem('customers') || '[]');
-  //     const existing = customers.find(c => c.phone === customerFormData.phone);
-      
-  //     if (!existing) {
-  //       customers.push({
-  //         id: Date.now(),
-  //         ...customerFormData,
-  //         totalBills: 1,
-  //         lastBillDate: new Date().toLocaleDateString()
-  //       });
-  //     }
-      
-  //     localStorage.setItem('customers', JSON.stringify(customers));
-  //     alert('💾 Bill saved successfully!');
-      
-  //     setCustomerFormData({ name: '', phone: '', gst: '', address: '' });
-  //     setProducts([{ id: 1, name: '', qty: 1, price: 0, discount: 0 }]);
-  //   } catch (error) {
-  //     alert('Error saving bill: ' + error.message);
-  //   }
-  // };
-
-
   const saveBill = () => {
   try {
     // ✅ Get logged-in employee
@@ -802,9 +750,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   const calculateRowAmount = (product) => {
     const subtotal = product.qty * product.price;
     const afterDiscount = subtotal * (1 - product.discount/100);
-    const cgst = cgstEnabled ? afterDiscount * cgstRate / 100 : 0;
-    const sgst = sgstEnabled ? afterDiscount * sgstRate / 100 : 0;
-    return afterDiscount + cgst + sgst;
+    return afterDiscount; // Return amount without tax
   };
 
   const calculateTotals = () => {
@@ -895,10 +841,13 @@ setLoggedInEmployee(employee?.name || "Sales Person");
       }
     }
     
-    // Load saved logo
+    // Load saved logo or use default smart logo
     const savedLogo = localStorage.getItem('companyLogo');
     if (savedLogo) {
       setCompanyLogo(savedLogo);
+    } else {
+      setCompanyLogo(defaultLogo);
+      localStorage.setItem('companyLogo', defaultLogo);
     }
     
     // Load saved signature
@@ -1108,10 +1057,10 @@ setLoggedInEmployee(employee?.name || "Sales Person");
         <div className="absolute bottom-32 right-1/3 w-4 h-4 bg-green-400 rounded-full opacity-30 animate-float"></div>
       </div>
       {/* Mobile Header */}
-      <div className={`rounded-xl shadow-xl p-4 mb-4 transform hover:scale-[1.02] transition-all duration-300 border backdrop-blur-sm hover:shadow-2xl ${
+      <div className={`rounded-xl shadow-xl p-4 mb-4 border backdrop-blur-sm ${
         isDarkMode 
-          ? 'bg-gray-800/90 border-gray-700 hover:shadow-blue-900/50 text-white' 
-          : 'bg-white/90 border-gray-100 hover:shadow-blue-200/50 text-gray-800'
+          ? 'bg-gray-800/90 border-gray-700 text-white' 
+          : 'bg-white/90 border-gray-100 text-gray-800'
       }`}>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div className="animate-slideInLeft w-full text-center sm:text-left">
@@ -1133,10 +1082,10 @@ setLoggedInEmployee(employee?.name || "Sales Person");
       {/* Customer & Company Details */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         {/* Customer Details Card */}
-        <div className={`rounded-xl shadow-xl p-4 md:p-6 transform hover:scale-[1.02] transition-all duration-300 border animate-slideInLeft backdrop-blur-sm hover:shadow-2xl group ${
+        <div className={`rounded-xl shadow-xl p-4 md:p-6 border animate-slideInLeft backdrop-blur-sm ${
           isDarkMode 
-            ? 'bg-gray-800/95 border-gray-700 hover:shadow-blue-900/30 text-white' 
-            : 'bg-white/95 border-gray-100 hover:shadow-blue-200/30 text-gray-800'
+            ? 'bg-gray-800/95 border-gray-700 text-white' 
+            : 'bg-white/95 border-gray-100 text-gray-800'
         }`}>
           <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${
             isDarkMode ? 'text-white' : 'text-gray-800'
@@ -1195,10 +1144,10 @@ setLoggedInEmployee(employee?.name || "Sales Person");
         </div>
 
         {/* Company Details Card */}
-        <div className={`rounded-xl shadow-xl p-4 md:p-6 border transform hover:scale-[1.02] transition-all duration-300 animate-slideInRight backdrop-blur-sm hover:shadow-2xl group ${
+        <div className={`rounded-xl shadow-xl p-4 md:p-6 border animate-slideInRight backdrop-blur-sm ${
           isDarkMode 
-            ? 'bg-gray-800/95 border-gray-700 hover:shadow-green-900/30 text-white' 
-            : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-300 hover:shadow-green-200/30 text-gray-800'
+            ? 'bg-gray-800/95 border-gray-700 text-white' 
+            : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-300 text-gray-800'
         }`}>
           <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${
             isDarkMode ? 'text-white' : 'text-gray-800'
@@ -1315,10 +1264,10 @@ setLoggedInEmployee(employee?.name || "Sales Person");
       </div>
 
       {/* Products Section */}
-      <div className={`rounded-xl shadow-xl p-4 md:p-6 mb-6 transform hover:scale-[1.01] transition-all duration-300 border animate-fadeInUp backdrop-blur-sm hover:shadow-2xl group ${
+      <div className={`rounded-xl shadow-xl p-4 md:p-6 mb-6 border animate-fadeInUp backdrop-blur-sm ${
         isDarkMode 
-          ? 'bg-gray-800/95 border-gray-700 hover:shadow-purple-900/30 text-white' 
-          : 'bg-white/95 border-gray-100 hover:shadow-purple-200/30 text-gray-800'
+          ? 'bg-gray-800/95 border-gray-700 text-white' 
+          : 'bg-white/95 border-gray-100 text-gray-800'
       }`}>
         <div className="flex items-center justify-between mb-4">
           <h3 className={`text-lg font-semibold flex items-center gap-2 ${
@@ -1326,7 +1275,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
           }`}>
             <FaBox className="text-xl text-purple-600 animate-pulse" /> Products & Services
           </h3>
-          <button className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-green-600 hover:to-green-700 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2" onClick={addNewRow}>
+          <button className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md flex items-center gap-2" onClick={addNewRow}>
             <FaPlus className="animate-bounce" /> Add Product
           </button>
         </div>
@@ -1515,10 +1464,10 @@ setLoggedInEmployee(employee?.name || "Sales Person");
       </div>
 
       {/* Bill Summary */}
-      <div className={`rounded-xl shadow-xl p-4 md:p-6 transform hover:scale-[1.01] transition-all duration-300 border animate-fadeInUp backdrop-blur-sm hover:shadow-2xl group ${
+      <div className={`rounded-xl shadow-xl p-4 md:p-6 border animate-fadeInUp backdrop-blur-sm ${
         isDarkMode 
-          ? 'bg-gray-800/90 border-gray-700 hover:shadow-indigo-900/40 text-white' 
-          : 'bg-gradient-to-br from-blue-50 to-indigo-100 border-blue-200 hover:shadow-indigo-200/40 text-gray-800'
+          ? 'bg-gray-800/90 border-gray-700 text-white' 
+          : 'bg-gradient-to-br from-blue-50 to-indigo-100 border-blue-200 text-gray-800'
       }`}>
         <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${
           isDarkMode ? 'text-white' : 'text-gray-800'
@@ -1623,7 +1572,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
             <span className="text-lg sm:text-xl font-bold text-blue-800">₹ {calculateTotals().grandTotal.toFixed(2)}</span>
           </div>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg px-4 border-2 border-green-200 mt-2">
-            <span className="text-base sm:text-lg font-bold text-green-800 mb-1 sm:mb-0">Advance Amount:</span>
+            <span className="text-base sm:text-lg font-bold text-green-800 mb-1 sm:mb-0">Paid Amount:</span>
             <div className="flex items-center gap-2">
               <input 
                 type="number" 
@@ -1652,28 +1601,30 @@ setLoggedInEmployee(employee?.name || "Sales Person");
             <span className="text-base sm:text-lg font-bold text-orange-800 mb-1 sm:mb-0">Balance Amount:</span>
             <span className="text-lg sm:text-xl font-bold text-orange-800">₹ {calculateTotals().balanceAmount.toFixed(2)}</span>
           </div>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg px-4 border-2 border-gray-300 mt-2">
-            <span className="text-base sm:text-lg font-bold text-gray-800 mb-2 sm:mb-0">Payment Status:</span>
-            <button 
-              onClick={() => {
-                const newStatus = paymentStatus === 'Paid' ? 'Unpaid' : 'Paid';
-                setPaymentStatus(newStatus);
-                if (newStatus === 'Paid') {
-                  const grandTotal = calculateTotals().grandTotal;
-                  setAdvance(grandTotal);
-                  setBalance(0);
-                } else {
-                  setAdvance(0);
-                  setBalance(calculateTotals().grandTotal);
-                }
-              }}
-              className={`px-4 py-2 rounded-lg font-bold text-sm transition-all ${
-                paymentStatus === 'Paid' 
-                  ? 'bg-green-500 text-white hover:bg-green-600' 
-                  : 'bg-red-500 text-white hover:bg-red-600'
-              }`}
-            >
-              {paymentStatus}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 py-2 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg px-4 border border-gray-200 mt-2">
+            <span className={`px-3 py-1 rounded-lg font-bold text-sm ${
+              calculateTotals().balanceAmount === 0 
+                ? 'bg-green-500 text-white' 
+                : calculateTotals().balanceAmount === calculateTotals().grandTotal
+                ? 'bg-red-500 text-white'
+                : 'bg-orange-500 text-white'
+            }`}>
+              {calculateTotals().balanceAmount === 0 
+                ? 'Paid' 
+                : calculateTotals().balanceAmount === calculateTotals().grandTotal
+                ? 'Unpaid'
+                : 'Balance'}
+            </span>
+            <button className="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-4 py-2 rounded-lg font-medium shadow-md flex items-center gap-2 justify-center hover:from-indigo-700 hover:to-indigo-800 transition-all" onClick={() => handleAction('preview')}>
+              <FaFileInvoice className="animate-pulse" /> Generate Bill
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2 mt-3 justify-center">
+            <button className="flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('send')}>
+              <FaPaperPlane className="animate-bounce" /> Send
+            </button>
+            <button className="flex-1 sm:flex-none bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('print')}>
+              <FaPrint className="hover:animate-spin" /> Print
             </button>
           </div>
           <div className="flex items-center gap-2 mt-2">
@@ -1692,34 +1643,20 @@ setLoggedInEmployee(employee?.name || "Sales Person");
       </div>
 
       {/* Action Buttons - Moved to End */}
-      <div className={`rounded-xl shadow-xl p-4 mb-4 transform hover:scale-[1.02] transition-all duration-300 border backdrop-blur-sm hover:shadow-2xl ${
+      {/* <div className={`rounded-xl shadow-xl p-4 mb-4 border backdrop-blur-sm ${
         isDarkMode 
-          ? 'bg-gray-800/90 border-gray-700 hover:shadow-blue-900/50' 
-          : 'bg-white/90 border-gray-100 hover:shadow-blue-200/50'
+          ? 'bg-gray-800/90 border-gray-700' 
+          : 'bg-white/90 border-gray-100'
       }`}>
         <div className="flex flex-wrap gap-2 w-full animate-slideInRight justify-center">
-          <button className={`flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-blue-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center ${
-            isDarkMode ? 'hover:shadow-blue-400/30' : 'hover:shadow-blue-300/50'
-          }`} onClick={() => handleAction('send')}>
+          <button className="flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('send')}>
             <FaPaperPlane className="animate-bounce" /> Send
           </button>
-          <button className={`flex-1 sm:flex-none bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-green-700 hover:to-green-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center ${
-            isDarkMode ? 'hover:shadow-green-400/30' : 'hover:shadow-green-300/50'
-          }`} onClick={() => handleAction('print')}>
+          <button className="flex-1 sm:flex-none bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('print')}>
             <FaPrint className="hover:animate-spin" /> Print
           </button>
-          <button className={`flex-1 sm:flex-none bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-purple-700 hover:to-purple-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center ${
-            isDarkMode ? 'hover:shadow-purple-400/30' : 'hover:shadow-purple-300/50'
-          }`} onClick={() => handleAction('save')} disabled={loading}>
-            {loading ? <FaTimes className="animate-spin" /> : <FaSave className="hover:animate-pulse" />} {loading ? 'Saving...' : 'Save'}
-          </button>
-          <button className={`flex-1 sm:flex-none bg-gradient-to-r from-orange-600 to-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-orange-700 hover:to-orange-800 hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md flex items-center gap-2 justify-center ${
-            isDarkMode ? 'hover:shadow-orange-400/30' : 'hover:shadow-orange-300/50'
-          }`} onClick={() => handleAction('preview')}>
-            <FaEye className="hover:animate-pulse" /> Preview
-          </button>
         </div>
-      </div>
+      </div> */}
 
       {/* Preview Modal */}
       {showPreview && createPortal(
@@ -1950,6 +1887,12 @@ setLoggedInEmployee(employee?.name || "Sales Person");
               </div>
               
               <div className="flex gap-3 mt-4 md:mt-6">
+                <button 
+                  onClick={openDirectPrintPreview}
+                  className="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white py-2 md:py-3 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all text-sm md:text-base flex items-center gap-2 justify-center"
+                >
+                  <FaPrint className="animate-pulse" /> Print Bill
+                </button>
                 <button 
                   onClick={() => setShowPreview(false)}
                   className="flex-1 bg-gray-500 text-white py-2 md:py-3 rounded-lg font-medium hover:bg-gray-600 transition-all text-sm md:text-base"
