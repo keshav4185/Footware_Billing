@@ -1,5 +1,5 @@
-// src/Component/Home/Homesection10.jsx
 import React, { useEffect, useState } from 'react';
+import { Sparkles } from 'lucide-react';
 
 const Homesection9 = () => {
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -76,14 +76,18 @@ const Homesection9 = () => {
                 
                 {/* Visual Elements (Firework/Sparkle Doodles) with Parallax */}
                 <div className="relative mb-12">
-                    <span 
-                        className="absolute left-1/4 top-[-20px] text-yellow-500 text-6xl transform rotate-12 hidden sm:block transition-transform duration-500"
+                    <div 
+                        className="absolute left-1/4 top-[-20px] text-yellow-500 transform rotate-12 hidden sm:block transition-transform duration-500"
                         style={{transform: `translate(${mousePosition.x * 0.08}px, ${mousePosition.y * 0.08}px) rotate(12deg)`}}
-                    >✨</span>
-                    <span 
-                        className="absolute right-1/4 top-[-5px] text-yellow-500 text-6xl transform -rotate-12 hidden sm:block transition-transform duration-500"
+                    >
+                        <Sparkles size={48} />
+                    </div>
+                    <div 
+                        className="absolute right-1/4 top-[-5px] text-yellow-500 transform -rotate-12 hidden sm:block transition-transform duration-500"
                         style={{transform: `translate(${mousePosition.x * -0.08}px, ${mousePosition.y * 0.08}px) rotate(-12deg)`}}
-                    >✨</span>
+                    >
+                        <Sparkles size={48} />
+                    </div>
                     <span 
                         className="absolute left-1/3 top-[-50px] text-orange-400 text-opacity-70 text-4xl transform -rotate-45 hidden md:block transition-transform duration-700"
                         style={{transform: `translate(${mousePosition.x * 0.1}px, ${mousePosition.y * 0.1}px) rotate(-45deg)`}}

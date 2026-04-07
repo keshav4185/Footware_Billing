@@ -1,4 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import {
+  Package,
+  Plus,
+  Tag,
+  BarChart3,
+  Search,
+  Edit2,
+  Trash2,
+  X,
+  FileText,
+  Boxes
+} from 'lucide-react';
 
 const ProductsManagement = ({ products, setProducts }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -47,7 +59,7 @@ const ProductsManagement = ({ products, setProducts }) => {
   const handleUpdateProduct = (e) => {
     e.preventDefault();
     const updatedProducts = products.map(product =>
-      product.id === editingProduct.id 
+      product.id === editingProduct.id
         ? { ...formData, price: parseFloat(formData.price), stock: parseInt(formData.stock) }
         : product
     );
@@ -70,17 +82,18 @@ const ProductsManagement = ({ products, setProducts }) => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">Products Management</h2>
+          <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
+            <Package className="text-purple-600" size={28} /> Products Management
+          </h2>
           <p className="text-gray-600">Manage your product inventory</p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all font-medium shadow-md hover:shadow-lg transform hover:scale-105"
+          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2.5 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all font-medium shadow-md hover:shadow-lg transform hover:scale-105 flex items-center gap-2"
         >
-          + Add Product
+          <Plus size={20} /> Add Product
         </button>
       </div>
 
@@ -89,28 +102,34 @@ const ProductsManagement = ({ products, setProducts }) => {
         <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-blue-100 text-sm">Total Products</p>
+              <p className="text-blue-100 text-sm font-medium">Total Products</p>
               <p className="text-2xl font-bold">{products.length}</p>
             </div>
-            <span className="text-3xl">📦</span>
+            <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
+              <Package size={24} className="text-white" />
+            </div>
           </div>
         </div>
         <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-green-100 text-sm">Categories</p>
+              <p className="text-green-100 text-sm font-medium">Categories</p>
               <p className="text-2xl font-bold">{categories.length}</p>
             </div>
-            <span className="text-3xl">🏷️</span>
+            <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
+              <Tag size={24} className="text-white" />
+            </div>
           </div>
         </div>
         <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-orange-100 text-sm">Total Stock</p>
+              <p className="text-orange-100 text-sm font-medium">Total Stock</p>
               <p className="text-2xl font-bold">{products.reduce((sum, p) => sum + p.stock, 0)}</p>
             </div>
-            <span className="text-3xl">📊</span>
+            <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
+              <BarChart3 size={24} className="text-white" />
+            </div>
           </div>
         </div>
       </div>
@@ -124,21 +143,18 @@ const ProductsManagement = ({ products, setProducts }) => {
               placeholder="Search products by name or category..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all shadow-sm"
             />
-            <svg className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
           </div>
           <div className="text-sm text-gray-500">
             {filteredProducts.length} of {products.length} products
           </div>
         </div>
 
-        {/* Products Grid */}
         {filteredProducts.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-6xl mb-4">📦</div>
+            <Package size={64} className="mx-auto text-gray-200 mb-4" />
             <h3 className="text-lg font-medium text-gray-800 mb-2">No products found</h3>
             <p className="text-gray-500">Add your first product to get started</p>
           </div>
@@ -154,19 +170,21 @@ const ProductsManagement = ({ products, setProducts }) => {
                   <div className="flex space-x-1">
                     <button
                       onClick={() => handleEditProduct(product)}
-                      className="bg-blue-500 text-white p-1 rounded text-xs hover:bg-blue-600 transition-colors"
+                      className="bg-blue-500 text-white p-2.5 rounded-lg hover:bg-blue-600 transition-all shadow-sm active:scale-95"
+                      title="Edit Product"
                     >
-                      ✏️
+                      <Edit2 size={20} />
                     </button>
                     <button
                       onClick={() => handleDeleteProduct(product.id)}
-                      className="bg-red-500 text-white p-1 rounded text-xs hover:bg-red-600 transition-colors"
+                      className="bg-red-500 text-white p-2.5 rounded-lg hover:bg-red-600 transition-all shadow-sm active:scale-95"
+                      title="Delete Product"
                     >
-                      🗑️
+                      <Trash2 size={20} />
                     </button>
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">Price:</span>
@@ -200,8 +218,8 @@ const ProductsManagement = ({ products, setProducts }) => {
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-gray-800">
-                  {editingProduct ? 'Edit Product' : 'Add New Product'}
+                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-3">
+                  <Package className="text-purple-600" size={24} /> {editingProduct ? 'Edit Product' : 'Add New Product'}
                 </h3>
                 <button
                   onClick={() => {
@@ -209,24 +227,24 @@ const ProductsManagement = ({ products, setProducts }) => {
                     setEditingProduct(null);
                     setFormData({ name: '', price: '', category: '', stock: '', description: '', hsn: '' });
                   }}
-                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  ×
+                  <X size={24} />
                 </button>
               </div>
-              
+
               <form onSubmit={editingProduct ? handleUpdateProduct : handleAddProduct} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Product Name *</label>
                   <input
                     type="text"
                     value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     required
                   />
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Price *</label>
@@ -234,57 +252,57 @@ const ProductsManagement = ({ products, setProducts }) => {
                       type="number"
                       step="0.01"
                       value={formData.price}
-                      onChange={(e) => setFormData({...formData, price: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                       required
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Stock *</label>
                     <input
                       type="number"
                       value={formData.stock}
-                      onChange={(e) => setFormData({...formData, stock: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                       required
                     />
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Category *</label>
                     <input
                       type="text"
                       value={formData.category}
-                      onChange={(e) => setFormData({...formData, category: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                       required
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">HSN Code</label>
                     <input
                       type="text"
                       value={formData.hsn}
-                      onChange={(e) => setFormData({...formData, hsn: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, hsn: e.target.value })}
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     />
                   </div>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
                   <textarea
                     value={formData.description}
-                    onChange={(e) => setFormData({...formData, description: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none"
                     rows="3"
                   />
                 </div>
-                
+
                 <div className="flex gap-3 pt-4">
                   <button
                     type="submit"

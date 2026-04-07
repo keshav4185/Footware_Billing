@@ -1,5 +1,5 @@
-// Essential Payment Features for Footwear Billing
 import React, { useState, useEffect } from 'react';
+import { IndianRupee, Smartphone } from 'lucide-react';
 
 const paymentFeatures = [
     {
@@ -72,7 +72,9 @@ const FeaturesSection3 = () => {
                             </div>
                         </div>
                         <div className="mt-3 pt-2 border-t">
-                            <div className="text-xs text-green-600 font-bold">💰 Cash Payments</div>
+                            <div className="text-xs text-green-600 font-bold flex items-center gap-1">
+                                <IndianRupee size={14} /> Cash Payments
+                            </div>
                         </div>
                     </div>
                     
@@ -94,7 +96,9 @@ const FeaturesSection3 = () => {
                             </div>
                         </div>
                         <div className="mt-3 pt-2 border-t">
-                            <div className="text-xs text-blue-600 font-bold">📱 WhatsApp Ready</div>
+                            <div className="text-xs text-blue-600 font-bold flex items-center gap-1">
+                                <Smartphone size={14} /> WhatsApp Ready
+                            </div>
                         </div>
                     </div>
                 </div>

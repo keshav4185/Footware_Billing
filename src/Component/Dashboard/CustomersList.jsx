@@ -1,15 +1,17 @@
 import React from 'react';
 import { customerAPI } from '../../services/api';
 import { 
-  FaUsers, 
-  FaSearch, 
-  FaPhone, 
-  FaBuilding, 
-  FaMapMarkerAlt, 
-  FaFileInvoice, 
-  FaPlus, 
-  FaClock
-} from 'react-icons/fa';
+  Users, 
+  Search, 
+  Phone, 
+  Building, 
+  MapPin, 
+  FileText, 
+  Plus, 
+  Clock,
+  Loader2,
+  X
+} from 'lucide-react';
 
 const CustomersList = ({ isDarkMode, onCreateInvoice }) => {
   const [customerSearchTerm, setCustomerSearchTerm] = React.useState('');
@@ -72,7 +74,7 @@ const CustomersList = ({ isDarkMode, onCreateInvoice }) => {
   // Add new customer
   const addNewCustomer = async () => {
     if (!newCustomer.name.trim() || !newCustomer.phone.trim()) {
-      alert('❌ Name and phone are required!');
+      alert('Name and phone are required!');
       return;
     }
     
@@ -86,10 +88,10 @@ const CustomersList = ({ isDarkMode, onCreateInvoice }) => {
       }]);
       setNewCustomer({ name: '', phone: '', gst: '', address: '' });
       setShowAddCustomer(false);
-      alert('✅ Customer added successfully!');
+      alert('Customer added successfully!');
     } catch (error) {
       console.error('Error adding customer:', error);
-      alert('❌ Error adding customer!');
+      alert('Error adding customer!');
     }
   };
 
@@ -124,8 +126,8 @@ const CustomersList = ({ isDarkMode, onCreateInvoice }) => {
       <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 mb-6 backdrop-blur-sm bg-white/90 hover:shadow-2xl hover:shadow-purple-200/50 transition-all duration-500 transform hover:scale-[1.01] border border-gray-100 relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div>
-            <h2 className="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2">
-              <FaUsers className="text-2xl text-blue-600" /> Customer List
+            <h2 className="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-3">
+              <Users className="text-blue-600" size={28} /> Customer List
             </h2>
             <p className="text-sm text-gray-600">Manage your customer database</p>
           </div>
@@ -134,7 +136,7 @@ const CustomersList = ({ isDarkMode, onCreateInvoice }) => {
               className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all shadow-md flex items-center gap-2"
               onClick={() => setShowAddCustomer(true)}
             >
-              <FaPlus /> Add Customer
+              <Plus size={18} /> Add Customer
             </button>
             <div className="relative">
               <input 
@@ -144,25 +146,25 @@ const CustomersList = ({ isDarkMode, onCreateInvoice }) => {
                 value={customerSearchTerm}
                 onChange={(e) => setCustomerSearchTerm(e.target.value)}
               />
-              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
             </div>
           </div>
         </div>
         
         {loading ? (
           <div className="text-center py-12 text-gray-500">
-            <FaClock className="text-6xl mb-4 mx-auto text-blue-400" />
-            <p className="text-lg">Loading customers...</p>
+            <Loader2 className="mx-auto h-12 w-12 animate-spin text-blue-500 mb-4" />
+            <p className="text-lg font-medium">Loading customers...</p>
           </div>
         ) : filteredCustomers.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
-            <FaUsers className="text-6xl mb-4 mx-auto text-gray-400" />
+            <Users size={64} className="mx-auto text-gray-200 mb-4" />
             <p className="text-lg mb-4">{customerSearchTerm ? 'No customers found matching your search.' : 'No customers found. Create your first bill to add customers!'}</p>
             <button 
               className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 transition-all shadow-md flex items-center gap-2 mx-auto"
               onClick={() => setActiveSection('create-bill')}
             >
-              <FaPlus /> Add New Customer
+              <Plus size={20} /> Add New Customer
             </button>
           </div>
         ) : (
@@ -173,9 +175,9 @@ const CustomersList = ({ isDarkMode, onCreateInvoice }) => {
                   <div className="mb-4">
                     <h3 className="text-lg font-bold text-gray-800 mb-2">{customer.name}</h3>
                     <div className="space-y-1 text-sm text-gray-600">
-                      <p className="flex items-center gap-2"><FaPhone className="text-green-600" /> {customer.phone}</p>
-                      <p className="flex items-center gap-2"><FaBuilding className="text-blue-600" /> {customer.gst}</p>
-                      <p className="flex items-center gap-2"><FaMapMarkerAlt className="text-red-600" /> {customer.address}</p>
+                      <p className="flex items-center gap-2 font-medium"><Phone className="text-green-600" size={14} /> {customer.phone}</p>
+                      <p className="flex items-center gap-2"><Building className="text-blue-600" size={14} /> {customer.gst}</p>
+                      <p className="flex items-center gap-2"><MapPin className="text-red-600" size={14} /> {customer.address}</p>
                     </div>
                     <div className="flex justify-between mt-3 text-xs text-gray-500">
                       <span>Bills: {customer.totalBills}</span>
@@ -184,10 +186,10 @@ const CustomersList = ({ isDarkMode, onCreateInvoice }) => {
                   </div>
                   <div className="flex gap-2">
                     <button 
-                      className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-2 rounded text-sm hover:from-green-600 hover:to-green-700 transition-all duration-300 transform hover:scale-110 shadow-md hover:shadow-lg flex items-center justify-center gap-1 group-hover:animate-pulse"
+                      className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-2.5 rounded-lg text-sm font-bold hover:shadow-lg transition-all active:scale-95 shadow-md flex items-center justify-center gap-2 group-hover:scale-[1.02]"
                       onClick={() => onCreateInvoice && onCreateInvoice(customer)}
                     >
-                      <FaFileInvoice className="animate-bounce" /> View Invoices
+                      <FileText size={16} /> View Invoices
                     </button>
                   </div>
                 </div>
@@ -204,11 +206,11 @@ const CustomersList = ({ isDarkMode, onCreateInvoice }) => {
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-md m-4" onClick={(e) => e.stopPropagation()}>
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                  <FaPlus className="text-green-600" /> Add New Customer
+                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-3">
+                  <Plus className="text-green-600" size={24} /> Add New Customer
                 </h3>
-                <button onClick={() => setShowAddCustomer(false)} className="text-gray-500 hover:text-gray-700 text-2xl">
-                  ×
+                <button onClick={() => setShowAddCustomer(false)} className="text-gray-500 hover:text-gray-700">
+                  <X size={24} />
                 </button>
               </div>
               

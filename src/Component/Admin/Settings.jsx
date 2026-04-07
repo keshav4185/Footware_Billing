@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { Save } from 'lucide-react';
+import { MdEdit, MdVisibility, MdVisibilityOff } from 'react-icons/md';
 
 const Settings = () => {
   const [profileData, setProfileData] = useState({
@@ -58,14 +60,14 @@ const Settings = () => {
             <h3 className="text-lg font-semibold text-gray-800">Admin Profile</h3>
             <p className="text-sm text-gray-600">Manage your account information</p>
           </div>
-          <button 
+          <button
             onClick={() => {
               setIsEditing(!isEditing);
               setOldAuth({ oldUser: '', oldPass: '' });
             }}
-            className={`${isEditing ? 'bg-gray-500' : 'bg-blue-600'} text-white px-4 py-2 rounded-lg transition-colors`}
+            className={`${isEditing ? 'bg-gray-500 hover:bg-gray-600' : 'bg-blue-600 hover:bg-blue-700'} text-white px-6 py-3 rounded-lg transition-all flex items-center gap-2 font-bold shadow-md active:scale-95 text-lg`}
           >
-            {isEditing ? 'Cancel' : '✏️ Edit Profile'}
+            {isEditing ? 'Cancel' : <><MdEdit size={24} /> Edit Profile</>}
           </button>
         </div>
 
@@ -78,14 +80,14 @@ const Settings = () => {
                   type="text"
                   placeholder="Enter Old Username"
                   value={oldAuth.oldUser}
-                  onChange={(e) => setOldAuth({...oldAuth, oldUser: e.target.value})}
+                  onChange={(e) => setOldAuth({ ...oldAuth, oldUser: e.target.value })}
                   className="w-full p-2 text-sm border-2 border-orange-200 rounded focus:border-orange-500 outline-none"
                 />
                 <input
                   type="password"
                   placeholder="Enter Old Password"
                   value={oldAuth.oldPass}
-                  onChange={(e) => setOldAuth({...oldAuth, oldPass: e.target.value})}
+                  onChange={(e) => setOldAuth({ ...oldAuth, oldPass: e.target.value })}
                   className="w-full p-2 text-sm border-2 border-orange-200 rounded focus:border-orange-500 outline-none"
                 />
               </div>
@@ -95,7 +97,7 @@ const Settings = () => {
               <input
                 type="text"
                 value={profileData.name}
-                onChange={(e) => setProfileData({...profileData, name: e.target.value})}
+                onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
                 disabled={!isEditing}
                 className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 disabled:bg-gray-50"
               />
@@ -107,7 +109,7 @@ const Settings = () => {
               <input
                 type="text"
                 value={profileData.username}
-                onChange={(e) => setProfileData({...profileData, username: e.target.value})}
+                onChange={(e) => setProfileData({ ...profileData, username: e.target.value })}
                 disabled={!isEditing}
                 className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 disabled:bg-gray-50"
               />
@@ -120,16 +122,16 @@ const Settings = () => {
                 <input
                   type={showPassword ? "text" : "password"}
                   value={profileData.password}
-                  onChange={(e) => setProfileData({...profileData, password: e.target.value})}
+                  onChange={(e) => setProfileData({ ...profileData, password: e.target.value })}
                   disabled={!isEditing}
                   className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 disabled:bg-gray-50 pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  {showPassword ? '🙈' : '👁️'}
+                  {showPassword ? <MdVisibilityOff size={22} /> : <MdVisibility size={22} />}
                 </button>
               </div>
             </div>
@@ -140,7 +142,7 @@ const Settings = () => {
               <input
                 type="email"
                 value={profileData.email}
-                onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+                onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
                 disabled={!isEditing}
                 className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 disabled:bg-gray-50"
               />
@@ -159,7 +161,7 @@ const Settings = () => {
               <input
                 type="date"
                 value={profileData.joinDate}
-                onChange={(e) => setProfileData({...profileData, joinDate: e.target.value})}
+                onChange={(e) => setProfileData({ ...profileData, joinDate: e.target.value })}
                 disabled={!isEditing}
                 className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 disabled:bg-gray-50"
               />
@@ -178,9 +180,9 @@ const Settings = () => {
           <div className="flex gap-3 mt-8">
             <button
               onClick={handleProfileSave}
-              className="flex-1 bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700"
+              className="flex-1 bg-green-600 text-white py-4 rounded-lg font-bold hover:bg-green-700 flex items-center justify-center gap-3 transition-all shadow-lg active:scale-95 text-lg"
             >
-              💾 Update Profile
+              <Save size={24} /> Update Profile
             </button>
             <button
               onClick={() => setIsEditing(false)}

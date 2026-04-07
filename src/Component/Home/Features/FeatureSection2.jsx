@@ -1,5 +1,5 @@
-// src/Component/Home/Features/FeaturesSection2And3Combined.jsx
 import React, { useEffect, useState } from 'react';
+import { FileEdit, CheckCircle2, CreditCard, IndianRupee, FileText, Briefcase, FileCheck, Mail, RefreshCw } from 'lucide-react';
 
 const invoiceFeatures = [
     // --- Core Billing Features ---
@@ -119,7 +119,9 @@ const FeaturesSection2 = () => {
                             </div>
                         </div>
                         <div className="mt-3 pt-2 border-t">
-                            <div className="text-xs text-[#8BC34A] font-bold">📝 Ready to Send</div>
+                            <div className="text-xs text-[#8BC34A] font-bold flex items-center gap-1">
+                                <FileEdit size={14} /> Ready to Send
+                            </div>
                         </div>
                     </div>
                     
@@ -141,7 +143,9 @@ const FeaturesSection2 = () => {
                             </div>
                         </div>
                         <div className="mt-3 pt-2 border-t">
-                            <div className="text-xs text-[#2E4F7A] font-bold">✅ All Requirements Met</div>
+                            <div className="text-xs text-[#2E4F7A] font-bold flex items-center gap-1">
+                                <CheckCircle2 size={14} /> All Requirements Met
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -171,7 +175,9 @@ const FeaturesSection2 = () => {
                             </div>
                         </div>
                         <div className="mt-2 pt-2 border-t">
-                            <div className="text-xs text-[#8BC34A] font-bold">💳 Batch Deposits</div>
+                            <div className="text-xs text-[#8BC34A] font-bold flex items-center gap-1">
+                                <CreditCard size={14} /> Batch Deposits
+                            </div>
                         </div>
                     </div>
                     
@@ -193,7 +199,9 @@ const FeaturesSection2 = () => {
                             </div>
                         </div>
                         <div className="mt-2 pt-2 border-t">
-                            <div className="text-xs text-[#2E4F7A] font-bold">💰 Refunds Processed</div>
+                            <div className="text-xs text-[#2E4F7A] font-bold flex items-center gap-1">
+                                <IndianRupee size={14} /> Refunds Processed
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -205,12 +213,21 @@ const FeaturesSection2 = () => {
                         transform: `translate(${mousePosition.x * 0.035}px, ${mousePosition.y * 0.035}px)`
                     }}
                 >
-                    {/* Invoice Feature Icons */}
-                    <div className="absolute top-1/4 right-1/3 text-3xl text-[#8BC34A] opacity-8 animate-bounce">📄</div>
-                    <div className="absolute top-2/3 left-1/6 text-2xl text-[#2E4F7A] opacity-6 animate-bounce" style={{animationDelay: '1s'}}>💼</div>
-                    <div className="absolute bottom-1/4 right-1/5 text-2xl text-[#4A90E2] opacity-8 animate-bounce" style={{animationDelay: '2s'}}>⚖️</div>
-                    <div className="absolute top-1/2 left-1/8 text-2xl text-[#8BC34A] opacity-6 animate-bounce" style={{animationDelay: '0.5s'}}>📧</div>
-                    <div className="absolute top-1/6 right-1/6 text-xl text-[#2E4F7A] opacity-5 animate-bounce" style={{animationDelay: '1.5s'}}>🔄</div>
+                    <div className="absolute top-1/4 right-1/3 text-[#8BC34A] opacity-8 animate-bounce">
+                        <FileText size={32} />
+                    </div>
+                    <div className="absolute top-2/3 left-1/6 text-[#2E4F7A] opacity-6 animate-bounce" style={{animationDelay: '1s'}}>
+                        <Briefcase size={24} />
+                    </div>
+                    <div className="absolute bottom-1/4 right-1/5 text-[#4A90E2] opacity-8 animate-bounce" style={{animationDelay: '2s'}}>
+                        <FileCheck size={24} />
+                    </div>
+                    <div className="absolute top-1/2 left-1/8 text-[#8BC34A] opacity-6 animate-bounce" style={{animationDelay: '0.5s'}}>
+                        <Mail size={24} />
+                    </div>
+                    <div className="absolute top-1/6 right-1/6 text-[#2E4F7A] opacity-5 animate-bounce" style={{animationDelay: '1.5s'}}>
+                        <RefreshCw size={20} />
+                    </div>
                     
                     {/* Geometric Elements */}
                     <div className="absolute top-1/6 left-1/3 w-6 h-6 border-2 border-[#8BC34A] opacity-5 rounded animate-spin" style={{animationDuration: '25s'}}></div>

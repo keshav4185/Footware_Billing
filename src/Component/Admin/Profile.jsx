@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import axios from "axios";
+import { MdPerson, MdEdit, MdVisibility, MdVisibilityOff } from 'react-icons/md';
+import { Save } from 'lucide-react';
 
 const Profile = () => {
   const [profileData, setProfileData] = useState({
@@ -14,64 +16,64 @@ const Profile = () => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  
+
   // State for manual entry of old credentials
   const [oldAuth, setOldAuth] = useState({ oldUser: '', oldPass: '' });
 
-const handleSave = async () => {
-  if (!oldAuth.oldUser || !oldAuth.oldPass) {
-    alert("Please enter old username and password");
-    return;
-  }
+  const handleSave = async () => {
+    if (!oldAuth.oldUser || !oldAuth.oldPass) {
+      alert("Please enter old username and password");
+      return;
+    }
 
-  try {
-    const response = await axios.put(
-      "https://backend-billing-software-ahxt.onrender.com/api/admin/update",
-      {
-        oldUsername: oldAuth.oldUser,
-        oldPassword: oldAuth.oldPass,
+    try {
+      const response = await axios.put(
+        "https://backend-billing-software-ahxt.onrender.com/api/admin/update",
+        {
+          oldUsername: oldAuth.oldUser,
+          oldPassword: oldAuth.oldPass,
 
-        newUsername: profileData.username,
-        newPassword: profileData.password,
+          newUsername: profileData.username,
+          newPassword: profileData.password,
 
-        name: profileData.name,
-        email: profileData.email,
-        phone: profileData.phone,
-        joinDate: profileData.joinDate,
-      }
-    );
+          name: profileData.name,
+          email: profileData.email,
+          phone: profileData.phone,
+          joinDate: profileData.joinDate,
+        }
+      );
 
-    alert(response.data); // "Admin credentials updated successfully"
+      alert(response.data); // "Admin credentials updated successfully"
 
-    setIsEditing(false);
-    setOldAuth({ oldUser: "", oldPass: "" });
+      setIsEditing(false);
+      setOldAuth({ oldUser: "", oldPass: "" });
 
-  } catch (error) {
-    console.error(error);
-    alert(
-      error.response?.data || "Old username or password is incorrect"
-    );
-  }
-};
+    } catch (error) {
+      console.error(error);
+      alert(
+        error.response?.data || "Old username or password is incorrect"
+      );
+    }
+  };
 
   return (
     <div className="p-4 md:p-6">
       <div className="bg-white rounded-xl shadow-lg p-4 md:p-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div>
-            <h2 className="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2">
-              <span className="text-2xl">👤</span> Admin Profile
+            <h2 className="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-3">
+              <MdPerson size={24} className="text-gray-700" /> Admin Profile
             </h2>
             <p className="text-sm text-gray-600">Manage your account information</p>
           </div>
-          <button 
+          <button
             onClick={() => {
               setIsEditing(!isEditing);
               setOldAuth({ oldUser: '', oldPass: '' });
             }}
-            className={`${isEditing ? 'bg-gray-500' : 'bg-blue-600'} text-white px-4 py-2 rounded-lg transition-colors`}
+            className={`${isEditing ? 'bg-gray-500 hover:bg-gray-600' : 'bg-blue-600 hover:bg-blue-700'} text-white px-6 py-3 rounded-lg transition-all flex items-center gap-2 font-bold shadow-md active:scale-95 text-lg`}
           >
-            {isEditing ? 'Cancel' : '✏️ Edit Profile'}
+            {isEditing ? 'Cancel' : <><MdEdit size={24} /> Edit Profile</>}
           </button>
         </div>
 
@@ -87,7 +89,7 @@ const handleSave = async () => {
                     type="text"
                     placeholder="Enter Old Username"
                     value={oldAuth.oldUser}
-                    onChange={(e) => setOldAuth({...oldAuth, oldUser: e.target.value})}
+                    onChange={(e) => setOldAuth({ ...oldAuth, oldUser: e.target.value })}
                     className="w-full p-2 text-sm border-2 border-orange-200 rounded focus:border-orange-500 outline-none"
                   />
                 </div>
@@ -96,7 +98,7 @@ const handleSave = async () => {
                     type="password"
                     placeholder="Enter Old Password"
                     value={oldAuth.oldPass}
-                    onChange={(e) => setOldAuth({...oldAuth, oldPass: e.target.value})}
+                    onChange={(e) => setOldAuth({ ...oldAuth, oldPass: e.target.value })}
                     className="w-full p-2 text-sm border-2 border-orange-200 rounded focus:border-orange-500 outline-none"
                   />
                 </div>
@@ -108,12 +110,12 @@ const handleSave = async () => {
               <input
                 type="text"
                 value={profileData.name}
-                onChange={(e) => setProfileData({...profileData, name: e.target.value})}
+                onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
                 disabled={!isEditing}
                 className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 disabled:bg-gray-50"
               />
             </div>
-            
+
             {/* 2. NEW CREDENTIALS (DOWN SIDE) */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -122,7 +124,7 @@ const handleSave = async () => {
               <input
                 type="text"
                 value={profileData.username}
-                onChange={(e) => setProfileData({...profileData, username: e.target.value})}
+                onChange={(e) => setProfileData({ ...profileData, username: e.target.value })}
                 disabled={!isEditing}
                 className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 disabled:bg-gray-50"
               />
@@ -135,16 +137,16 @@ const handleSave = async () => {
                 <input
                   type={showPassword ? "text" : "password"}
                   value={profileData.password}
-                  onChange={(e) => setProfileData({...profileData, password: e.target.value})}
+                  onChange={(e) => setProfileData({ ...profileData, password: e.target.value })}
                   disabled={!isEditing}
                   className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 disabled:bg-gray-50 pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  {showPassword ? '🙈' : '👁️'}
+                  {showPassword ? <MdVisibilityOff size={18} /> : <MdVisibility size={18} />}
                 </button>
               </div>
             </div>
@@ -157,7 +159,7 @@ const handleSave = async () => {
               <input
                 type="email"
                 value={profileData.email}
-                onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+                onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
                 disabled={!isEditing}
                 className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 disabled:bg-gray-50"
               />
@@ -176,17 +178,17 @@ const handleSave = async () => {
               <input
                 type="date"
                 value={profileData.joinDate}
-                onChange={(e) => setProfileData({...profileData, joinDate: e.target.value})}
+                onChange={(e) => setProfileData({ ...profileData, joinDate: e.target.value })}
                 disabled={!isEditing}
                 className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 disabled:bg-gray-50"
               />
             </div>
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg text-center">
-                <div className="bg-purple-600 text-white w-16 h-16 rounded-full flex items-center justify-center font-bold text-xl mx-auto mb-2">
-                  {profileData.name.charAt(0)}
-                </div>
-                <h3 className="font-bold text-gray-800">{profileData.name}</h3>
-                <p className="text-sm text-gray-600">{profileData.role}</p>
+              <div className="bg-purple-600 text-white w-16 h-16 rounded-full flex items-center justify-center font-bold text-xl mx-auto mb-2">
+                {profileData.name.charAt(0)}
+              </div>
+              <h3 className="font-bold text-gray-800">{profileData.name}</h3>
+              <p className="text-sm text-gray-600">{profileData.role}</p>
             </div>
           </div>
         </div>
@@ -195,9 +197,9 @@ const handleSave = async () => {
           <div className="flex gap-3 mt-8">
             <button
               onClick={handleSave}
-              className="flex-1 bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700"
+              className="flex-1 bg-green-600 text-white py-4 rounded-lg font-bold hover:bg-green-700 flex items-center justify-center gap-3 transition-all shadow-lg active:scale-95 text-lg"
             >
-              💾 Update Profile
+              <Save size={24} /> Update Profile
             </button>
             <button
               onClick={() => setIsEditing(false)}

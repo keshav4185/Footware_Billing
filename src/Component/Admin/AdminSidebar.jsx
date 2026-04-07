@@ -1,14 +1,21 @@
 import React from 'react';
+import { 
+  LayoutDashboard, 
+  Users, 
+  FileText, 
+  UserRoundCheck, 
+  BarChart3, 
+  UserCircle 
+} from 'lucide-react';
 
 const AdminSidebar = ({ activeSection, setActiveSection, isSidebarOpen, setIsSidebarOpen }) => {
   const menuItems = [
-    { id: 'overview', icon: '📊', label: 'Dashboard', color: 'text-blue-600' },
-    // { id: 'create-invoice', icon: '📝', label: 'Create Invoice', color: 'text-indigo-600' },
-    { id: 'customers', icon: '👥', label: 'Customers', color: 'text-green-600' },
-    { id: 'invoices', icon: '📄', label: 'Invoice List', color: 'text-orange-600' },
-    { id: 'employees', icon: '👨‍💼', label: 'Employees', color: 'text-indigo-600' },
-    { id: 'reports', icon: '📈', label: 'Reports', color: 'text-teal-600' },
-    { id: 'profile', icon: '👤', label: 'Profile', color: 'text-indigo-600' },
+    { id: 'overview', icon: LayoutDashboard, label: 'Dashboard', color: 'text-blue-600' },
+    { id: 'customers', icon: Users, label: 'Customers', color: 'text-green-600' },
+    { id: 'invoices', icon: FileText, label: 'Invoice List', color: 'text-orange-600' },
+    { id: 'employees', icon: UserRoundCheck, label: 'Employees', color: 'text-indigo-600' },
+    { id: 'reports', icon: BarChart3, label: 'Reports', color: 'text-teal-600' },
+    { id: 'profile', icon: UserCircle, label: 'Profile', color: 'text-indigo-600' },
   ];
 
   return (
@@ -54,8 +61,8 @@ const AdminSidebar = ({ activeSection, setActiveSection, isSidebarOpen, setIsSid
                   : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
               }`}
             >
-              <span className={`text-lg lg:text-xl ${activeSection === item.id ? 'text-blue-600' : item.color}`}>
-                {item.icon}
+              <span className={`flex items-center justify-center ${activeSection === item.id ? 'text-blue-600' : item.color}`}>
+                <item.icon size={20} />
               </span>
               <span className="font-medium truncate">{item.label}</span>
             </button>

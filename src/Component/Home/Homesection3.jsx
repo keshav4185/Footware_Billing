@@ -190,15 +190,6 @@ const Homesection3 = () => {
                                 title="Feature Video"
                             ></iframe>
 
-                            {/* Dark overlay */}
-                            <div className="absolute inset-0 bg-black/20"></div>
-
-                            {/* UI Image Overlay */}
-                            <img
-                                src={uiImage}
-                                alt="App UI Preview"
-                                className="absolute inset-0 m-auto w-[85%] rounded-lg shadow-2xl z-10"
-                            />
                         </div>
                     </div>
 

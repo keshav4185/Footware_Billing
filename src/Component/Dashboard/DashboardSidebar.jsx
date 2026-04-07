@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  FaChartBar, 
-  FaPlus, 
-  FaFileInvoice, 
-  FaUsers, 
-  FaBox, 
-  FaSignOutAlt 
-} from 'react-icons/fa';
+  LayoutDashboard, 
+  Plus, 
+  FileText, 
+  Users, 
+  Package, 
+  LogOut 
+} from 'lucide-react';
 
 const DashboardSidebar = ({ activeSection, setActiveSection, sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
@@ -25,11 +25,11 @@ const DashboardSidebar = ({ activeSection, setActiveSection, sidebarOpen, setSid
   };
 
   const menuItems = [
-    { id: 'analytics', icon: <FaChartBar />, label: 'Dashboard' },
-    { id: 'create-bill', icon: <FaPlus />, label: 'Create Bill' },
-    { id: 'billings', icon: <FaFileInvoice />, label: 'My Billings' },
-    { id: 'customers', icon: <FaUsers />, label: 'Customers' },
-    // { id: 'products', icon: <FaBox />, label: 'Products' }
+    { id: 'analytics', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
+    { id: 'create-bill', icon: <Plus size={20} />, label: 'Create Bill' },
+    { id: 'billings', icon: <FileText size={20} />, label: 'My Billings' },
+    { id: 'customers', icon: <Users size={20} />, label: 'Customers' },
+    // { id: 'products', icon: <Package size={20} />, label: 'Products' }
   ];
 
   return (
@@ -47,36 +47,44 @@ const DashboardSidebar = ({ activeSection, setActiveSection, sidebarOpen, setSid
         fixed md:relative top-0 left-0 h-full w-64 bg-white border-r border-gray-200 flex flex-col p-4 z-50 transform transition-transform duration-300 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0
       `}>
-        <div className="mb-8">
-          <div className="flex items-center gap-2 font-bold text-lg">
-            <span className="bg-green-600 text-white p-2 rounded-lg">
-              <FaChartBar />
-            </span>
-            <span>SMART SALES</span>
+        <div className="mb-0">
+          <div className="flex items-center gap-3 font-bold text-xl px-2 py-6">
+            <div className="bg-blue-600 text-white p-2 rounded-xl shadow-md rotate-3 group-hover:rotate-0 transition-transform">
+              <LayoutDashboard size={24} />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-gray-900 tracking-tight">SMART SALES</span>
+              <span className="text-[10px] text-blue-600 font-medium tracking-widest uppercase">Billing Pro</span>
+            </div>
           </div>
         </div>
         
-        <nav className="flex-1">
+        <nav className="flex-1 mt-4 space-y-1">
           {menuItems.map(item => (
             <div 
               key={item.id}
-              className={`flex items-center gap-3 p-3 mb-1 rounded-lg cursor-pointer transition-colors ${
+              className={`flex items-center gap-3 p-3.5 rounded-xl cursor-pointer transition-all duration-200 group ${
                 activeSection === item.id 
-                  ? 'bg-green-600 text-white' 
-                  : 'hover:bg-gray-100'
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' 
+                  : 'text-gray-600 hover:bg-blue-50 hover:text-blue-700'
               }`}
               onClick={() => handleMenuClick(item.id)}
             >
-              <span>{item.icon}</span>
-              {item.label}
+              <span className={`${activeSection === item.id ? 'text-white' : 'text-blue-600 group-hover:scale-110'} transition-transform`}>
+                {item.icon}
+              </span>
+              <span className="font-semibold tracking-tight">{item.label}</span>
             </div>
           ))}
         </nav>
         
-        <div className="mt-auto">
-          <div className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-gray-100" onClick={handleLogout}>
-            <FaSignOutAlt />
-            Logout
+        <div className="mt-auto pt-4 border-t border-gray-100">
+          <div 
+            className="flex items-center gap-3 p-3.5 rounded-xl cursor-pointer text-gray-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200 group" 
+            onClick={handleLogout}
+          >
+            <LogOut size={20} className="text-gray-400 group-hover:text-red-600 transition-colors" />
+            <span className="font-semibold tracking-tight">Logout</span>
           </div>
         </div>
       </div>

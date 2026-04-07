@@ -1,5 +1,14 @@
 import React from 'react';
 import axios from 'axios';
+import {
+  UserCheck,
+  Plus,
+  Edit2,
+  Trash2,
+  Phone,
+  Mail,
+  X
+} from 'lucide-react';
 
 const API = 'https://backend-billing-software-ahxt.onrender.com/api/employees';
 
@@ -38,29 +47,29 @@ const EmployeesManagement = () => {
     });
     setShowAddForm(true);
   };
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (editingEmployee) {
-    await axios.put(`${API}/${editingEmployee.id}`, {
-      ...formData,
-      password: formData.password || null
-    });
-    alert('Employee updated successfully!');
-  } else {
-    await axios.post(API, {
-      ...formData,
-      empId: formData.empId || generateEmpId(),
-      status: 'Active'
-    });
-    alert('Employee added successfully!');
-  }
+    if (editingEmployee) {
+      await axios.put(`${API}/${editingEmployee.id}`, {
+        ...formData,
+        password: formData.password || null
+      });
+      alert('Employee updated successfully!');
+    } else {
+      await axios.post(API, {
+        ...formData,
+        empId: formData.empId || generateEmpId(),
+        status: 'Active'
+      });
+      alert('Employee added successfully!');
+    }
 
-  fetchEmployees();
-  setFormData({ name: '', phone: '', email: '', password: '', empId: '' });
-  setEditingEmployee(null);
-  setShowAddForm(false);
-};
+    fetchEmployees();
+    setFormData({ name: '', phone: '', email: '', password: '', empId: '' });
+    setEditingEmployee(null);
+    setShowAddForm(false);
+  };
 
 
   const deleteEmployee = async (id) => {
@@ -76,8 +85,8 @@ const handleSubmit = async (e) => {
       <div className="bg-white rounded-xl shadow-lg p-4 md:p-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div>
-            <h2 className="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2">
-              <span className="text-2xl">👨‍💼</span> Employee Management
+            <h2 className="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-3">
+              <UserCheck className="text-blue-600" size={28} /> Employee Management
             </h2>
             <p className="text-sm text-gray-600">Manage your team members</p>
           </div>
@@ -85,7 +94,7 @@ const handleSubmit = async (e) => {
             onClick={() => setShowAddForm(true)}
             className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-md flex items-center gap-2"
           >
-            <span>➕</span> Add Employee
+            <Plus size={18} /> Add Employee
           </button>
         </div>
 
@@ -118,15 +127,17 @@ const handleSubmit = async (e) => {
                     <div className="flex gap-2 justify-center">
                       <button
                         onClick={() => handleEdit(employee)}
-                        className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition-colors"
+                        className="bg-blue-500 text-white p-2.5 rounded-lg hover:bg-blue-600 transition-colors shadow-sm"
+                        title="Edit Employee"
                       >
-                        ✏️ Edit
+                        <Edit2 size={20} />
                       </button>
                       <button
                         onClick={() => deleteEmployee(employee.id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors"
+                        className="bg-red-500 text-white p-2.5 rounded-lg hover:bg-red-600 transition-colors shadow-sm"
+                        title="Delete Employee"
                       >
-                        🗑️ Delete
+                        <Trash2 size={20} />
                       </button>
                     </div>
                   </td>
@@ -149,22 +160,24 @@ const handleSubmit = async (e) => {
                   {employee.status}
                 </span>
               </div>
-              <div className="space-y-1 mb-3 text-sm">
-                <p className="text-gray-600">📞 {employee.phone}</p>
-                <p className="text-gray-600">📧 {employee.email}</p>
+              <div className="space-y-2 mb-4 text-sm">
+                <p className="text-gray-600 flex items-center gap-2"><Phone size={14} className="text-blue-500" /> {employee.phone}</p>
+                <p className="text-gray-600 flex items-center gap-2"><Mail size={14} className="text-blue-500" /> {employee.email}</p>
               </div>
               <div className="flex gap-2">
                 <button
                   onClick={() => handleEdit(employee)}
-                  className="flex-1 bg-blue-500 text-white py-2 rounded text-sm hover:bg-blue-600 transition-colors"
+                  className="flex-1 bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all flex items-center justify-center shadow-sm active:scale-95"
+                  title="Edit Employee"
                 >
-                  ✏️ Edit
+                  <Edit2 size={20} />
                 </button>
                 <button
                   onClick={() => deleteEmployee(employee.id)}
-                  className="flex-1 bg-red-500 text-white py-2 rounded text-sm hover:bg-red-600 transition-colors"
+                  className="flex-1 bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all flex items-center justify-center shadow-sm active:scale-95"
+                  title="Delete Employee"
                 >
-                  🗑️ Delete
+                  <Trash2 size={20} />
                 </button>
               </div>
             </div>
@@ -178,75 +191,75 @@ const handleSubmit = async (e) => {
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                  <span className="text-2xl">👨‍💼</span> Add New Employee
+                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-3">
+                  <UserCheck className="text-blue-600" size={24} /> {editingEmployee ? 'Edit Employee' : 'Add New Employee'}
                 </h3>
-                <button onClick={() => setShowAddForm(false)} className="text-gray-500 hover:text-gray-700 text-2xl">
-                  ×
+                <button onClick={() => setShowAddForm(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                  <X size={24} />
                 </button>
               </div>
-              
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Employee Name *</label>
                   <input
                     type="text"
                     value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
                     placeholder="Enter employee name"
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
                   <input
                     type="tel"
                     value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value.replace(/[^0-9]/g, '')})}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value.replace(/[^0-9]/g, '') })}
                     className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
                     placeholder="Enter phone number"
                     maxLength="10"
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Email *</label>
                   <input
                     type="email"
                     value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
                     placeholder="Enter email address"
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Password {editingEmployee ? '(Leave blank to keep current)' : '*'}</label>
                   <input
                     type="password"
                     value={formData.password}
-                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
                     placeholder={editingEmployee ? "Leave blank to keep current password" : "Enter password"}
                     required={!editingEmployee}
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Employee ID</label>
                   <input
                     type="text"
                     value={formData.empId}
-                    onChange={(e) => setFormData({...formData, empId: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, empId: e.target.value })}
                     className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
                     placeholder={`Auto-generated: ${generateEmpId()}`}
                   />
                 </div>
-                
+
                 <div className="flex gap-3 mt-6">
                   <button
                     type="submit"

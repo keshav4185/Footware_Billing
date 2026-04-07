@@ -10,9 +10,9 @@ const PaymentsReport = ({ bills }) => {
       const today = new Date();
       const diffTime = Math.abs(today - billDate);
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
+
       let matchesDate = true;
-      switch(dateRange) {
+      switch (dateRange) {
         case 'today': matchesDate = diffDays <= 1; break;
         case 'week': matchesDate = diffDays <= 7; break;
         case 'month': matchesDate = diffDays <= 30; break;
@@ -20,9 +20,9 @@ const PaymentsReport = ({ bills }) => {
         case 'year': matchesDate = diffDays <= 365; break;
         default: matchesDate = true;
       }
-      
+
       const matchesStatus = statusFilter === 'all' || bill.paymentStatus === statusFilter;
-      
+
       return matchesDate && matchesStatus;
     });
   }, [bills, dateRange, statusFilter]);
@@ -32,11 +32,11 @@ const PaymentsReport = ({ bills }) => {
     const paidAmount = filteredBills.filter(bill => bill.paymentStatus === 'paid').reduce((sum, bill) => sum + (bill.grandTotal || 0), 0);
     const pendingAmount = filteredBills.filter(bill => bill.paymentStatus === 'pending').reduce((sum, bill) => sum + (bill.grandTotal || 0), 0);
     const overdueAmount = filteredBills.filter(bill => bill.paymentStatus === 'overdue').reduce((sum, bill) => sum + (bill.grandTotal || 0), 0);
-    
+
     const paidCount = filteredBills.filter(bill => bill.paymentStatus === 'paid').length;
     const pendingCount = filteredBills.filter(bill => bill.paymentStatus === 'pending').length;
     const overdueCount = filteredBills.filter(bill => bill.paymentStatus === 'overdue').length;
-    
+
     return {
       totalAmount,
       paidAmount,
@@ -55,19 +55,19 @@ const PaymentsReport = ({ bills }) => {
     bills.forEach(bill => {
       const date = new Date(bill.date);
       const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      
+
       if (!months[monthKey]) {
         months[monthKey] = { total: 0, paid: 0, pending: 0, overdue: 0, count: 0 };
       }
-      
+
       months[monthKey].total += bill.grandTotal || 0;
       months[monthKey].count += 1;
-      
+
       if (bill.paymentStatus === 'paid') months[monthKey].paid += bill.grandTotal || 0;
       else if (bill.paymentStatus === 'pending') months[monthKey].pending += bill.grandTotal || 0;
       else if (bill.paymentStatus === 'overdue') months[monthKey].overdue += bill.grandTotal || 0;
     });
-    
+
     return Object.entries(months)
       .sort(([a], [b]) => b.localeCompare(a))
       .slice(0, 6);
@@ -84,7 +84,7 @@ const PaymentsReport = ({ bills }) => {
         bill.paymentStatus || 'pending'
       ])
     ].map(row => row.join(',')).join('\n');
-    
+
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -128,7 +128,7 @@ const PaymentsReport = ({ bills }) => {
               <option value="year">This Year</option>
             </select>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-3">Payment Status</label>
             <select
@@ -142,7 +142,7 @@ const PaymentsReport = ({ bills }) => {
               <option value="overdue">Overdue Only</option>
             </select>
           </div>
-          
+
           <div className="flex items-end">
             <div className="text-xs sm:text-base text-gray-500">
               {filteredBills.length} of {bills.length} invoices
@@ -162,7 +162,7 @@ const PaymentsReport = ({ bills }) => {
               <span className="text-lg sm:text-4xl">💰</span>
             </div>
           </div>
-          
+
           <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-3 sm:p-6 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
@@ -173,7 +173,7 @@ const PaymentsReport = ({ bills }) => {
               <span className="text-lg sm:text-4xl">✅</span>
             </div>
           </div>
-          
+
           <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white p-3 sm:p-6 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
@@ -184,7 +184,7 @@ const PaymentsReport = ({ bills }) => {
               <span className="text-lg sm:text-4xl">⏳</span>
             </div>
           </div>
-          
+
           <div className="bg-gradient-to-r from-red-500 to-red-600 text-white p-3 sm:p-6 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
@@ -207,7 +207,7 @@ const PaymentsReport = ({ bills }) => {
             <div className="text-left sm:text-right">
               <div className="text-xl sm:text-4xl font-bold text-purple-600">{reportData.collectionRate.toFixed(1)}%</div>
               <div className="w-24 sm:w-40 bg-gray-200 rounded-full h-2 sm:h-3 mt-1 sm:mt-3">
-                <div 
+                <div
                   className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 sm:h-3 rounded-full transition-all duration-500"
                   style={{ width: `${Math.min(reportData.collectionRate, 100)}%` }}
                 ></div>
@@ -220,7 +220,7 @@ const PaymentsReport = ({ bills }) => {
       {/* Monthly Breakdown */}
       <div className="bg-white rounded-xl shadow-lg p-3 sm:p-6">
         <h3 className="text-base sm:text-xl font-bold text-gray-800 mb-3 sm:mb-6">Monthly Breakdown</h3>
-        
+
         {monthlyData.length === 0 ? (
           <div className="text-center py-4 sm:py-8 text-gray-500">
             <div className="text-3xl sm:text-5xl mb-3">📊</div>
@@ -252,7 +252,7 @@ const PaymentsReport = ({ bills }) => {
                     </div>
                     <div className="flex items-center space-x-2">
                       <div className="flex-1 bg-gray-200 rounded-full h-2">
-                        <div 
+                        <div
                           className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-500"
                           style={{ width: `${Math.min(collectionRate, 100)}%` }}
                         ></div>
@@ -263,7 +263,7 @@ const PaymentsReport = ({ bills }) => {
                 );
               })}
             </div>
-            
+
             {/* Desktop Table */}
             <div className="hidden sm:block overflow-x-auto">
               <table className="w-full">
@@ -292,7 +292,7 @@ const PaymentsReport = ({ bills }) => {
                         <td className="py-4 px-4">
                           <div className="flex items-center space-x-3">
                             <div className="flex-1 bg-gray-200 rounded-full h-3">
-                              <div 
+                              <div
                                 className="bg-gradient-to-r from-green-500 to-blue-500 h-3 rounded-full transition-all duration-500"
                                 style={{ width: `${Math.min(collectionRate, 100)}%` }}
                               ></div>
@@ -313,7 +313,7 @@ const PaymentsReport = ({ bills }) => {
       {/* Recent Transactions */}
       <div className="bg-white rounded-xl shadow-lg p-3 sm:p-6">
         <h3 className="text-base sm:text-xl font-bold text-gray-800 mb-3 sm:mb-6">Recent Transactions</h3>
-        
+
         {filteredBills.length === 0 ? (
           <div className="text-center py-4 sm:py-8 text-gray-500">
             <div className="text-3xl sm:text-5xl mb-3">💳</div>
@@ -324,10 +324,9 @@ const PaymentsReport = ({ bills }) => {
             {filteredBills.slice(0, 10).map((bill) => (
               <div key={bill.id} className="flex items-center justify-between p-2 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                 <div className="flex items-center space-x-2 sm:space-x-4">
-                  <div className={`w-2 h-2 sm:w-4 sm:h-4 rounded-full ${
-                    bill.paymentStatus === 'paid' ? 'bg-green-500' :
-                    bill.paymentStatus === 'overdue' ? 'bg-red-500' : 'bg-yellow-500'
-                  }`}></div>
+                  <div className={`w-2 h-2 sm:w-4 sm:h-4 rounded-full ${bill.paymentStatus === 'paid' ? 'bg-green-500' :
+                      bill.paymentStatus === 'overdue' ? 'bg-red-500' : 'bg-yellow-500'
+                    }`}></div>
                   <div>
                     <p className="font-medium text-gray-800 text-sm">{bill.customerName}</p>
                     <p className="text-xs text-gray-500">#{bill.id} • {bill.date}</p>
@@ -335,10 +334,9 @@ const PaymentsReport = ({ bills }) => {
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-gray-800 text-sm sm:text-lg">₹{bill.grandTotal?.toFixed(0) || '0'}</p>
-                  <p className={`text-xs font-medium ${
-                    bill.paymentStatus === 'paid' ? 'text-green-600' :
-                    bill.paymentStatus === 'overdue' ? 'text-red-600' : 'text-yellow-600'
-                  }`}>
+                  <p className={`text-xs font-medium ${bill.paymentStatus === 'paid' ? 'text-green-600' :
+                      bill.paymentStatus === 'overdue' ? 'text-red-600' : 'text-yellow-600'
+                    }`}>
                     {bill.paymentStatus || 'pending'}
                   </p>
                 </div>

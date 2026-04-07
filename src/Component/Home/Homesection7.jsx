@@ -1,50 +1,52 @@
-// Essential Features for Footwear Billing
 import React, { useEffect, useState } from 'react';
+import { Smartphone, Calculator, PenTool, IndianRupee, Users, FileText } from 'lucide-react';
 
 const features = [
     {
         title: "WhatsApp Integration",
         description: "Send invoices directly to customers via WhatsApp with formatted bill details and payment reminders.",
-        icon: "📱",
-        color: "bg-green-400"
+        icon: <Smartphone className="text-green-600" size={24} />,
+        color: "bg-green-100"
     },
     {
         title: "CGST/SGST Calculation", 
         description: "Automatic tax calculation with configurable CGST and SGST rates for Indian tax compliance.",
-        icon: "🧮",
-        color: "bg-blue-400"
+        icon: <Calculator className="text-blue-600" size={24} />,
+        color: "bg-blue-100"
     },
     {
         title: "Digital Signatures",
         description: "Add your company's digital signature to invoices for professional authentication and branding.",
-        icon: "✍️",
-        color: "bg-purple-400"
+        icon: <PenTool className="text-purple-600" size={24} />,
+        color: "bg-purple-100"
     },
     {
         title: "Payment Tracking",
         description: "Track advance payments, balance amounts, and payment status for each customer invoice.",
-        icon: "💰",
-        color: "bg-yellow-400"
+        icon: <IndianRupee className="text-yellow-600" size={24} />,
+        color: "bg-yellow-100"
     },
     {
         title: "Customer Management",
         description: "Store and manage customer details including phone numbers, addresses, and purchase history.",
-        icon: "👥",
-        color: "bg-indigo-400"
+        icon: <Users className="text-indigo-600" size={24} />,
+        color: "bg-indigo-100"
     },
     {
         title: "Professional Invoices",
         description: "Generate clean, branded invoices with your company logo and customizable templates.",
-        icon: "📄",
-        color: "bg-teal-400"
+        icon: <FileText className="text-teal-600" size={24} />,
+        color: "bg-teal-100"
     },
 ];
 
 const FeatureCard = ({ feature }) => (
-    <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-50 transition hover:shadow-xl flex flex-col justify-between">
-        <div className="flex justify-between items-start mb-3">
-            <h3 className="text-xl font-semibold text-gray-800">{feature.title}</h3>
-            <span className="text-2xl">{feature.icon}</span>
+    <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-50 transition hover:shadow-xl flex flex-col justify-between group">
+        <div className="flex justify-between items-start mb-4">
+            <h3 className="text-xl font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">{feature.title}</h3>
+            <div className={`p-2 rounded-lg ${feature.color} group-hover:scale-110 transition-transform`}>
+                {feature.icon}
+            </div>
         </div>
         
         <div className="text-gray-600">

@@ -1,4 +1,14 @@
 import React from 'react';
+import { 
+  LayoutDashboard, 
+  IndianRupee, 
+  FileText, 
+  CheckCircle2, 
+  TrendingUp, 
+  BarChart3, 
+  ClipboardList,
+  Search
+} from 'lucide-react';
 
 const EmployeeDashboard = ({ isDarkMode }) => {
   const [dateRange, setDateRange] = React.useState('today');
@@ -168,8 +178,8 @@ const EmployeeDashboard = ({ isDarkMode }) => {
       <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 backdrop-blur-sm bg-white/90 hover:shadow-2xl hover:shadow-blue-200/50 transition-all duration-500 transform hover:scale-[1.01] border border-gray-100 relative z-10 group">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-              <span className="text-3xl">📊</span> Dashboard
+            <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
+              <LayoutDashboard className="text-blue-600" size={28} /> Dashboard
             </h1>
             <p className="text-gray-600">Welcome, {loggedInEmployee}</p>
           </div>
@@ -191,40 +201,48 @@ const EmployeeDashboard = ({ isDarkMode }) => {
         <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6 transform hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-blue-300/50 animate-slideInLeft group hover:rotate-1">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-blue-100 text-sm">Total Sales</p>
+              <p className="text-blue-100 text-sm font-medium">Total Sales</p>
               <p className="text-2xl font-bold animate-pulse">₹{dashboardData.totalSales.toFixed(2)}</p>
             </div>
-            <span className="text-3xl animate-bounce group-hover:animate-spin">💰</span>
+            <div className="bg-white/20 p-3 rounded-lg backdrop-blur-sm group-hover:bg-white/30 transition-colors">
+              <IndianRupee size={28} className="text-white" />
+            </div>
           </div>
         </div>
 
         <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6 transform hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-green-300/50 animate-slideInUp group hover:-rotate-1" style={{animationDelay: '0.1s'}}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-green-100 text-sm">Total Invoices</p>
+              <p className="text-green-100 text-sm font-medium">Total Invoices</p>
               <p className="text-2xl font-bold animate-pulse">{dashboardData.totalInvoices}</p>
             </div>
-            <span className="text-3xl animate-pulse group-hover:animate-bounce">📄</span>
+            <div className="bg-white/20 p-3 rounded-lg backdrop-blur-sm group-hover:bg-white/30 transition-colors">
+              <FileText size={28} className="text-white" />
+            </div>
           </div>
         </div>
 
         <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl p-6 transform hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-purple-300/50 animate-slideInUp group hover:rotate-1" style={{animationDelay: '0.2s'}}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-purple-100 text-sm">Paid Bills</p>
+              <p className="text-purple-100 text-sm font-medium">Paid Bills</p>
               <p className="text-2xl font-bold animate-pulse">{dashboardData.paidBills}</p>
             </div>
-            <span className="text-3xl animate-spin group-hover:animate-pulse">✅</span>
+            <div className="bg-white/20 p-3 rounded-lg backdrop-blur-sm group-hover:bg-white/30 transition-colors">
+              <CheckCircle2 size={28} className="text-white" />
+            </div>
           </div>
         </div>
 
         <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl p-6 transform hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-orange-300/50 animate-slideInRight group hover:-rotate-1" style={{animationDelay: '0.3s'}}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-orange-100 text-sm">Avg Sale</p>
+              <p className="text-orange-100 text-sm font-medium">Avg Sale</p>
               <p className="text-2xl font-bold animate-pulse">₹{dashboardData.avgSale.toFixed(2)}</p>
             </div>
-            <span className="text-3xl animate-bounce group-hover:animate-spin">📈</span>
+            <div className="bg-white/20 p-3 rounded-lg backdrop-blur-sm group-hover:bg-white/30 transition-colors">
+              <TrendingUp size={28} className="text-white" />
+            </div>
           </div>
         </div>
       </div>
@@ -233,8 +251,8 @@ const EmployeeDashboard = ({ isDarkMode }) => {
       <div className="grid grid-cols-1 gap-6 relative z-10">
         {/* Daily Sales */}
         <div className="bg-white rounded-xl shadow-lg p-6 backdrop-blur-sm bg-white/90 hover:shadow-2xl hover:shadow-blue-200/50 transition-all duration-500 transform hover:scale-[1.02] border border-gray-100 group">
-          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span className="text-xl">📊</span> Daily Sales ({dateRange === 'today' ? 'Today' : dateRange === 'week' ? 'Last 7 Days' : dateRange === 'month' ? 'Last 30 Days' : 'All Time'})
+          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-3">
+            <BarChart3 className="text-blue-500" size={22} /> Daily Sales ({dateRange === 'today' ? 'Today' : dateRange === 'week' ? 'Last 7 Days' : dateRange === 'month' ? 'Last 30 Days' : 'All Time'})
           </h3>
           <div className="space-y-3">
             {dashboardData.dailySales.length > 0 ? (
@@ -274,8 +292,8 @@ const EmployeeDashboard = ({ isDarkMode }) => {
 
       {/* Recent Bills */}
       <div className="bg-white rounded-xl shadow-lg p-6 backdrop-blur-sm bg-white/90 hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 transform hover:scale-[1.01] border border-gray-100 relative z-10">
-        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <span className="text-xl">📋</span> Recent Bills
+        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-3">
+          <ClipboardList className="text-indigo-500" size={22} /> Recent Bills
         </h3>
         <div className="overflow-x-auto">
           <table className="w-full">

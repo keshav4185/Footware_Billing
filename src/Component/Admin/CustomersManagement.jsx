@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import {
+  Users,
+  Plus,
+  Search,
+  Edit2,
+  Trash2,
+  UserPlus,
+  X,
+  MapPin,
+  Phone
+} from 'lucide-react';
 
 const CustomersManagement = ({ customers, setCustomers }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -103,17 +114,17 @@ const CustomersManagement = ({ customers, setCustomers }) => {
       // First, fetch all invoices for this customer
       const invoicesResponse = await axios.get('https://backend-billing-software-ahxt.onrender.com/api/billing/invoices');
       const customerInvoices = invoicesResponse.data.filter(inv => inv.customer?.id === customerId);
-      
+
       // Delete all related invoices first
       for (const invoice of customerInvoices) {
         await axios.delete(`https://backend-billing-software-ahxt.onrender.com/api/billing/invoice/${invoice.id}`);
       }
-      
+
       // Now delete the customer
       const response = await axios.delete(
         `https://backend-billing-software-ahxt.onrender.com/api/billing/customer/${customerId}`
       );
-      
+
       if (response.status === 200 || response.status === 204) {
         setCustomers(customers.filter(c => c.id !== customerId));
         alert(`Customer and ${customerInvoices.length} related invoice(s) deleted successfully!`);
@@ -126,11 +137,10 @@ const CustomersManagement = ({ customers, setCustomers }) => {
 
   return (
     <div className="space-y-3 sm:space-y-6">
-      {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center sm:gap-4">
         <div>
-          <h2 className="text-lg sm:text-2xl font-bold text-gray-800">
-            Customers Management
+          <h2 className="text-lg sm:text-2xl font-bold text-gray-800 flex items-center gap-3">
+            <Users className="text-blue-600" size={28} /> Customers Management
           </h2>
           <p className="text-sm sm:text-base text-gray-600">
             Manage your customer database
@@ -138,9 +148,9 @@ const CustomersManagement = ({ customers, setCustomers }) => {
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 sm:px-6 py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-medium shadow-md w-full sm:w-auto"
+          className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 sm:px-6 py-2.5 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-medium shadow-md w-full sm:w-auto flex items-center justify-center gap-2"
         >
-          + Add Customer
+          <Plus size={20} /> Add Customer
         </button>
       </div>
 
@@ -148,12 +158,13 @@ const CustomersManagement = ({ customers, setCustomers }) => {
       <div className="bg-white rounded-xl shadow-lg p-3 sm:p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 mb-4">
           <div className="flex-1 relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input
               type="text"
               placeholder="Search by name or phone..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-8 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 transition-all"
             />
           </div>
           <div className="text-xs text-gray-500">
@@ -161,10 +172,9 @@ const CustomersManagement = ({ customers, setCustomers }) => {
           </div>
         </div>
 
-        {/* Table */}
         {filteredCustomers.length === 0 ? (
           <div className="text-center py-6 sm:py-12">
-            <div className="text-3xl sm:text-6xl mb-3">👥</div>
+            <Users size={48} className="mx-auto text-gray-300 mb-3" />
             <h3 className="text-sm sm:text-lg font-medium text-gray-800">
               No customers found
             </h3>
@@ -199,15 +209,17 @@ const CustomersManagement = ({ customers, setCustomers }) => {
                       <div className="flex gap-1">
                         <button
                           onClick={() => handleEditCustomer(customer)}
-                          className="bg-blue-500 text-white px-2 py-1 rounded text-xs"
+                          className="bg-blue-500 text-white p-2.5 rounded-lg hover:bg-blue-600 transition-colors shadow-sm"
+                          title="Edit Customer"
                         >
-                          Edit
+                          <Edit2 size={20} />
                         </button>
                         <button
                           onClick={() => handleDeleteCustomer(customer.id)}
-                          className="bg-red-500 text-white px-2 py-1 rounded text-xs"
+                          className="bg-red-500 text-white p-2.5 rounded-lg hover:bg-red-600 transition-colors shadow-sm"
+                          title="Delete Customer"
                         >
-                          Del
+                          <Trash2 size={20} />
                         </button>
                       </div>
                     </td>
@@ -224,9 +236,17 @@ const CustomersManagement = ({ customers, setCustomers }) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-sm">
             <div className="p-4">
-              <h3 className="text-lg font-bold mb-3">
-                {editingCustomer ? 'Edit Customer' : 'Add Customer'}
-              </h3>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-bold flex items-center gap-2">
+                  <UserPlus className="text-blue-600" size={20} /> {editingCustomer ? 'Edit Customer' : 'Add Customer'}
+                </h3>
+                <button
+                  onClick={() => { setShowAddModal(false); setEditingCustomer(null); }}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
 
               <form
                 onSubmit={editingCustomer ? handleUpdateCustomer : handleAddCustomer}

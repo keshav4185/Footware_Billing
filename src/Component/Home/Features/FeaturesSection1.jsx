@@ -1,5 +1,5 @@
-
 import React, { useEffect, useState } from 'react';
+import { Smartphone, IndianRupee, FileText, Search, Briefcase } from 'lucide-react';
 
 // Reusing a simplified version of the Button component for self-containment
 const Button = ({ children, primary = false, outline = false, className = '', onClick }) => {
@@ -166,11 +166,21 @@ const FeaturesSection1 = () => {
                     }}
                 >
                     {/* Billing Feature Icons */}
-                    <div className="absolute top-1/4 right-1/3 text-3xl text-[#8BC34A] opacity-8 animate-bounce">📱</div>
-                    <div className="absolute top-2/3 left-1/6 text-2xl text-[#2E4F7A] opacity-6 animate-bounce" style={{animationDelay: '1s'}}>💰</div>
-                    <div className="absolute bottom-1/4 right-1/5 text-2xl text-[#4A90E2] opacity-8 animate-bounce" style={{animationDelay: '2s'}}>📄</div>
-                    <div className="absolute top-1/2 left-1/8 text-2xl text-[#8BC34A] opacity-6 animate-bounce" style={{animationDelay: '0.5s'}}>🔍</div>
-                    <div className="absolute top-1/6 right-1/6 text-xl text-[#2E4F7A] opacity-5 animate-bounce" style={{animationDelay: '1.5s'}}>💼</div>
+                    <div className="absolute top-1/4 right-1/3 text-[#8BC34A] opacity-8 animate-bounce">
+                        <Smartphone size={32} />
+                    </div>
+                    <div className="absolute top-2/3 left-1/6 text-[#2E4F7A] opacity-6 animate-bounce" style={{animationDelay: '1s'}}>
+                        <IndianRupee size={24} />
+                    </div>
+                    <div className="absolute bottom-1/4 right-1/5 text-[#4A90E2] opacity-8 animate-bounce" style={{animationDelay: '2s'}}>
+                        <FileText size={24} />
+                    </div>
+                    <div className="absolute top-1/2 left-1/8 text-[#8BC34A] opacity-6 animate-bounce" style={{animationDelay: '0.5s'}}>
+                        <Search size={24} />
+                    </div>
+                    <div className="absolute top-1/6 right-1/6 text-[#2E4F7A] opacity-5 animate-bounce" style={{animationDelay: '1.5s'}}>
+                        <Briefcase size={20} />
+                    </div>
                     
                     {/* Geometric Elements */}
                     <div className="absolute top-1/6 left-1/3 w-6 h-6 border-2 border-[#8BC34A] opacity-5 rounded animate-spin" style={{animationDuration: '30s'}}></div>

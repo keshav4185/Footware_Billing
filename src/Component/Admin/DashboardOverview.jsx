@@ -13,18 +13,25 @@ import {
   Legend,
   ResponsiveContainer
 } from 'recharts';
+import {
+  LayoutDashboard,
+  BarChart3,
+  IndianRupee,
+  Users,
+  TrendingUp,
+  PieChart as PieChartIcon,
+  ClipboardList,
+  FileText,
+  Activity
+} from 'lucide-react';
 
-const DashboardOverview = () => {
-  const [bills, setBills] = useState([]);
-  const [customers, setCustomers] = useState([]);
-  const [products, setProducts] = useState([]);
+const DashboardOverview = ({ bills: propsBills, customers: propsCustomers, products: propsProducts }) => {
+  const [bills, setBills] = useState(propsBills || []);
+  const [customers, setCustomers] = useState(propsCustomers || []);
+  const [products, setProducts] = useState(propsProducts || []);
   const [dateRange, setDateRange] = useState('today');
 
   /* ================= BACKEND FETCH ================= */
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
   const fetchDashboardData = async () => {
     try {
       const [invoiceRes, customerRes, productRes] = await Promise.all([
@@ -49,27 +56,35 @@ const DashboardOverview = () => {
     }
   };
 
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
   /* ================= UI LOGIC ================= */
   const getFilteredBills = () => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    
+
     return bills.filter(bill => {
       const billDate = new Date(bill.date);
-      
-      switch(dateRange) {
-        case 'today':
+
+      switch (dateRange) {
+        case 'today': {
           billDate.setHours(0, 0, 0, 0);
           return billDate.getTime() === today.getTime();
-        case 'week':
+        }
+        case 'week': {
           const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
           return billDate >= weekAgo;
-        case 'month':
+        }
+        case 'month': {
           const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
           return billDate >= monthAgo;
-        case 'year':
+        }
+        case 'year': {
           const yearAgo = new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000);
           return billDate >= yearAgo;
+        }
         default:
           return true;
       }
@@ -107,7 +122,7 @@ const DashboardOverview = () => {
       title: 'Total Revenue',
       value: `₹${getTotalRevenue().toLocaleString()}`,
       change: `+${getMonthlyGrowth()}%`,
-      icon: '💰',
+      icon: <IndianRupee size={24} />,
       bg: 'bg-gradient-to-tr from-emerald-50 to-emerald-100',
       iconColor: 'text-emerald-600'
     },
@@ -115,7 +130,7 @@ const DashboardOverview = () => {
       title: 'Total Invoices',
       value: filteredBills.length,
       change: dateRange === 'today' ? 'Today' : dateRange === 'week' ? 'Last 7 Days' : dateRange === 'month' ? 'Last 30 Days' : dateRange === 'year' ? 'Last Year' : 'All time',
-      icon: '📊',
+      icon: <BarChart3 size={24} />,
       bg: 'bg-gradient-to-tr from-blue-50 to-blue-100',
       iconColor: 'text-blue-600'
     },
@@ -123,7 +138,7 @@ const DashboardOverview = () => {
       title: 'Active Customers',
       value: customers.length,
       change: 'All time',
-      icon: '👥',
+      icon: <Users size={24} />,
       bg: 'bg-gradient-to-tr from-purple-50 to-purple-100',
       iconColor: 'text-purple-600'
     },
@@ -133,7 +148,7 @@ const DashboardOverview = () => {
         ? ((getPaidAmount() / getTotalRevenue()) * 100).toFixed(1)
         : 0}%`,
       change: 'Payment efficiency',
-      icon: '📈',
+      icon: <Activity size={24} />,
       bg: 'bg-gradient-to-tr from-teal-50 to-teal-100',
       iconColor: 'text-teal-600'
     }
@@ -166,7 +181,7 @@ const DashboardOverview = () => {
           return billDate.toDateString() === date.toDateString();
         })
         .reduce((sum, b) => sum + (b.grandTotal || 0), 0);
-      
+
       last7Days.push({
         date: date.toLocaleDateString('en-US', { weekday: 'short' }),
         revenue: dayRevenue,
@@ -187,15 +202,15 @@ const DashboardOverview = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <span className="text-3xl ">📊</span> Dashboard Overview
+              <LayoutDashboard size={32} className="text-blue-600" /> Dashboard Overview
             </h1>
             <p className="text-gray-600 mt-1 text-sm">
               Welcome back! Here's your business summary.
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <select 
-              value={dateRange} 
+            <select
+              value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm font-medium"
             >
@@ -221,8 +236,8 @@ const DashboardOverview = () => {
             className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transform hover:scale-105 hover:shadow-xl transition-all duration-300"
           >
             <div className="flex items-start justify-between mb-4">
-              <div className={`${s.bg} p-3 rounded-lg`}>
-                <span className={`text-2xl ${s.iconColor}`}>{s.icon}</span>
+              <div className={`${s.bg} p-3 rounded-lg flex items-center justify-center`}>
+                <span className={`${s.iconColor}`}>{s.icon}</span>
               </div>
             </div>
             <h3 className="text-sm font-medium text-gray-600 mb-1">{s.title}</h3>
@@ -237,8 +252,8 @@ const DashboardOverview = () => {
         {/* Pie Chart - Payment Status */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
           <div className="mb-4">
-            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-              <span className="text-xl">🍰</span> Payment Status Distribution
+            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-3">
+              <PieChartIcon size={22} className="text-indigo-500" /> Payment Status Distribution
             </h3>
             <p className="text-sm text-gray-600">Invoice payment breakdown</p>
           </div>
@@ -258,12 +273,12 @@ const DashboardOverview = () => {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip 
+                <Tooltip
                   formatter={(value) => [`${value} invoices`, 'Count']}
                   labelStyle={{ color: '#374151' }}
                 />
-                <Legend 
-                  verticalAlign="bottom" 
+                <Legend
+                  verticalAlign="bottom"
                   height={36}
                   formatter={(value, entry) => (
                     <span style={{ color: entry.color, fontWeight: 'bold' }}>
@@ -279,8 +294,8 @@ const DashboardOverview = () => {
         {/* Line Chart - Revenue Trend */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
           <div className="mb-4">
-            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-              <span className="text-xl">📈</span> Revenue Trend (Last 7 Days)
+            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-3">
+              <TrendingUp size={22} className="text-blue-500" /> Revenue Trend (Last 7 Days)
             </h3>
             <p className="text-sm text-gray-600">Daily revenue performance</p>
           </div>
@@ -288,47 +303,47 @@ const DashboardOverview = () => {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={lineChartData()}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                <XAxis 
-                  dataKey="date" 
+                <XAxis
+                  dataKey="date"
                   stroke="#6B7280"
                   fontSize={12}
                 />
-                <YAxis 
+                <YAxis
                   stroke="#6B7280"
                   fontSize={12}
                   tickFormatter={(value) => `₹${value.toLocaleString()}`}
                 />
-                <YAxis 
+                <YAxis
                   yAxisId="right"
                   orientation="right"
                   stroke="#6B7280"
                   fontSize={12}
                 />
-                <Tooltip 
+                <Tooltip
                   formatter={(value, name) => [
                     name === 'revenue' ? `₹${value.toLocaleString()}` : value,
                     name === 'revenue' ? 'Revenue' : 'Invoices'
                   ]}
                   labelStyle={{ color: '#374151' }}
-                  contentStyle={{ 
-                    backgroundColor: '#F9FAFB', 
+                  contentStyle={{
+                    backgroundColor: '#F9FAFB',
                     border: '1px solid #E5E7EB',
                     borderRadius: '8px'
                   }}
                 />
                 <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="revenue" 
-                  stroke="#3B82F6" 
+                <Line
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#3B82F6"
                   strokeWidth={3}
                   dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
                   activeDot={{ r: 6, stroke: '#3B82F6', strokeWidth: 2 }}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="invoices" 
-                  stroke="#10B981" 
+                <Line
+                  type="monotone"
+                  dataKey="invoices"
+                  stroke="#10B981"
                   strokeWidth={2}
                   dot={{ fill: '#10B981', strokeWidth: 2, r: 3 }}
                   yAxisId="right"
@@ -343,15 +358,15 @@ const DashboardOverview = () => {
       {/* Recent Invoices */}
       <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
-          <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-            <span className="text-xl">📋</span> Recent Invoices
+          <h3 className="text-lg font-bold text-gray-900 flex items-center gap-3">
+            <ClipboardList size={22} className="text-indigo-600" /> Recent Invoices
           </h3>
         </div>
 
         <div className="p-6">
           {recentBills.length === 0 ? (
             <div className="text-center py-12">
-              <div className="text-5xl mb-3">📄</div>
+              <FileText size={48} className="mx-auto text-gray-300 mb-3" />
               <p className="text-gray-500">No invoices yet</p>
             </div>
           ) : (
@@ -372,13 +387,12 @@ const DashboardOverview = () => {
                       ₹{bill.grandTotal?.toLocaleString()}
                     </p>
                     <span
-                      className={`inline-block px-2 py-1 rounded-full text-xs font-medium mt-1 ${
-                        bill.paymentStatus === 'paid'
+                      className={`inline-block px-2 py-1 rounded-full text-xs font-medium mt-1 ${bill.paymentStatus === 'paid'
                           ? 'bg-green-100 text-green-700'
                           : bill.paymentStatus === 'pending'
-                          ? 'bg-yellow-100 text-yellow-700'
-                          : 'bg-red-100 text-red-700'
-                      }`}
+                            ? 'bg-yellow-100 text-yellow-700'
+                            : 'bg-red-100 text-red-700'
+                        }`}
                     >
                       {bill.paymentStatus || 'pending'}
                     </span>

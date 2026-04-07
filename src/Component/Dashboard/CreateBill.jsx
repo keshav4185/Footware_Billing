@@ -2,19 +2,26 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { customerAPI, productAPI, invoiceAPI, paymentAPI, companyAPI } from '../../services/api';
 import defaultLogo from '../../assets/smart_logo-Jt0au3tU.webp';
-import { 
-  FaFileInvoice, 
-  FaPaperPlane, 
-  FaPrint, 
-  FaSave, 
-  FaEye, 
-  FaUser, 
-  FaBuilding, 
-  FaBox, 
-  FaCalculator,
-  FaPlus,
-  FaTimes
-} from 'react-icons/fa';
+import {
+  FileText,
+  Send,
+  Printer,
+  Save,
+  Eye,
+  User,
+  Building,
+  Package,
+  Calculator,
+  Plus,
+  X,
+  AlertCircle,
+  CheckCircle2,
+  Trash2,
+  Image as ImageIcon,
+  History,
+  TrendingUp,
+  CreditCard
+} from 'lucide-react';
 
 const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   const [showCustomerPopup, setShowCustomerPopup] = React.useState(false);
@@ -54,10 +61,10 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   const validateBasicForm = () => {
     // Product validation criteria
     if (!products.some(p => p.name.trim())) {
-      alert('❌ Validation Error: Please add at least one product!');
+      alert('Validation Error: Please add at least one product!');
       return false;
     }
-    
+
     // Check for valid product details
     for (let i = 0; i < products.length; i++) {
       const product = products[i];
@@ -71,62 +78,62 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
           return false;
         }
         if (product.discount < 0 || product.discount > 100) {
-          alert(`❌ Validation Error: Product "${product.name}" discount must be between 0-100%!`);
+          alert(`Validation Error: Product "${product.name}" discount must be between 0-100%!`);
           return false;
         }
       }
     }
-    
+
     // Tax rate validation criteria
     if (cgstEnabled && (cgstRate < 0 || cgstRate > 9)) {
       alert('❌ Validation Error: CGST rate must be between 0-9%!');
       return false;
     }
-    
+
     if (sgstEnabled && (sgstRate < 0 || sgstRate > 9)) {
       alert('❌ Validation Error: SGST rate must be between 0-9%!');
       return false;
     }
-    
+
     // Advance payment validation criteria
     if (advance < 0) {
       alert('❌ Validation Error: Advance amount cannot be negative!');
       return false;
     }
-    
+
     return true;
   };
-  
+
   const validateCustomerForm = () => {
     // Customer name validation criteria
     if (!customerFormData.name.trim()) {
-      alert('❌ Validation Error: Customer name is required!');
+      alert('Validation Error: Customer name is required!');
       return false;
     }
-    
+
     if (customerFormData.name.trim().length < 2) {
       alert('❌ Validation Error: Customer name must be at least 2 characters!');
       return false;
     }
-    
+
     // Check if name contains numbers
     if (/\d/.test(customerFormData.name)) {
       alert('❌ Validation Error: Customer name cannot contain numbers!');
       return false;
     }
-    
+
     // Phone number validation criteria
     if (customerFormData.phone && customerFormData.phone.trim()) {
       const phoneRegex = /^[6-9]\d{9}$/;
       if (!phoneRegex.test(customerFormData.phone.trim())) {
-        alert('❌ Validation Error: Please enter a valid 10-digit Indian mobile number!');
+        alert('Validation Error: Please enter a valid 10-digit Indian mobile number!');
         return false;
       }
     }
-    
+
     return true;
   };
-  
+
   // Input validation handlers
   const handleCustomerNameChange = (e) => {
     const value = e.target.value;
@@ -134,7 +141,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
     if (/^[a-zA-Z\s]*$/.test(value)) {
       setCustomerFormData(prev => ({ ...prev, name: value }));
     } else {
-      alert('❌ Only letters and spaces are allowed in customer name!');
+      alert('Only letters and spaces are allowed in customer name!');
     }
   };
 
@@ -251,22 +258,22 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       alert('❌ Validation Error: Company name is required!');
       return false;
     }
-    
+
     if (companyDetails.name.trim().length < 2) {
       alert('❌ Validation Error: Company name must be at least 2 characters!');
       return false;
     }
-    
+
     if (!companyDetails.address.trim()) {
       alert('❌ Validation Error: Company address is required!');
       return false;
     }
-    
+
     if (!companyDetails.phone.trim()) {
       alert('❌ Validation Error: Company phone is required!');
       return false;
     }
-    
+
     // Company phone validation
     if (companyDetails.phone && companyDetails.phone.trim()) {
       const phoneRegex = /^[6-9]\d{9}$/;
@@ -275,7 +282,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
         return false;
       }
     }
-    
+
     // Company GST validation
     if (companyDetails.gst && companyDetails.gst.trim()) {
       const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
@@ -284,7 +291,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
         return false;
       }
     }
-    
+
     return true;
   };
 
@@ -293,17 +300,17 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       alert('Customer phone number is required to send invoice!');
       return;
     }
-    
+
     const totals = calculateTotals();
     const productsText = products
       .filter(p => p.name.trim())
       .map((p, i) => {
         const subtotal = p.qty * p.price;
-        const afterDiscount = subtotal * (1 - p.discount/100);
+        const afterDiscount = subtotal * (1 - p.discount / 100);
         return `${i + 1}. ${p.name} - Qty: ${p.qty}, Rate: ₹${p.price.toFixed(2)}, Total: ₹${afterDiscount.toFixed(2)}`;
       })
       .join('\n');
-    
+
     const invoiceText = `🧾 *INVOICE FROM ${companyDetails.name.toUpperCase()}*\n\n` +
       `📋 Invoice No: INV-${Date.now().toString().slice(-6)}\n` +
       `📅 Date: ${new Date(invoiceDate).toLocaleDateString()}\n` +
@@ -322,10 +329,10 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       `🏢 ${companyDetails.name}\n` +
       `📍 ${companyDetails.address}\n` +
       `📞 ${companyDetails.phone}`;
-    
+
     const whatsappUrl = `https://wa.me/91${customerFormData.phone}?text=${encodeURIComponent(invoiceText)}`;
     window.open(whatsappUrl, '_blank');
-    alert('📱 Invoice sent via WhatsApp!');
+    alert('Invoice sent via WhatsApp!');
   };
 
   const handleAction = (action) => {
@@ -333,7 +340,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
     if (!validateCompanyDetails()) return;
     if (!validateBasicForm()) return;
     if (!validateCustomerForm()) return;
-    
+
     // Additional validation for specific actions
     if (action === 'send') {
       if (!customerFormData.phone || !customerFormData.phone.trim()) {
@@ -341,7 +348,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
         return;
       }
     }
-    
+
     if (action === 'print') openDirectPrintPreview();
     else if (action === 'preview') {
       // Auto-save before showing preview
@@ -351,7 +358,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
     else if (action === 'save') saveBillToAPI();
     else if (action === 'send') sendInvoice();
   };
-  
+
   // Save company details to backend
   const saveCompanyToAPI = async () => {
     try {
@@ -362,7 +369,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
         gst: companyDetails.gst,
         brands: companyDetails.brands
       };
-      
+
       const response = await companyAPI.create(companyData);
       setCompanyId(response.data.id);
       console.log('Company saved to backend:', response.data);
@@ -409,296 +416,296 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
     }
   };
 
-  
+
 
 
 
 
   const saveBillToAPI = async () => {
-  setLoading(true);
+    setLoading(true);
 
-  try {
-    // ✅ Get logged-in employee from localStorage
-    const employee = JSON.parse(localStorage.getItem("employee"));
-    const employeeDbId = employee?.id;     // MUST be DB primary key
-    const employeeName = employee?.name || "Sales Person";
+    try {
+      // ✅ Get logged-in employee from localStorage
+      const employee = JSON.parse(localStorage.getItem("employee"));
+      const employeeDbId = employee?.id;     // MUST be DB primary key
+      const employeeName = employee?.name || "Sales Person";
 
-    // 🔒 Safety check
-    if (!employeeDbId) {
-      alert("Employee not logged in or employee ID missing. Please login again.");
-      setLoading(false);
-      return;
-    }
-
-    console.log("Employee object:", employee);
-    console.log("Employee DB ID:", employeeDbId);
-    console.log("Editing bill:", editingBill);
-    console.log("Is Edit Mode:", editingBill?.isEdit);
-
-    // Check if this is an edit operation
-    const isEditMode = editingBill && editingBill.isEdit;
-    
-    let companyId, customerId;
-    
-    if (isEditMode) {
-      // Use existing company and customer IDs
-      companyId = editingBill.companyId;
-      customerId = editingBill.customerId;
-      
-      console.log("Edit mode - using existing IDs:", { companyId, customerId });
-    } else {
-      // ✅ Create company
-      const companyResponse = await companyAPI.create({
-        name: companyDetails.name,
-        address: companyDetails.address,
-        phone: companyDetails.phone,
-        gst: companyDetails.gst,
-        brands: companyDetails.brands
-      });
-      companyId = companyResponse.data.id;
-      console.log("Company created with ID:", companyId);
-
-      // ✅ Create customer
-      const customerResponse = await customerAPI.create({
-        name: customerFormData.name,
-        phone: customerFormData.phone,
-        gst: customerFormData.gst,
-        address: customerFormData.address
-      });
-      customerId = customerResponse.data.id;
-      console.log("Customer created with ID:", customerId);
-    }
-
-    // ✅ Prepare invoice items
-    const items = products
-      .filter(p => p.name.trim())
-      .map(product => {
-        const unitPrice = product.price;
-        const quantity = product.qty;
-        const subtotal = quantity * unitPrice;
-        const discountAmount = subtotal * (product.discount / 100);
-        const afterDiscount = subtotal - discountAmount;
-        
-        // Calculate tax ONLY if discount is applied, otherwise on full price
-        const taxableAmount = afterDiscount;
-        const itemCgst = cgstEnabled ? taxableAmount * cgstRate / 100 : 0;
-        const itemSgst = sgstEnabled ? taxableAmount * sgstRate / 100 : 0;
-        const priceWithTax = taxableAmount + itemCgst + itemSgst;
-        
-        console.log(`\n=== Product: ${product.name} ===`);
-        console.log(`Unit Price: ₹${unitPrice}`);
-        console.log(`Quantity: ${quantity}`);
-        console.log(`Subtotal: ₹${subtotal}`);
-        console.log(`Discount ${product.discount}%: -₹${discountAmount}`);
-        console.log(`After Discount: ₹${afterDiscount}`);
-        console.log(`CGST ${cgstRate}%: +₹${itemCgst}`);
-        console.log(`SGST ${sgstRate}%: +₹${itemSgst}`);
-        console.log(`FINAL Price (WITH TAX): ₹${priceWithTax}`);
-        console.log(`===========================\n`);
-        
-        return {
-          productName: product.name,
-          quantity: quantity,
-          unitPrice: unitPrice,
-          discount: product.discount,
-          afterDiscount: afterDiscount,
-          priceWithTax: priceWithTax
-        };
-      });
-
-    // ✅ Create / attach products
-    const itemsWithProducts = [];
-
-    for (const item of items) {
-      try {
-        const productResponse = await productAPI.create({
-          name: item.productName,
-          price: item.unitPrice,
-          tax: 0
-        });
-
-        itemsWithProducts.push({
-          itemName: item.productName,
-          product: { id: productResponse.data.id },
-          quantity: item.quantity,
-          rate: item.unitPrice,
-          price: parseFloat(item.priceWithTax.toFixed(2)),  // ✅ Price WITH TAX
-          discount: item.discount,
-          rowTotal: parseFloat(item.priceWithTax.toFixed(2))  // ✅ Total WITH TAX
-        });
-      } catch (error) {
-        console.error("Error creating product:", error);
-
-        itemsWithProducts.push({
-          itemName: item.productName,
-          product: null,
-          quantity: item.quantity,
-          rate: item.unitPrice,
-          price: parseFloat(item.priceWithTax.toFixed(2)),  // ✅ Price WITH TAX
-          discount: item.discount,
-          rowTotal: parseFloat(item.priceWithTax.toFixed(2))  // ✅ Total WITH TAX
-        });
+      // 🔒 Safety check
+      if (!employeeDbId) {
+        alert("Employee not logged in or employee ID missing. Please login again.");
+        setLoading(false);
+        return;
       }
-    }
 
-    const totals = calculateTotals();
-    // Use existing invoice number if editing, otherwise generate new one
-    const invoiceNumber = isEditMode ? editingBill.invoiceNo : `INV-${Date.now().toString().slice(-6)}`;
+      console.log("Employee object:", employee);
+      console.log("Employee DB ID:", employeeDbId);
+      console.log("Editing bill:", editingBill);
+      console.log("Is Edit Mode:", editingBill?.isEdit);
 
-    console.log("\n========== CALCULATION BREAKDOWN ==========");
-    console.log("Subtotal (before discount):", totals.subtotal);
-    console.log("Total Discount:", totals.totalDiscount);
-    console.log("Taxable Amount (after discount):", totals.taxableAmount);
-    console.log("CGST Amount (9%):", totals.cgstAmount);
-    console.log("SGST Amount (9%):", totals.sgstAmount);
-    console.log("GRAND TOTAL (with tax):", totals.grandTotal);
-    console.log("Invoice Number:", invoiceNumber);
-    console.log("Is Edit Mode:", isEditMode);
-    console.log("==========================================\n");
+      // Check if this is an edit operation
+      const isEditMode = editingBill && editingBill.isEdit;
 
-    // ✅ FINAL invoice payload (CORRECT)
-    const invoiceData = {
-      invoiceNumber,
-      invoiceDate: new Date().toISOString(),
-      company: { id: companyId },
-      customer: { id: customerId },
-      employee: { id: employeeDbId },
-      salesperson: employeeName,
-      items: itemsWithProducts,
-      subTotal: parseFloat(totals.subtotal.toFixed(2)),
-      totalAmount: parseFloat(totals.grandTotal.toFixed(2)),
-      cgstAmount: parseFloat(totals.cgstAmount.toFixed(2)),
-      sgstAmount: parseFloat(totals.sgstAmount.toFixed(2)),
-      totalDiscount: parseFloat(totals.totalDiscount.toFixed(2)),
-      advanceAmount: parseFloat(advance.toFixed(2)),
-      balanceAmount: parseFloat(totals.balanceAmount.toFixed(2)),
-      price: parseFloat(totals.grandTotal.toFixed(2)),
-      paymentStatus: paymentStatus === "Paid" ? "PAID" : "UNPAID"
-    };
+      let companyId, customerId;
 
-    console.log("\n========== INVOICE PAYLOAD BEING SENT ==========");
-    console.log("Invoice Number:", invoiceData.invoiceNumber);
-    console.log("SubTotal:", invoiceData.subTotal);
-    console.log("Total Discount:", invoiceData.totalDiscount);
-    console.log("CGST Amount:", invoiceData.cgstAmount);
-    console.log("SGST Amount:", invoiceData.sgstAmount);
-    console.log("Total Amount:", invoiceData.totalAmount);
-    console.log("Price Field:", invoiceData.price);
-    console.log("Advance Amount:", invoiceData.advanceAmount);
-    console.log("Balance Amount:", invoiceData.balanceAmount);
-    console.log("Full Invoice Data:", JSON.stringify(invoiceData, null, 2));
-    console.log("===============================================\n");
+      if (isEditMode) {
+        // Use existing company and customer IDs
+        companyId = editingBill.companyId;
+        customerId = editingBill.customerId;
 
-    let invoiceResponse;
-    if (isEditMode) {
-      // ✅ Update existing invoice
-      console.log("Updating existing invoice with ID:", editingBill.id);
-      invoiceResponse = await invoiceAPI.update(editingBill.id, invoiceData);
-      console.log("\n========== BACKEND UPDATE RESPONSE ==========");
-      console.log("Invoice updated with ID:", invoiceResponse.data.id);
-      console.log("Backend returned data:", JSON.stringify(invoiceResponse.data, null, 2));
+        console.log("Edit mode - using existing IDs:", { companyId, customerId });
+      } else {
+        // ✅ Create company
+        const companyResponse = await companyAPI.create({
+          name: companyDetails.name,
+          address: companyDetails.address,
+          phone: companyDetails.phone,
+          gst: companyDetails.gst,
+          brands: companyDetails.brands
+        });
+        companyId = companyResponse.data.id;
+        console.log("Company created with ID:", companyId);
+
+        // ✅ Create customer
+        const customerResponse = await customerAPI.create({
+          name: customerFormData.name,
+          phone: customerFormData.phone,
+          gst: customerFormData.gst,
+          address: customerFormData.address
+        });
+        customerId = customerResponse.data.id;
+        console.log("Customer created with ID:", customerId);
+      }
+
+      // ✅ Prepare invoice items
+      const items = products
+        .filter(p => p.name.trim())
+        .map(product => {
+          const unitPrice = product.price;
+          const quantity = product.qty;
+          const subtotal = quantity * unitPrice;
+          const discountAmount = subtotal * (product.discount / 100);
+          const afterDiscount = subtotal - discountAmount;
+
+          // Calculate tax ONLY if discount is applied, otherwise on full price
+          const taxableAmount = afterDiscount;
+          const itemCgst = cgstEnabled ? taxableAmount * cgstRate / 100 : 0;
+          const itemSgst = sgstEnabled ? taxableAmount * sgstRate / 100 : 0;
+          const priceWithTax = taxableAmount + itemCgst + itemSgst;
+
+          console.log(`\n=== Product: ${product.name} ===`);
+          console.log(`Unit Price: ₹${unitPrice}`);
+          console.log(`Quantity: ${quantity}`);
+          console.log(`Subtotal: ₹${subtotal}`);
+          console.log(`Discount ${product.discount}%: -₹${discountAmount}`);
+          console.log(`After Discount: ₹${afterDiscount}`);
+          console.log(`CGST ${cgstRate}%: +₹${itemCgst}`);
+          console.log(`SGST ${sgstRate}%: +₹${itemSgst}`);
+          console.log(`FINAL Price (WITH TAX): ₹${priceWithTax}`);
+          console.log(`===========================\n`);
+
+          return {
+            productName: product.name,
+            quantity: quantity,
+            unitPrice: unitPrice,
+            discount: product.discount,
+            afterDiscount: afterDiscount,
+            priceWithTax: priceWithTax
+          };
+        });
+
+      // ✅ Create / attach products
+      const itemsWithProducts = [];
+
+      for (const item of items) {
+        try {
+          const productResponse = await productAPI.create({
+            name: item.productName,
+            price: item.unitPrice,
+            tax: 0
+          });
+
+          itemsWithProducts.push({
+            itemName: item.productName,
+            product: { id: productResponse.data.id },
+            quantity: item.quantity,
+            rate: item.unitPrice,
+            price: parseFloat(item.priceWithTax.toFixed(2)),  // ✅ Price WITH TAX
+            discount: item.discount,
+            rowTotal: parseFloat(item.priceWithTax.toFixed(2))  // ✅ Total WITH TAX
+          });
+        } catch (error) {
+          console.error("Error creating product:", error);
+
+          itemsWithProducts.push({
+            itemName: item.productName,
+            product: null,
+            quantity: item.quantity,
+            rate: item.unitPrice,
+            price: parseFloat(item.priceWithTax.toFixed(2)),  // ✅ Price WITH TAX
+            discount: item.discount,
+            rowTotal: parseFloat(item.priceWithTax.toFixed(2))  // ✅ Total WITH TAX
+          });
+        }
+      }
+
+      const totals = calculateTotals();
+      // Use existing invoice number if editing, otherwise generate new one
+      const invoiceNumber = isEditMode ? editingBill.invoiceNo : `INV-${Date.now().toString().slice(-6)}`;
+
+      console.log("\n========== CALCULATION BREAKDOWN ==========");
+      console.log("Subtotal (before discount):", totals.subtotal);
+      console.log("Total Discount:", totals.totalDiscount);
+      console.log("Taxable Amount (after discount):", totals.taxableAmount);
+      console.log("CGST Amount (9%):", totals.cgstAmount);
+      console.log("SGST Amount (9%):", totals.sgstAmount);
+      console.log("GRAND TOTAL (with tax):", totals.grandTotal);
+      console.log("Invoice Number:", invoiceNumber);
+      console.log("Is Edit Mode:", isEditMode);
       console.log("==========================================\n");
-    } else {
-      // ✅ Create new invoice
-      invoiceResponse = await invoiceAPI.create(invoiceData);
-      console.log("\n========== BACKEND CREATE RESPONSE ==========");
-      console.log("Invoice created with ID:", invoiceResponse.data.id);
-      console.log("Backend returned data:", JSON.stringify(invoiceResponse.data, null, 2));
-      console.log("======================================\n");
-    }
 
-    // ✅ Create payment if advance exists
-    if (advance > 0) {
-      await paymentAPI.create({
-        paymentMethod: "CASH",
-        amount: advance,
-        paymentDate: new Date().toISOString(),
-        invoice: { id: invoiceResponse.data.id }
-      });
+      // ✅ FINAL invoice payload (CORRECT)
+      const invoiceData = {
+        invoiceNumber,
+        invoiceDate: new Date().toISOString(),
+        company: { id: companyId },
+        customer: { id: customerId },
+        employee: { id: employeeDbId },
+        salesperson: employeeName,
+        items: itemsWithProducts,
+        subTotal: parseFloat(totals.subtotal.toFixed(2)),
+        totalAmount: parseFloat(totals.grandTotal.toFixed(2)),
+        cgstAmount: parseFloat(totals.cgstAmount.toFixed(2)),
+        sgstAmount: parseFloat(totals.sgstAmount.toFixed(2)),
+        totalDiscount: parseFloat(totals.totalDiscount.toFixed(2)),
+        advanceAmount: parseFloat(advance.toFixed(2)),
+        balanceAmount: parseFloat(totals.balanceAmount.toFixed(2)),
+        price: parseFloat(totals.grandTotal.toFixed(2)),
+        paymentStatus: paymentStatus === "Paid" ? "PAID" : "UNPAID"
+      };
 
-      console.log("Advance payment saved");
-    }
+      console.log("\n========== INVOICE PAYLOAD BEING SENT ==========");
+      console.log("Invoice Number:", invoiceData.invoiceNumber);
+      console.log("SubTotal:", invoiceData.subTotal);
+      console.log("Total Discount:", invoiceData.totalDiscount);
+      console.log("CGST Amount:", invoiceData.cgstAmount);
+      console.log("SGST Amount:", invoiceData.sgstAmount);
+      console.log("Total Amount:", invoiceData.totalAmount);
+      console.log("Price Field:", invoiceData.price);
+      console.log("Advance Amount:", invoiceData.advanceAmount);
+      console.log("Balance Amount:", invoiceData.balanceAmount);
+      console.log("Full Invoice Data:", JSON.stringify(invoiceData, null, 2));
+      console.log("===============================================\n");
 
-    alert(isEditMode ? "💾 Invoice updated successfully!" : "💾 Bill saved to database successfully!");
-    
-    // Reset form after successful save
-    setCustomerFormData({ name: "", phone: "", gst: "", address: "" });
-    setProducts([{ id: 1, name: "", qty: 1, price: 0, discount: 0 }]);
+      let invoiceResponse;
+      if (isEditMode) {
+        // ✅ Update existing invoice
+        console.log("Updating existing invoice with ID:", editingBill.id);
+        invoiceResponse = await invoiceAPI.update(editingBill.id, invoiceData);
+        console.log("\n========== BACKEND UPDATE RESPONSE ==========");
+        console.log("Invoice updated with ID:", invoiceResponse.data.id);
+        console.log("Backend returned data:", JSON.stringify(invoiceResponse.data, null, 2));
+        console.log("==========================================\n");
+      } else {
+        // ✅ Create new invoice
+        invoiceResponse = await invoiceAPI.create(invoiceData);
+        console.log("\n========== BACKEND CREATE RESPONSE ==========");
+        console.log("Invoice created with ID:", invoiceResponse.data.id);
+        console.log("Backend returned data:", JSON.stringify(invoiceResponse.data, null, 2));
+        console.log("======================================\n");
+      }
 
-  } catch (error) {
-    console.error("Error saving to API:", error);
-    console.error("Backend response:", error.response?.data);
+      // ✅ Create payment if advance exists
+      if (advance > 0) {
+        await paymentAPI.create({
+          paymentMethod: "CASH",
+          amount: advance,
+          paymentDate: new Date().toISOString(),
+          invoice: { id: invoiceResponse.data.id }
+        });
 
-    alert(
-      "Error saving to database: " +
+        console.log("Advance payment saved");
+      }
+
+      alert(isEditMode ? "Invoice updated successfully!" : "Bill saved to database successfully!");
+
+      // Reset form after successful save
+      setCustomerFormData({ name: "", phone: "", gst: "", address: "" });
+      setProducts([{ id: 1, name: "", qty: 1, price: 0, discount: 0 }]);
+
+    } catch (error) {
+      console.error("Error saving to API:", error);
+      console.error("Backend response:", error.response?.data);
+
+      alert(
+        "Error saving to database: " +
         (error.response?.data?.message || error.message) +
         ". Saved locally instead."
-    );
+      );
 
-    saveBill();
-  } finally {
-    setLoading(false);
-  }
-};
+      saveBill();
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const saveBill = () => {
-  try {
-    // ✅ Get logged-in employee
-    const employee = JSON.parse(localStorage.getItem("employee"));
-    const employeeName = employee?.name || "Sales Person";
-    const employeeDbId = employee?.id || null;
+    try {
+      // ✅ Get logged-in employee
+      const employee = JSON.parse(localStorage.getItem("employee"));
+      const employeeName = employee?.name || "Sales Person";
+      const employeeDbId = employee?.id || null;
 
-    // (Optional safety check)
-    if (!employeeDbId) {
-      console.warn("Employee ID missing while saving bill locally");
+      // (Optional safety check)
+      if (!employeeDbId) {
+        console.warn("Employee ID missing while saving bill locally");
+      }
+
+      // ✅ Use SAME invoice number if already generated
+      const invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
+
+      const billData = {
+        id: Date.now(), // local bill ID
+        invoiceNumber,
+        date: new Date().toISOString(),
+        customer: customerFormData,
+        products: products.filter(p => p.name.trim()),
+        paymentStatus,
+        salesperson: employeeName,
+        employeeId: employeeDbId
+      };
+
+      // ✅ Save bills locally
+      const bills = JSON.parse(localStorage.getItem("bills") || "[]");
+      bills.push(billData);
+      localStorage.setItem("bills", JSON.stringify(bills));
+
+      // ✅ Save / update customer locally
+      const customers = JSON.parse(localStorage.getItem("customers") || "[]");
+      const existingCustomer = customers.find(
+        c => c.phone === customerFormData.phone
+      );
+
+      if (!existingCustomer) {
+        customers.push({
+          id: Date.now(),
+          ...customerFormData,
+          totalBills: 1,
+          lastBillDate: new Date().toLocaleDateString()
+        });
+      }
+
+      localStorage.setItem("customers", JSON.stringify(customers));
+
+      alert("Bill saved locally successfully!");
+
+      // ✅ Reset form
+      setCustomerFormData({ name: "", phone: "", gst: "", address: "" });
+      setProducts([{ id: 1, name: "", qty: 1, price: 0, discount: 0 }]);
+
+    } catch (error) {
+      alert("Error saving bill locally: " + error.message);
     }
-
-    // ✅ Use SAME invoice number if already generated
-    const invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
-
-    const billData = {
-      id: Date.now(), // local bill ID
-      invoiceNumber,
-      date: new Date().toISOString(),
-      customer: customerFormData,
-      products: products.filter(p => p.name.trim()),
-      paymentStatus,
-      salesperson: employeeName,
-      employeeId: employeeDbId
-    };
-
-    // ✅ Save bills locally
-    const bills = JSON.parse(localStorage.getItem("bills") || "[]");
-    bills.push(billData);
-    localStorage.setItem("bills", JSON.stringify(bills));
-
-    // ✅ Save / update customer locally
-    const customers = JSON.parse(localStorage.getItem("customers") || "[]");
-    const existingCustomer = customers.find(
-      c => c.phone === customerFormData.phone
-    );
-
-    if (!existingCustomer) {
-      customers.push({
-        id: Date.now(),
-        ...customerFormData,
-        totalBills: 1,
-        lastBillDate: new Date().toLocaleDateString()
-      });
-    }
-
-    localStorage.setItem("customers", JSON.stringify(customers));
-
-    alert("💾 Bill saved locally successfully!");
-
-    // ✅ Reset form
-    setCustomerFormData({ name: "", phone: "", gst: "", address: "" });
-    setProducts([{ id: 1, name: "", qty: 1, price: 0, discount: 0 }]);
-
-  } catch (error) {
-    alert("Error saving bill locally: " + error.message);
-  }
-};
+  };
 
 
 
@@ -719,7 +726,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
         name: productName,
         price: price
       };
-      
+
       const response = await productAPI.create(productData);
       console.log('Product saved to backend:', response.data);
       return response.data;
@@ -731,7 +738,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
 
   const updateProduct = async (id, field, value) => {
     setProducts(products.map(p => p.id === id ? { ...p, [field]: value } : p));
-    
+
     // Auto-save product when name is entered and has at least 2 characters
     if (field === 'name' && value.trim().length >= 2) {
       const product = products.find(p => p.id === id);
@@ -749,40 +756,40 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
 
   const calculateRowAmount = (product) => {
     const subtotal = product.qty * product.price;
-    const afterDiscount = subtotal * (1 - product.discount/100);
+    const afterDiscount = subtotal * (1 - product.discount / 100);
     return afterDiscount; // Return amount without tax
   };
 
   const calculateTotals = () => {
     let subtotal = 0, totalDiscount = 0;
-    
+
     products.forEach(p => {
       const itemSubtotal = p.qty * p.price;
       const itemDiscount = itemSubtotal * p.discount / 100;
       subtotal += itemSubtotal;
       totalDiscount += itemDiscount;
     });
-    
+
     const taxableAmount = subtotal - totalDiscount;
     const cgstAmount = cgstEnabled ? taxableAmount * cgstRate / 100 : 0;
     const sgstAmount = sgstEnabled ? taxableAmount * sgstRate / 100 : 0;
     const grandTotal = taxableAmount + cgstAmount + sgstAmount;
     const balanceAmount = grandTotal - advance;
-    
+
     return { subtotal, totalDiscount, taxableAmount, cgstAmount, sgstAmount, grandTotal, balanceAmount };
   };
 
   React.useEffect(() => {
     // Get logged in employee data from localStorage
     const employee = JSON.parse(localStorage.getItem("employee"));
-setLoggedInEmployee(employee?.name || "Sales Person");
+    setLoggedInEmployee(employee?.name || "Sales Person");
 
-    
+
     // Load API data
     loadCustomers();
     loadProducts();
     loadCompanyDetails();
-    
+
     // Handle selectedCustomer from CustomersList
     if (selectedCustomer) {
       setCustomerFormData({
@@ -792,7 +799,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
         address: selectedCustomer.address || ''
       });
     }
-    
+
     if (editingBill) {
       setCustomerFormData({
         name: editingBill.customerName || '',
@@ -800,7 +807,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
         gst: editingBill.customerGst || '',
         address: editingBill.customerAddress || ''
       });
-      
+
       // Load all products from editingBill.items
       if (editingBill.items && editingBill.items.length > 0) {
         const loadedProducts = editingBill.items.map((item, index) => {
@@ -808,13 +815,13 @@ setLoggedInEmployee(employee?.name || "Sales Person");
           const priceWithTax = item.price || 0;
           const quantity = item.quantity || 1;
           const discount = item.discount || 0;
-          
+
           // Calculate base price (before tax)
           // priceWithTax = basePrice * qty * (1 - discount/100) * (1 + (cgst + sgst)/100)
           // So: basePrice = priceWithTax / [qty * (1 - discount/100) * (1 + tax/100)]
           const taxRate = (cgstEnabled ? cgstRate : 0) + (sgstEnabled ? sgstRate : 0);
-          const basePricePerUnit = priceWithTax / (quantity * (1 - discount/100) * (1 + taxRate/100));
-          
+          const basePricePerUnit = priceWithTax / (quantity * (1 - discount / 100) * (1 + taxRate / 100));
+
           return {
             id: index + 1,
             name: item.itemName || item.productName || item.product?.name || '',
@@ -833,14 +840,14 @@ setLoggedInEmployee(employee?.name || "Sales Person");
           discount: 0
         }]);
       }
-      
+
       // Load payment details
       if (editingBill.totals) {
         setAdvance(editingBill.totals.advanceAmount || 0);
         setPaymentStatus(editingBill.paymentStatus || 'Unpaid');
       }
     }
-    
+
     // Load saved logo or use default smart logo
     const savedLogo = localStorage.getItem('companyLogo');
     if (savedLogo) {
@@ -849,13 +856,13 @@ setLoggedInEmployee(employee?.name || "Sales Person");
       setCompanyLogo(defaultLogo);
       localStorage.setItem('companyLogo', defaultLogo);
     }
-    
+
     // Load saved signature
     const savedSignature = localStorage.getItem('digitalSignature');
     if (savedSignature) {
       setDigitalSignature(savedSignature);
     }
-    
+
     // Load saved company details
     const savedCompanyDetails = localStorage.getItem('companyDetails');
     if (savedCompanyDetails) {
@@ -901,9 +908,9 @@ setLoggedInEmployee(employee?.name || "Sales Person");
   const convertToWords = (num) => {
     const ones = ['', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 'TEN', 'ELEVEN', 'TWELVE', 'THIRTEEN', 'FOURTEEN', 'FIFTEEN', 'SIXTEEN', 'SEVENTEEN', 'EIGHTEEN', 'NINETEEN'];
     const tens = ['', '', 'TWENTY', 'THIRTY', 'FORTY', 'FIFTY', 'SIXTY', 'SEVENTY', 'EIGHTY', 'NINETY'];
-    
+
     if (num === 0) return 'ZERO RUPEES ONLY';
-    
+
     let words = '';
     if (num >= 10000000) { words += ones[Math.floor(num / 10000000)] + ' CRORE '; num %= 10000000; }
     if (num >= 100000) { words += ones[Math.floor(num / 100000)] + ' LAKH '; num %= 100000; }
@@ -911,7 +918,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
     if (num >= 100) { words += ones[Math.floor(num / 100)] + ' HUNDRED '; num %= 100; }
     if (num >= 20) { words += tens[Math.floor(num / 10)] + ' '; num %= 10; }
     if (num > 0) words += ones[num] + ' ';
-    
+
     return words.trim() + ' RUPEES ONLY';
   };
 
@@ -919,10 +926,10 @@ setLoggedInEmployee(employee?.name || "Sales Person");
     const totals = calculateTotals();
     const productsHTML = products.filter(p => p.name).map((p, i) => {
       const subtotal = p.qty * p.price;
-      const afterDiscount = subtotal * (1 - p.discount/100);
+      const afterDiscount = subtotal * (1 - p.discount / 100);
       return `<tr><td>${i + 1}</td><td class="product-name">${p.name}</td><!--<td>-</td>--><td>${p.qty}</td><td>${p.price.toFixed(2)}</td><td>${p.discount}</td><td>${afterDiscount.toFixed(2)}</td></tr>`;
     }).join('');
-    
+
     const printTab = window.open('', '_blank');
     printTab.document.write(`
       <!DOCTYPE html>
@@ -1057,22 +1064,19 @@ setLoggedInEmployee(employee?.name || "Sales Person");
         <div className="absolute bottom-32 right-1/3 w-4 h-4 bg-green-400 rounded-full opacity-30 animate-float"></div>
       </div>
       {/* Mobile Header */}
-      <div className={`rounded-xl shadow-xl p-4 mb-4 border backdrop-blur-sm ${
-        isDarkMode 
-          ? 'bg-gray-800/90 border-gray-700 text-white' 
+      <div className={`rounded-xl shadow-xl p-4 mb-4 border backdrop-blur-sm ${isDarkMode
+          ? 'bg-gray-800/90 border-gray-700 text-white'
           : 'bg-white/90 border-gray-100 text-gray-800'
-      }`}>
+        }`}>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div className="animate-slideInLeft w-full text-center sm:text-left">
-            <h2 className={`text-xl font-bold flex items-center justify-center sm:justify-start gap-2 ${
-              isDarkMode ? 'text-white' : 'text-gray-800'
-            }`}>
-              <FaFileInvoice className="text-2xl text-blue-600 animate-pulse" /> 
+            <h2 className={`text-xl font-bold flex items-center justify-center sm:justify-start gap-2 ${isDarkMode ? 'text-white' : 'text-gray-800'
+              }`}>
+              <FileText className="text-2xl text-blue-600 animate-pulse" size={24} />
               {editingBill ? 'Edit Bill' : 'Create New Bill'}
             </h2>
-            <p className={`text-sm ${
-              isDarkMode ? 'text-gray-300' : 'text-gray-600'
-            }`}>
+            <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'
+              }`}>
               {editingBill ? `Editing Invoice: ${editingBill.invoiceNo}` : 'Generate professional invoices'}
             </p>
           </div>
@@ -1082,39 +1086,35 @@ setLoggedInEmployee(employee?.name || "Sales Person");
       {/* Customer & Company Details */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         {/* Customer Details Card */}
-        <div className={`rounded-xl shadow-xl p-4 md:p-6 border animate-slideInLeft backdrop-blur-sm ${
-          isDarkMode 
-            ? 'bg-gray-800/95 border-gray-700 text-white' 
+        <div className={`rounded-xl shadow-xl p-4 md:p-6 border animate-slideInLeft backdrop-blur-sm ${isDarkMode
+            ? 'bg-gray-800/95 border-gray-700 text-white'
             : 'bg-white/95 border-gray-100 text-gray-800'
-        }`}>
-          <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${
-            isDarkMode ? 'text-white' : 'text-gray-800'
           }`}>
-            <FaUser className="text-xl text-blue-600 animate-pulse" /> Customer Details
+          <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-800'
+            }`}>
+            <User className="text-xl text-blue-600 animate-pulse" size={20} /> Customer Details
           </h3>
           <div className="customer-details space-y-4">
-            <div className="animate-fadeInUp" style={{animationDelay: '0.1s'}}>
-              <label className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-red-400' : 'text-red-600'
-              }`}>Customer Name *</label>
-              <input 
-                type="text" 
-                className={`w-full p-3 border-2 rounded-lg focus:ring-4 focus:ring-blue-100 transition-all duration-300 hover:shadow-md ${
-                  isDarkMode 
-                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400 hover:border-blue-500' 
+            <div className="animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
+              <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-red-400' : 'text-red-600'
+                }`}>Customer Name *</label>
+              <input
+                type="text"
+                className={`w-full p-3 border-2 rounded-lg focus:ring-4 focus:ring-blue-100 transition-all duration-300 hover:shadow-md ${isDarkMode
+                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400 hover:border-blue-500'
                     : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500 hover:border-blue-300'
-                }`} 
+                  }`}
                 placeholder="Enter customer name (letters only)"
                 value={customerFormData.name}
                 onChange={handleCustomerNameChange}
               />
             </div>
-            <div className="animate-fadeInUp" style={{animationDelay: '0.2s'}}>
+            <div className="animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
               <label className="block text-sm font-medium text-red-600 mb-1">Phone Number *</label>
-              <input 
-                type="tel" 
-                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 hover:border-blue-300 hover:shadow-md" 
-                placeholder="Enter phone number (numbers only)" 
+              <input
+                type="tel"
+                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 hover:border-blue-300 hover:shadow-md"
+                placeholder="Enter phone number (numbers only)"
                 maxLength="10"
                 value={customerFormData.phone}
                 onChange={handlePhoneChange}
@@ -1130,29 +1130,27 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                 onChange={(e) => setCustomerFormData({...customerFormData, gst: e.target.value})}
               />
             </div> */}
-            <div className="animate-fadeInUp" style={{animationDelay: '0.4s'}}>
+            <div className="animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
               <label className="block text-sm font-medium text-red-600 mb-1">Invoice Address *</label>
-              <textarea 
-                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 resize-none hover:border-blue-300 hover:shadow-md" 
-                rows="3" 
+              <textarea
+                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 resize-none hover:border-blue-300 hover:shadow-md"
+                rows="3"
                 placeholder="Enter complete address"
                 value={customerFormData.address}
-                onChange={(e) => setCustomerFormData({...customerFormData, address: e.target.value})}
+                onChange={(e) => setCustomerFormData({ ...customerFormData, address: e.target.value })}
               ></textarea>
             </div>
           </div>
         </div>
 
         {/* Company Details Card */}
-        <div className={`rounded-xl shadow-xl p-4 md:p-6 border animate-slideInRight backdrop-blur-sm ${
-          isDarkMode 
-            ? 'bg-gray-800/95 border-gray-700 text-white' 
+        <div className={`rounded-xl shadow-xl p-4 md:p-6 border animate-slideInRight backdrop-blur-sm ${isDarkMode
+            ? 'bg-gray-800/95 border-gray-700 text-white'
             : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-300 text-gray-800'
-        }`}>
-          <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${
-            isDarkMode ? 'text-white' : 'text-gray-800'
           }`}>
-            <FaBuilding className="text-xl text-green-600 animate-pulse" /> Company Details
+          <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-800'
+            }`}>
+            <Building className="text-xl text-green-600 animate-pulse" size={20} /> Company Details
           </h3>
           <div className="company-details space-y-4">
             <div>
@@ -1161,10 +1159,12 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                 {companyLogo ? (
                   <img src={companyLogo} alt="Company Logo" className="w-16 h-16 object-contain border rounded" />
                 ) : (
-                  <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-3 rounded-lg text-xs font-bold text-center min-w-20">SMART<br/>SALES</div>
+                  <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-3 rounded-lg text-xs font-bold text-center min-w-20">SMART<br />SALES</div>
                 )}
                 <input type="file" id="logo-upload" accept="image/*" className="hidden" onChange={handleLogoUpload} />
-                <label htmlFor="logo-upload" className="bg-gray-600 text-white px-3 py-2 rounded-lg text-xs cursor-pointer hover:bg-gray-700 transition-colors">📁 Choose File</label>
+                <label htmlFor="logo-upload" className="bg-gray-600 text-white px-3 py-2 rounded-lg text-xs cursor-pointer hover:bg-gray-700 transition-colors flex items-center gap-2">
+                  <ImageIcon size={14} /> Choose File
+                </label>
                 <span className="text-xs text-gray-500">{companyLogo ? 'Logo uploaded' : 'No file chosen'}</span>
               </div>
             </div>
@@ -1182,47 +1182,41 @@ setLoggedInEmployee(employee?.name || "Sales Person");
               </div>
             </div>
             <div>
-              <label className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}>Company Name</label>
-              <input 
-                type="text" 
-                className={`w-full p-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 transition-all ${
-                  isDarkMode 
-                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400' 
+              <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>Company Name</label>
+              <input
+                type="text"
+                className={`w-full p-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 transition-all ${isDarkMode
+                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400'
                     : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500'
-                }`} 
+                  }`}
                 placeholder="Enter company name (letters & business chars only)"
                 value={companyDetails.name}
                 onChange={handleCompanyNameChange}
               />
             </div>
             <div>
-              <label className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}>Company Address</label>
-              <textarea 
-                className={`w-full p-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 transition-all resize-none ${
-                  isDarkMode 
-                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400' 
+              <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>Company Address</label>
+              <textarea
+                className={`w-full p-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 transition-all resize-none ${isDarkMode
+                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400'
                     : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500'
-                }`} 
-                rows="3" 
+                  }`}
+                rows="3"
                 value={companyDetails.address}
-                onChange={(e) => setCompanyDetails({...companyDetails, address: e.target.value})}
+                onChange={(e) => setCompanyDetails({ ...companyDetails, address: e.target.value })}
               ></textarea>
             </div>
             <div>
-              <label className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}>Phone Number</label>
-              <input 
-                type="text" 
-                className={`w-full p-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 transition-all ${
-                  isDarkMode 
-                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400' 
+              <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>Phone Number</label>
+              <input
+                type="text"
+                className={`w-full p-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 transition-all ${isDarkMode
+                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400'
                     : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500'
-                }`} 
+                  }`}
                 placeholder="Enter phone number (numbers only)"
                 maxLength="10"
                 value={companyDetails.phone}
@@ -1244,19 +1238,17 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                 onChange={(e) => setCompanyDetails({...companyDetails, gst: e.target.value})}
               />
             </div> */}
-           
+
             <div>
-              <label className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}>Payment Method</label>
-              <select className={`w-full p-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 transition-all ${
-                isDarkMode 
-                  ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400' 
+              <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>Payment Method</label>
+              <select className={`w-full p-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 transition-all ${isDarkMode
+                  ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400'
                   : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500'
-              }`}>
-                <option>💵 Cash</option>
-                <option>💳 Card</option>
-                <option>📱 UPI</option>
+                }`}>
+                <option>Cash</option>
+                <option>Card</option>
+                <option>UPI</option>
               </select>
             </div>
           </div>
@@ -1264,22 +1256,20 @@ setLoggedInEmployee(employee?.name || "Sales Person");
       </div>
 
       {/* Products Section */}
-      <div className={`rounded-xl shadow-xl p-4 md:p-6 mb-6 border animate-fadeInUp backdrop-blur-sm ${
-        isDarkMode 
-          ? 'bg-gray-800/95 border-gray-700 text-white' 
+      <div className={`rounded-xl shadow-xl p-4 md:p-6 mb-6 border animate-fadeInUp backdrop-blur-sm ${isDarkMode
+          ? 'bg-gray-800/95 border-gray-700 text-white'
           : 'bg-white/95 border-gray-100 text-gray-800'
-      }`}>
+        }`}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className={`text-lg font-semibold flex items-center gap-2 ${
-            isDarkMode ? 'text-white' : 'text-gray-800'
-          }`}>
-            <FaBox className="text-xl text-purple-600 animate-pulse" /> Products & Services
+          <h3 className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-800'
+            }`}>
+            <Package className="text-xl text-purple-600 animate-pulse" size={20} /> Products & Services
           </h3>
           <button className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md flex items-center gap-2" onClick={addNewRow}>
-            <FaPlus className="animate-bounce" /> Add Product
+            <Plus size={18} className="animate-bounce" /> Add Product
           </button>
         </div>
-        
+
         {/* Mobile-Optimized Product List */}
         <div className="space-y-3 md:hidden" id="mobile-products">
           {products.map((product) => (
@@ -1287,9 +1277,9 @@ setLoggedInEmployee(employee?.name || "Sales Person");
               <div className="grid grid-cols-2 gap-3 mb-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Product Name</label>
-                  <input 
-                    type="text" 
-                    className="w-full p-2 border border-gray-300 rounded text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-300 hover:shadow-md" 
+                  <input
+                    type="text"
+                    className="w-full p-2 border border-gray-300 rounded text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-300 hover:shadow-md"
                     placeholder="Product name"
                     value={product.name}
                     onChange={(e) => updateProduct(product.id, 'name', e.target.value)}
@@ -1297,10 +1287,10 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Quantity</label>
-                  <input 
-                    type="number" 
-                    className="w-full p-2 border border-gray-300 rounded text-sm text-center focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-300 hover:shadow-md" 
-                    value={product.qty} 
+                  <input
+                    type="number"
+                    className="w-full p-2 border border-gray-300 rounded text-sm text-center focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-300 hover:shadow-md"
+                    value={product.qty}
                     min="1"
                     onChange={(e) => updateProduct(product.id, 'qty', parseInt(e.target.value) || 1)}
                   />
@@ -1309,34 +1299,34 @@ setLoggedInEmployee(employee?.name || "Sales Person");
               <div className="grid grid-cols-2 gap-2 mb-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Price (₹)</label>
-                  <input 
-                    type="number" 
-                    className="w-full p-2 border border-gray-300 rounded text-sm text-center focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-300 hover:shadow-md" 
-                    value={product.price} 
-                    min="0" 
+                  <input
+                    type="number"
+                    className="w-full p-2 border border-gray-300 rounded text-sm text-center focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-300 hover:shadow-md"
+                    value={product.price}
+                    min="0"
                     step="0.01"
                     onChange={(e) => updateProduct(product.id, 'price', parseFloat(e.target.value) || 0)}
-                    onFocus={(e) => { if(e.target.value == '0') e.target.select(); }}
-                    onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
+                    onFocus={(e) => { if (e.target.value == '0') e.target.select(); }}
+                    onKeyDown={(e) => { if (e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Disc %</label>
-                  <input 
-                    type="number" 
-                    className="w-full p-2 border border-gray-300 rounded text-sm text-center focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-300 hover:shadow-md" 
-                    value={product.discount} 
-                    min="0" 
+                  <input
+                    type="number"
+                    className="w-full p-2 border border-gray-300 rounded text-sm text-center focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-300 hover:shadow-md"
+                    value={product.discount}
+                    min="0"
                     max="100"
                     onChange={(e) => updateProduct(product.id, 'discount', parseFloat(e.target.value) || 0)}
-                    onFocus={(e) => { if(e.target.value == '0') e.target.select(); }}
-                    onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
+                    onFocus={(e) => { if (e.target.value == '0') e.target.select(); }}
+                    onKeyDown={(e) => { if (e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
                   />
                 </div>
               </div>
               <div className="flex justify-between items-center">
                 <div className="text-sm font-semibold text-gray-700 animate-pulse">Amount: ₹ <span className="text-green-600">{calculateRowAmount(product).toFixed(2)}</span></div>
-                <button 
+                <button
                   className="bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm hover:bg-red-600 hover:scale-110 transition-all duration-300 shadow-md"
                   onClick={() => deleteRow(product.id)}
                   disabled={products.length === 1}
@@ -1350,105 +1340,86 @@ setLoggedInEmployee(employee?.name || "Sales Person");
 
         {/* Desktop Table */}
         <div className="hidden md:block overflow-x-auto">
-          <table className={`products-table w-full border-collapse border rounded-lg overflow-hidden ${
-            isDarkMode ? 'border-gray-600' : 'border-gray-200'
-          }`}>
+          <table className={`products-table w-full border-collapse border rounded-lg overflow-hidden ${isDarkMode ? 'border-gray-600' : 'border-gray-200'
+            }`}>
             <thead>
-              <tr className={`${
-                isDarkMode ? 'bg-gray-700' : 'bg-gradient-to-r from-gray-100 to-gray-200'
-              }`}>
-                <th className={`p-3 text-left font-semibold border-b ${
-                  isDarkMode ? 'text-gray-200 border-gray-600' : 'text-gray-700 border-gray-300'
-                }`}>Product</th>
-                <th className={`p-3 text-center font-semibold border-b ${
-                  isDarkMode ? 'text-gray-200 border-gray-600' : 'text-gray-700 border-gray-300'
-                }`}>Qty</th>
-                <th className={`p-3 text-center font-semibold border-b ${
-                  isDarkMode ? 'text-gray-200 border-gray-600' : 'text-gray-700 border-gray-300'
-                }`}>Price</th>
-                <th className={`p-3 text-center font-semibold border-b ${
-                  isDarkMode ? 'text-gray-200 border-gray-600' : 'text-gray-700 border-gray-300'
-                }`}>Disc%</th>
-                <th className={`p-3 text-center font-semibold border-b ${
-                  isDarkMode ? 'text-gray-200 border-gray-600' : 'text-gray-700 border-gray-300'
-                }`}>Amount</th>
-                <th className={`p-3 text-center font-semibold border-b ${
-                  isDarkMode ? 'text-gray-200 border-gray-600' : 'text-gray-700 border-gray-300'
-                }`}>Action</th>
+              <tr className={`${isDarkMode ? 'bg-gray-700' : 'bg-gradient-to-r from-gray-100 to-gray-200'
+                }`}>
+                <th className={`p-3 text-left font-semibold border-b ${isDarkMode ? 'text-gray-200 border-gray-600' : 'text-gray-700 border-gray-300'
+                  }`}>Product</th>
+                <th className={`p-3 text-center font-semibold border-b ${isDarkMode ? 'text-gray-200 border-gray-600' : 'text-gray-700 border-gray-300'
+                  }`}>Qty</th>
+                <th className={`p-3 text-center font-semibold border-b ${isDarkMode ? 'text-gray-200 border-gray-600' : 'text-gray-700 border-gray-300'
+                  }`}>Price</th>
+                <th className={`p-3 text-center font-semibold border-b ${isDarkMode ? 'text-gray-200 border-gray-600' : 'text-gray-700 border-gray-300'
+                  }`}>Disc%</th>
+                <th className={`p-3 text-center font-semibold border-b ${isDarkMode ? 'text-gray-200 border-gray-600' : 'text-gray-700 border-gray-300'
+                  }`}>Amount</th>
+                <th className={`p-3 text-center font-semibold border-b ${isDarkMode ? 'text-gray-200 border-gray-600' : 'text-gray-700 border-gray-300'
+                  }`}>Action</th>
               </tr>
             </thead>
             <tbody>
               {products.map((product) => (
-                <tr key={product.id} className={`transition-colors ${
-                  isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
-                }`}>
-                  <td className={`p-3 border-b ${
-                    isDarkMode ? 'border-gray-600' : 'border-gray-200'
+                <tr key={product.id} className={`transition-colors ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
                   }`}>
-                    <input 
-                      type="text" 
-                      className={`w-full p-2 border-0 bg-transparent text-sm rounded ${
-                        isDarkMode ? 'focus:bg-gray-600 text-white placeholder-gray-400' : 'focus:bg-gray-100 text-gray-900 placeholder-gray-500'
-                      }`} 
+                  <td className={`p-3 border-b ${isDarkMode ? 'border-gray-600' : 'border-gray-200'
+                    }`}>
+                    <input
+                      type="text"
+                      className={`w-full p-2 border-0 bg-transparent text-sm rounded ${isDarkMode ? 'focus:bg-gray-600 text-white placeholder-gray-400' : 'focus:bg-gray-100 text-gray-900 placeholder-gray-500'
+                        }`}
                       placeholder="Product name"
                       value={product.name}
                       onChange={(e) => updateProduct(product.id, 'name', e.target.value)}
                     />
                   </td>
-                  <td className={`p-3 border-b text-center ${
-                    isDarkMode ? 'border-gray-600' : 'border-gray-200'
-                  }`}>
-                    <input 
-                      type="number" 
-                      className={`w-16 p-2 border-0 bg-transparent text-sm text-center rounded ${
-                        isDarkMode ? 'focus:bg-gray-600 text-white' : 'focus:bg-gray-100 text-gray-900'
-                      }`} 
-                      value={product.qty} 
+                  <td className={`p-3 border-b text-center ${isDarkMode ? 'border-gray-600' : 'border-gray-200'
+                    }`}>
+                    <input
+                      type="number"
+                      className={`w-16 p-2 border-0 bg-transparent text-sm text-center rounded ${isDarkMode ? 'focus:bg-gray-600 text-white' : 'focus:bg-gray-100 text-gray-900'
+                        }`}
+                      value={product.qty}
                       min="1"
                       onChange={(e) => updateProduct(product.id, 'qty', parseInt(e.target.value) || 1)}
                     />
                   </td>
-                  <td className={`p-3 border-b text-center ${
-                    isDarkMode ? 'border-gray-600' : 'border-gray-200'
-                  }`}>
-                    <input 
-                      type="number" 
-                      className={`w-20 p-2 border-0 bg-transparent text-sm text-center rounded ${
-                        isDarkMode ? 'focus:bg-gray-600 text-white' : 'focus:bg-gray-100 text-gray-900'
-                      }`} 
-                      value={product.price} 
-                      min="0" 
+                  <td className={`p-3 border-b text-center ${isDarkMode ? 'border-gray-600' : 'border-gray-200'
+                    }`}>
+                    <input
+                      type="number"
+                      className={`w-20 p-2 border-0 bg-transparent text-sm text-center rounded ${isDarkMode ? 'focus:bg-gray-600 text-white' : 'focus:bg-gray-100 text-gray-900'
+                        }`}
+                      value={product.price}
+                      min="0"
                       step="0.01"
                       onChange={(e) => updateProduct(product.id, 'price', parseFloat(e.target.value) || 0)}
-                      onFocus={(e) => { if(e.target.value == '0') e.target.select(); }}
-                      onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
+                      onFocus={(e) => { if (e.target.value == '0') e.target.select(); }}
+                      onKeyDown={(e) => { if (e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
                     />
                   </td>
-                  <td className={`p-3 border-b text-center ${
-                    isDarkMode ? 'border-gray-600' : 'border-gray-200'
-                  }`}>
-                    <input 
-                      type="number" 
-                      className={`w-16 p-2 border-0 bg-transparent text-sm text-center rounded ${
-                        isDarkMode ? 'focus:bg-gray-600 text-white' : 'focus:bg-gray-100 text-gray-900'
-                      }`} 
-                      value={product.discount} 
-                      min="0" 
+                  <td className={`p-3 border-b text-center ${isDarkMode ? 'border-gray-600' : 'border-gray-200'
+                    }`}>
+                    <input
+                      type="number"
+                      className={`w-16 p-2 border-0 bg-transparent text-sm text-center rounded ${isDarkMode ? 'focus:bg-gray-600 text-white' : 'focus:bg-gray-100 text-gray-900'
+                        }`}
+                      value={product.discount}
+                      min="0"
                       max="100"
                       onChange={(e) => updateProduct(product.id, 'discount', parseFloat(e.target.value) || 0)}
-                      onFocus={(e) => { if(e.target.value == '0') e.target.select(); }}
-                      onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
+                      onFocus={(e) => { if (e.target.value == '0') e.target.select(); }}
+                      onKeyDown={(e) => { if (e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
                     />
                   </td>
-                  <td className={`p-3 border-b text-center font-medium ${
-                    isDarkMode ? 'border-gray-600 text-gray-200' : 'border-gray-200 text-gray-700'
-                  }`}>
+                  <td className={`p-3 border-b text-center font-medium ${isDarkMode ? 'border-gray-600 text-gray-200' : 'border-gray-200 text-gray-700'
+                    }`}>
                     ₹ {calculateRowAmount(product).toFixed(2)}
                   </td>
-                  <td className={`p-3 border-b text-center ${
-                    isDarkMode ? 'border-gray-600' : 'border-gray-200'
-                  }`}>
-                    <button 
+                  <td className={`p-3 border-b text-center ${isDarkMode ? 'border-gray-600' : 'border-gray-200'
+                    }`}>
+                    <button
                       className="bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm hover:bg-red-600 transition-colors mx-auto"
                       onClick={() => deleteRow(product.id)}
                       disabled={products.length === 1}
@@ -1464,108 +1435,91 @@ setLoggedInEmployee(employee?.name || "Sales Person");
       </div>
 
       {/* Bill Summary */}
-      <div className={`rounded-xl shadow-xl p-4 md:p-6 border animate-fadeInUp backdrop-blur-sm ${
-        isDarkMode 
-          ? 'bg-gray-800/90 border-gray-700 text-white' 
+      <div className={`rounded-xl shadow-xl p-4 md:p-6 border animate-fadeInUp backdrop-blur-sm ${isDarkMode
+          ? 'bg-gray-800/90 border-gray-700 text-white'
           : 'bg-gradient-to-br from-blue-50 to-indigo-100 border-blue-200 text-gray-800'
-      }`}>
-        <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${
-          isDarkMode ? 'text-white' : 'text-gray-800'
         }`}>
-          <FaCalculator className="text-xl text-green-600 animate-pulse" /> Bill Summary
+        <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-800'
+          }`}>
+          <Calculator className="text-xl text-green-600 animate-pulse" size={20} /> Bill Summary
         </h3>
-        <div className={`rounded-lg p-4 space-y-3 shadow-inner ${
-          isDarkMode ? 'bg-gray-700/50' : 'bg-white'
-        }`}>
-          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b transition-all duration-300 rounded px-2 ${
-            isDarkMode 
-              ? 'border-gray-600 hover:bg-gray-700 text-gray-200' 
+        <div className={`rounded-lg p-4 space-y-3 shadow-inner ${isDarkMode ? 'bg-gray-700/50' : 'bg-white'
+          }`}>
+          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b transition-all duration-300 rounded px-2 ${isDarkMode
+              ? 'border-gray-600 hover:bg-gray-700 text-gray-200'
               : 'border-gray-100 hover:bg-gray-50 text-gray-800'
-          }`}>
-            <span className={`text-sm mb-1 sm:mb-0 ${
-              isDarkMode ? 'text-gray-300' : 'text-gray-600'
-            }`}>Untaxed Amount:</span>
-            <span className={`font-semibold animate-pulse ${
-              isDarkMode ? 'text-gray-100' : 'text-gray-800'
-            }`}>₹ {calculateTotals().subtotal.toFixed(2)}</span>
+            }`}>
+            <span className={`text-sm mb-1 sm:mb-0 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'
+              }`}>Untaxed Amount:</span>
+            <span className={`font-semibold animate-pulse ${isDarkMode ? 'text-gray-100' : 'text-gray-800'
+              }`}>₹ {calculateTotals().subtotal.toFixed(2)}</span>
           </div>
-          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b transition-all duration-300 rounded px-2 ${
-            isDarkMode 
-              ? 'border-gray-600 hover:bg-gray-700 text-gray-200' 
+          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b transition-all duration-300 rounded px-2 ${isDarkMode
+              ? 'border-gray-600 hover:bg-gray-700 text-gray-200'
               : 'border-gray-100 hover:bg-gray-50 text-gray-800'
-          }`}>
-            <span className={`text-sm mb-1 sm:mb-0 ${
-              isDarkMode ? 'text-gray-300' : 'text-gray-600'
-            }`}>Discount Amount:</span>
-            <span className={`font-semibold animate-pulse ${
-              isDarkMode ? 'text-gray-100' : 'text-gray-800'
-            }`}>₹ {calculateTotals().totalDiscount.toFixed(2)}</span>
+            }`}>
+            <span className={`text-sm mb-1 sm:mb-0 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'
+              }`}>Discount Amount:</span>
+            <span className={`font-semibold animate-pulse ${isDarkMode ? 'text-gray-100' : 'text-gray-800'
+              }`}>₹ {calculateTotals().totalDiscount.toFixed(2)}</span>
           </div>
-          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b ${
-            isDarkMode ? 'border-gray-600' : 'border-gray-100'
-          }`}>
+          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b ${isDarkMode ? 'border-gray-600' : 'border-gray-100'
+            }`}>
             <div className="flex flex-wrap items-center gap-2 mb-1 sm:mb-0">
-              <input 
-                type="checkbox" 
-                checked={cgstEnabled} 
-                onChange={(e) => setCgstEnabled(e.target.checked)} 
-                className="rounded" 
+              <input
+                type="checkbox"
+                checked={cgstEnabled}
+                onChange={(e) => setCgstEnabled(e.target.checked)}
+                className="rounded"
               />
-              <span className={`text-sm ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-600'
-              }`}>CGST:</span>
-              <input 
-                type="number" 
-                className={`w-12 p-1 border rounded text-xs text-center ${
-                  isDarkMode 
-                    ? 'border-gray-600 bg-gray-700 text-white' 
+              <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                }`}>CGST:</span>
+              <input
+                type="number"
+                className={`w-12 p-1 border rounded text-xs text-center ${isDarkMode
+                    ? 'border-gray-600 bg-gray-700 text-white'
                     : 'border-gray-300 bg-white text-gray-900'
-                }`} 
-                value={cgstRate} 
-                min="0" 
+                  }`}
+                value={cgstRate}
+                min="0"
                 max="9"
                 step="0.01"
                 onChange={handleCgstChange}
-                onFocus={(e) => { if(e.target.value == '0') e.target.select(); }}
-                onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
+                onFocus={(e) => { if (e.target.value == '0') e.target.select(); }}
+                onKeyDown={(e) => { if (e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
               />%
             </div>
-            <span className={`font-semibold ${
-              isDarkMode ? 'text-gray-100' : 'text-gray-800'
-            }`}>₹ {calculateTotals().cgstAmount.toFixed(2)}</span>
+            <span className={`font-semibold ${isDarkMode ? 'text-gray-100' : 'text-gray-800'
+              }`}>₹ {calculateTotals().cgstAmount.toFixed(2)}</span>
           </div>
-          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b ${
-            isDarkMode ? 'border-gray-600' : 'border-gray-100'
-          }`}>
+          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b ${isDarkMode ? 'border-gray-600' : 'border-gray-100'
+            }`}>
             <div className="flex flex-wrap items-center gap-2 mb-1 sm:mb-0">
-              <input 
-                type="checkbox" 
-                checked={sgstEnabled} 
-                onChange={(e) => setSgstEnabled(e.target.checked)} 
-                className="rounded" 
+              <input
+                type="checkbox"
+                checked={sgstEnabled}
+                onChange={(e) => setSgstEnabled(e.target.checked)}
+                className="rounded"
               />
-              <span className={`text-sm ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-600'
-              }`}>SGST:</span>
-              <input 
-                type="number" 
-                className={`w-12 p-1 border rounded text-xs text-center ${
-                  isDarkMode 
-                    ? 'border-gray-600 bg-gray-700 text-white' 
+              <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                }`}>SGST:</span>
+              <input
+                type="number"
+                className={`w-12 p-1 border rounded text-xs text-center ${isDarkMode
+                    ? 'border-gray-600 bg-gray-700 text-white'
                     : 'border-gray-300 bg-white text-gray-900'
-                }`} 
-                value={sgstRate} 
-                min="0" 
+                  }`}
+                value={sgstRate}
+                min="0"
                 max="9"
                 step="0.01"
                 onChange={handleSgstChange}
-                onFocus={(e) => { if(e.target.value == '0') e.target.select(); }}
-                onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
+                onFocus={(e) => { if (e.target.value == '0') e.target.select(); }}
+                onKeyDown={(e) => { if (e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
               />%
             </div>
-            <span className={`font-semibold ${
-              isDarkMode ? 'text-gray-100' : 'text-gray-800'
-            }`}>₹ {calculateTotals().sgstAmount.toFixed(2)}</span>
+            <span className={`font-semibold ${isDarkMode ? 'text-gray-100' : 'text-gray-800'
+              }`}>₹ {calculateTotals().sgstAmount.toFixed(2)}</span>
           </div>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg px-4 border-2 border-blue-200">
             <span className="text-base sm:text-lg font-bold text-blue-800 mb-1 sm:mb-0">Total Amount:</span>
@@ -1574,11 +1528,11 @@ setLoggedInEmployee(employee?.name || "Sales Person");
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg px-4 border-2 border-green-200 mt-2">
             <span className="text-base sm:text-lg font-bold text-green-800 mb-1 sm:mb-0">Paid Amount:</span>
             <div className="flex items-center gap-2">
-              <input 
-                type="number" 
-                className="w-24 p-2 border-2 border-green-300 rounded-lg text-base font-bold text-green-800 text-center focus:border-green-500 focus:ring-2 focus:ring-green-200" 
-                value={advance} 
-                min="0" 
+              <input
+                type="number"
+                className="w-24 p-2 border-2 border-green-300 rounded-lg text-base font-bold text-green-800 text-center focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                value={advance}
+                min="0"
                 step="0.01"
                 onChange={(e) => {
                   const advanceValue = parseFloat(e.target.value) || 0;
@@ -1591,8 +1545,8 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                     setPaymentStatus('Unpaid');
                   }
                 }}
-                onFocus={(e) => { if(e.target.value == '0') e.target.select(); }}
-                onKeyDown={(e) => { if(e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
+                onFocus={(e) => { if (e.target.value == '0') e.target.select(); }}
+                onKeyDown={(e) => { if (e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); }}
               />
               <span className="text-lg sm:text-xl font-bold text-green-800">₹</span>
             </div>
@@ -1602,42 +1556,40 @@ setLoggedInEmployee(employee?.name || "Sales Person");
             <span className="text-lg sm:text-xl font-bold text-orange-800">₹ {calculateTotals().balanceAmount.toFixed(2)}</span>
           </div>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 py-2 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg px-4 border border-gray-200 mt-2">
-            <span className={`px-3 py-1 rounded-lg font-bold text-sm ${
-              calculateTotals().balanceAmount === 0 
-                ? 'bg-green-500 text-white' 
+            <span className={`px-3 py-1 rounded-lg font-bold text-sm ${calculateTotals().balanceAmount === 0
+                ? 'bg-green-500 text-white'
                 : calculateTotals().balanceAmount === calculateTotals().grandTotal
-                ? 'bg-red-500 text-white'
-                : 'bg-orange-500 text-white'
-            }`}>
-              {calculateTotals().balanceAmount === 0 
-                ? 'Paid' 
+                  ? 'bg-red-500 text-white'
+                  : 'bg-orange-500 text-white'
+              }`}>
+              {calculateTotals().balanceAmount === 0
+                ? 'Paid'
                 : calculateTotals().balanceAmount === calculateTotals().grandTotal
-                ? 'Unpaid'
-                : 'Balance'}
+                  ? 'Unpaid'
+                  : 'Balance'}
             </span>
             <button className="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-4 py-2 rounded-lg font-medium shadow-md flex items-center gap-2 justify-center hover:from-indigo-700 hover:to-indigo-800 transition-all" onClick={() => handleAction('preview')}>
-              <FaFileInvoice className="animate-pulse" /> Generate Bill
+              <FileText className="animate-pulse" size={18} /> Generate Bill
             </button>
           </div>
           <div className="flex flex-wrap gap-2 mt-3 justify-center">
             <button className="flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('send')}>
-              <FaPaperPlane className="animate-bounce" /> Send
+              <Send className="animate-bounce" size={16} /> Send
             </button>
             <button className="flex-1 sm:flex-none bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('print')}>
-              <FaPrint className="hover:animate-spin" /> Print
+              <Printer className="hover:animate-spin" size={16} /> Print
             </button>
           </div>
           <div className="flex items-center gap-2 mt-2">
-            <input 
-              type="checkbox" 
-              id="companyWatermark" 
-              checked={showCompanyWatermark} 
+            <input
+              type="checkbox"
+              id="companyWatermark"
+              checked={showCompanyWatermark}
               onChange={(e) => setShowCompanyWatermark(e.target.checked)}
-              className="rounded" 
+              className="rounded"
             />
-            <label htmlFor="companyWatermark" className={`text-sm ${
-              isDarkMode ? 'text-gray-300' : 'text-gray-600'
-            }`}>Show Company Watermark</label>
+            <label htmlFor="companyWatermark" className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'
+              }`}>Show Company Watermark</label>
           </div>
         </div>
       </div>
@@ -1650,28 +1602,28 @@ setLoggedInEmployee(employee?.name || "Sales Person");
       }`}>
         <div className="flex flex-wrap gap-2 w-full animate-slideInRight justify-center">
           <button className="flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('send')}>
-            <FaPaperPlane className="animate-bounce" /> Send
+            <Send className="animate-bounce" size={16} /> Send
           </button>
           <button className="flex-1 sm:flex-none bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('print')}>
-            <FaPrint className="hover:animate-spin" /> Print
+            <Printer className="hover:animate-spin" size={16} /> Print
           </button>
         </div>
       </div> */}
 
       {/* Preview Modal */}
       {showPreview && createPortal(
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{zIndex: 999999}} onClick={() => setShowPreview(false)}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{ zIndex: 999999 }} onClick={() => setShowPreview(false)}>
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-y-auto m-2 md:m-4" onClick={(e) => e.stopPropagation()}>
             <div className="p-3 md:p-6">
               <div className="flex justify-between items-center mb-4 md:mb-6">
-                <h3 className="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2">
-                  <span className="text-xl md:text-2xl">👁️</span> Invoice Preview
+                <h3 className="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-3">
+                  <Eye className="text-blue-600" size={24} /> Invoice Preview
                 </h3>
                 <button onClick={() => setShowPreview(false)} className="text-gray-500 hover:text-gray-700 text-xl md:text-2xl">
                   ×
                 </button>
               </div>
-              
+
               {/* Invoice Preview Content */}
               <div className="border border-gray-300 md:border-2 rounded-lg p-3 md:p-6 bg-white text-xs md:text-sm relative overflow-hidden">
                 {/* Company Watermark */}
@@ -1695,8 +1647,8 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                     <div className="flex-1">
                       <h1 className="text-lg md:text-xl font-bold">{companyDetails.name}</h1>
                       <p className="text-xs md:text-sm text-gray-600">
-                        {companyDetails.address}<br/>
-                        Phone: {companyDetails.phone}<br/>
+                        {companyDetails.address}<br />
+                        Phone: {companyDetails.phone}<br />
                         GST: {companyDetails.gst}
                       </p>
                       {/*<p className="text-xs md:text-sm font-medium mt-2">{companyDetails.brands}</p>*/}
@@ -1706,12 +1658,12 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                     <h2 className="text-xl md:text-2xl font-bold">INVOICE</h2>
                   </div>
                 </div>
-                
+
                 {/* Tax Invoice Header */}
                 <div className="bg-black text-white text-center py-2 mb-4 font-bold text-sm md:text-lg">
                   TAX INVOICE
                 </div>
-                
+
                 {/* Bill Details */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
                   <div className="bg-gray-50 p-3 md:p-4 rounded">
@@ -1731,8 +1683,8 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                       </div>
                       <div className="flex justify-between">
                         <span className="font-bold">Invoice Date:</span>
-                        <input 
-                          type="date" 
+                        <input
+                          type="date"
                           value={invoiceDate}
                           onChange={(e) => setInvoiceDate(e.target.value)}
                           className="text-sm border border-gray-300 rounded px-2 py-1 focus:border-blue-500 focus:outline-none"
@@ -1748,21 +1700,20 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                       </div>
                       <div className="flex justify-between">
                         <span className="font-bold">Payment Status:</span>
-                        <span className={`px-2 py-1 rounded text-xs font-bold ${
-                          paymentStatus === 'Paid' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
-                        }`}>{paymentStatus}</span>
+                        <span className={`px-2 py-1 rounded text-xs font-bold ${paymentStatus === 'Paid' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                          }`}>{paymentStatus}</span>
                       </div>
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Products Table - Mobile Cards */}
                 <div className="md:hidden mb-4">
                   <h4 className="font-bold mb-2">Products:</h4>
                   {products.map((product, index) => {
                     if (product.name) {
                       const subtotal = product.qty * product.price;
-                      const afterDiscount = subtotal * (1 - product.discount/100);
+                      const afterDiscount = subtotal * (1 - product.discount / 100);
                       return (
                         <div key={index} className="bg-gray-50 p-3 mb-2 rounded border">
                           <div className="flex justify-between items-start mb-2">
@@ -1780,7 +1731,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                     return null;
                   })}
                 </div>
-                
+
                 {/* Products Table - Desktop */}
                 <div className="hidden md:block mb-6">
                   <table className="w-full border-collapse border-2 border-black">
@@ -1798,7 +1749,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                       {products.map((product, index) => {
                         if (product.name) {
                           const subtotal = product.qty * product.price;
-                          const afterDiscount = subtotal * (1 - product.discount/100);
+                          const afterDiscount = subtotal * (1 - product.discount / 100);
                           return (
                             <tr key={index}>
                               <td className="border border-black p-2 text-center text-sm">{index + 1}</td>
@@ -1815,7 +1766,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                     </tbody>
                   </table>
                 </div>
-                
+
                 {/* Totals */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <div className="bg-gray-50 p-3 md:p-4 rounded">
@@ -1864,7 +1815,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Signatures */}
                 {/* <div className="grid grid-cols-2 gap-4 md:gap-6 mt-6 md:mt-8 pt-6 md:pt-8 border-t border-black md:border-t-2">
                   <div className="text-center">
@@ -1875,25 +1826,25 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                   </div>
                 </div> */}
                 <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-black md:border-t-2">
-                  <div className="text-right relative" style={{minHeight: '100px', paddingTop: '20px'}}>
+                  <div className="text-right relative" style={{ minHeight: '100px', paddingTop: '20px' }}>
                     {digitalSignature && (
                       <img src={digitalSignature} alt="Signature" className="w-32 h-16 object-contain absolute top-0 right-8" />
                     )}
-                    <div className="border-t border-black pt-2 font-bold text-xs md:text-sm inline-block min-w-[200px]" style={{marginTop: '60px'}}>
+                    <div className="border-t border-black pt-2 font-bold text-xs md:text-sm inline-block min-w-[200px]" style={{ marginTop: '60px' }}>
                       Authorized Signature
                     </div>
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex gap-3 mt-4 md:mt-6">
-                <button 
+                <button
                   onClick={openDirectPrintPreview}
                   className="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white py-2 md:py-3 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all text-sm md:text-base flex items-center gap-2 justify-center"
                 >
-                  <FaPrint className="animate-pulse" /> Print Bill
+                  <Printer className="animate-pulse" size={18} /> Print Bill
                 </button>
-                <button 
+                <button
                   onClick={() => setShowPreview(false)}
                   className="flex-1 bg-gray-500 text-white py-2 md:py-3 rounded-lg font-medium hover:bg-gray-600 transition-all text-sm md:text-base"
                 >
@@ -1908,7 +1859,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
 
       {/* Customer Details Popup */}
       {showCustomerPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{zIndex: 99999}} onClick={() => setShowCustomerPopup(false)}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{ zIndex: 99999 }} onClick={() => setShowCustomerPopup(false)}>
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto m-4" onClick={(e) => e.stopPropagation()}>
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
@@ -1919,26 +1870,26 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                   ×
                 </button>
               </div>
-              
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Customer Name *</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={customerFormData.name}
-                    onChange={(e) => setCustomerFormData({...customerFormData, name: e.target.value})}
-                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
-                    placeholder="Enter customer name" 
+                    onChange={(e) => setCustomerFormData({ ...customerFormData, name: e.target.value })}
+                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                    placeholder="Enter customer name"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
-                  <input 
-                    type="tel" 
+                  <input
+                    type="tel"
                     value={customerFormData.phone}
-                    onChange={(e) => setCustomerFormData({...customerFormData, phone: e.target.value.replace(/[^0-9]/g, '')})}
-                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" 
-                    placeholder="Enter phone number" 
+                    onChange={(e) => setCustomerFormData({ ...customerFormData, phone: e.target.value.replace(/[^0-9]/g, '') })}
+                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                    placeholder="Enter phone number"
                   />
                 </div>
                 {/* <div>
@@ -1953,18 +1904,18 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                 </div> */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Address *</label>
-                  <textarea 
+                  <textarea
                     value={customerFormData.address}
-                    onChange={(e) => setCustomerFormData({...customerFormData, address: e.target.value})}
-                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all resize-none" 
-                    rows="3" 
+                    onChange={(e) => setCustomerFormData({ ...customerFormData, address: e.target.value })}
+                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all resize-none"
+                    rows="3"
                     placeholder="Enter complete address"
                   ></textarea>
                 </div>
               </div>
-              
+
               <div className="flex gap-3 mt-6">
-                <button 
+                <button
                   onClick={executeAction}
                   className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 transition-all shadow-md"
                 >
@@ -1973,7 +1924,7 @@ setLoggedInEmployee(employee?.name || "Sales Person");
                   {pendingAction === 'preview' && '👁️ Preview'}
                   {pendingAction === 'send' && '📤 Send'}
                 </button>
-                <button 
+                <button
                   onClick={() => setShowCustomerPopup(false)}
                   className="flex-1 bg-gray-500 text-white py-3 rounded-lg font-medium hover:bg-gray-600 transition-all"
                 >

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from 'react-dom';
 import axios from "axios";
+import { Eye, Printer, Trash2 } from 'lucide-react';
 
 const InvoiceList = ({ bills, setBills }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -23,10 +24,10 @@ const InvoiceList = ({ bills, setBills }) => {
       }
     };
     fetchInvoices();
-    
+
     const savedLogo = localStorage.getItem('companyLogo');
     if (savedLogo) setCompanyLogo(savedLogo);
-    
+
     const savedSignature = localStorage.getItem('digitalSignature');
     if (savedSignature) setDigitalSignature(savedSignature);
   }, [setBills]);
@@ -72,7 +73,7 @@ const InvoiceList = ({ bills, setBills }) => {
   const calculateRowAmount = (item) => {
     const unitPrice = item.rate || item.price;
     const subtotal = item.quantity * unitPrice;
-    const afterDiscount = subtotal * (1 - (item.discount || 0)/100);
+    const afterDiscount = subtotal * (1 - (item.discount || 0) / 100);
     return afterDiscount;
   };
 
@@ -88,10 +89,10 @@ const InvoiceList = ({ bills, setBills }) => {
       grandTotal: bill.totalAmount,
       balanceAmount: bill.balanceAmount
     };
-    
+
     const productsHTML = bill.items && bill.items.length > 0
-      ? bill.items.map((item, index) => 
-          `<tr>
+      ? bill.items.map((item, index) =>
+        `<tr>
             <td class="border border-black p-2 text-center text-sm">${index + 1}</td>
             <td class="border border-black p-2 text-sm">${item.product?.name || item.itemName || 'Product'}</td>
             <td class="border border-black p-2 text-center text-sm">${item.quantity || 1}</td>
@@ -99,7 +100,7 @@ const InvoiceList = ({ bills, setBills }) => {
             <td class="border border-black p-2 text-center text-sm">${item.discount || 0}%</td>
             <td class="border border-black p-2 text-center text-sm">₹${calculateRowAmount(item).toFixed(2)}</td>
           </tr>`
-        ).join('')
+      ).join('')
       : `<tr>
           <td class="border border-black p-2 text-center text-sm">1</td>
           <td class="border border-black p-2 text-sm">Service</td>
@@ -268,34 +269,36 @@ const InvoiceList = ({ bills, setBills }) => {
                     ₹{bill.advanceAmount || 0}
                   </td>
                   <td
-                    className={`px-3 py-2 font-semibold ${
-                      bill.balanceAmount === 0
+                    className={`px-3 py-2 font-semibold ${bill.balanceAmount === 0
                         ? "text-green-600"
                         : bill.balanceAmount < bill.totalAmount
-                        ? "text-yellow-600"
-                        : "text-red-600"
-                    }`}
+                          ? "text-yellow-600"
+                          : "text-red-600"
+                      }`}
                   >
                     ₹{bill.balanceAmount}
                   </td>
-                  <td className="px-3 py-2 flex gap-3">
+                  <td className="px-3 py-2 flex gap-2">
                     <button
                       onClick={() => setSelectedInvoice(bill)}
-                      className="text-blue-600 hover:underline"
+                      className="bg-blue-500 text-white p-2.5 rounded-lg hover:bg-blue-600 transition-colors shadow-sm"
+                      title="View Invoice"
                     >
-                      View
+                      <Eye size={20} />
                     </button>
                     <button
                       onClick={() => { setSelectedInvoice(bill); setTimeout(printInvoice, 100); }}
-                      className="text-green-600 hover:underline"
+                      className="bg-green-500 text-white p-2.5 rounded-lg hover:bg-green-600 transition-colors shadow-sm"
+                      title="Print Invoice"
                     >
-                      Print
+                      <Printer size={20} />
                     </button>
                     <button
                       onClick={() => deleteInvoice(bill.id)}
-                      className="text-red-600 hover:underline"
+                      className="bg-red-500 text-white p-2.5 rounded-lg hover:bg-red-600 transition-colors shadow-sm"
+                      title="Delete Invoice"
                     >
-                      Delete
+                      <Trash2 size={20} />
                     </button>
                   </td>
                 </tr>
@@ -331,13 +334,12 @@ const InvoiceList = ({ bills, setBills }) => {
                   </p>
                 </div>
                 <span
-                  className={`px-2 py-1 rounded text-xs font-semibold ${
-                    bill.balanceAmount === 0
+                  className={`px-2 py-1 rounded text-xs font-semibold ${bill.balanceAmount === 0
                       ? "bg-green-100 text-green-600"
                       : bill.balanceAmount < bill.totalAmount
-                      ? "bg-yellow-100 text-yellow-600"
-                      : "bg-red-100 text-red-600"
-                  }`}
+                        ? "bg-yellow-100 text-yellow-600"
+                        : "bg-red-100 text-red-600"
+                    }`}
                 >
                   ₹{bill.balanceAmount} Due
                 </span>
@@ -357,21 +359,24 @@ const InvoiceList = ({ bills, setBills }) => {
               <div className="flex gap-2">
                 <button
                   onClick={() => setSelectedInvoice(bill)}
-                  className="flex-1 bg-blue-500 text-white py-2 rounded text-sm hover:bg-blue-600"
+                  className="flex-1 bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all flex items-center justify-center shadow-sm active:scale-95"
+                  title="View Invoice"
                 >
-                  View
+                  <Eye size={20} />
                 </button>
                 <button
                   onClick={() => { setSelectedInvoice(bill); setTimeout(printInvoice, 100); }}
-                  className="flex-1 bg-green-500 text-white py-2 rounded text-sm hover:bg-green-600"
+                  className="flex-1 bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-all flex items-center justify-center shadow-sm active:scale-95"
+                  title="Print Invoice"
                 >
-                  Print
+                  <Printer size={20} />
                 </button>
                 <button
                   onClick={() => deleteInvoice(bill.id)}
-                  className="flex-1 bg-red-500 text-white py-2 rounded text-sm hover:bg-red-600"
+                  className="flex-1 bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all flex items-center justify-center shadow-sm active:scale-95"
+                  title="Delete Invoice"
                 >
-                  Delete
+                  <Trash2 size={20} />
                 </button>
               </div>
             </div>
@@ -404,7 +409,7 @@ const InvoiceList = ({ bills, setBills }) => {
                   <div className="flex-1">
                     <h1 className="text-lg md:text-xl font-bold">{selectedInvoice.company?.name || 'Smart Sales'}</h1>
                     <p className="text-xs md:text-sm text-gray-600">
-                      {selectedInvoice.company?.address || '123 Business Street'}<br/>
+                      {selectedInvoice.company?.address || '123 Business Street'}<br />
                       Phone: {selectedInvoice.company?.phone || '+91 98765 43210'}
                     </p>
                   </div>
@@ -413,9 +418,9 @@ const InvoiceList = ({ bills, setBills }) => {
                   <h2 className="text-xl md:text-2xl font-bold">INVOICE</h2>
                 </div>
               </div>
-              
+
               <div className="bg-black text-white text-center py-2 mb-4 font-bold text-sm md:text-lg">TAX INVOICE</div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
                 <div className="bg-gray-50 p-3 md:p-4 rounded">
                   <h3 className="font-bold mb-2 md:mb-3 border-b pb-1 md:pb-2">BILL TO:</h3>
@@ -433,7 +438,7 @@ const InvoiceList = ({ bills, setBills }) => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="hidden md:block mb-6">
                 <table className="w-full border-collapse border-2 border-black">
                   <thead>
@@ -471,7 +476,7 @@ const InvoiceList = ({ bills, setBills }) => {
                   </tbody>
                 </table>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 <div className="bg-gray-50 p-3 md:p-4 rounded">
                   <strong className="block mb-2">Total in words:</strong>
@@ -489,11 +494,11 @@ const InvoiceList = ({ bills, setBills }) => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-black md:border-t-2">
-                <div className="text-right relative" style={{minHeight: '100px', paddingTop: '20px'}}>
+                <div className="text-right relative" style={{ minHeight: '100px', paddingTop: '20px' }}>
                   {digitalSignature && <img src={digitalSignature} alt="Signature" className="w-32 h-16 object-contain absolute top-0 right-8" />}
-                  <div className="border-t border-black pt-2 font-bold text-xs md:text-sm inline-block min-w-[200px]" style={{marginTop: '60px'}}>Authorized Signature</div>
+                  <div className="border-t border-black pt-2 font-bold text-xs md:text-sm inline-block min-w-[200px]" style={{ marginTop: '60px' }}>Authorized Signature</div>
                 </div>
               </div>
             </div>

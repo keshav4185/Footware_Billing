@@ -1,5 +1,5 @@
-// Essential Reporting Features for Footwear Billing
 import React, { useState, useEffect } from 'react';
+import { BarChart3, Users } from 'lucide-react';
 
 const reportFeatures = [
     {
@@ -72,7 +72,9 @@ const FeaturesSection4 = () => {
                             </div>
                         </div>
                         <div className="mt-3 pt-2 border-t">
-                            <div className="text-xs text-blue-600 font-bold">📊 Real-time Data</div>
+                            <div className="text-xs text-blue-600 font-bold flex items-center gap-1">
+                                <BarChart3 size={14} /> Real-time Data
+                            </div>
                         </div>
                     </div>
                     
@@ -94,7 +96,9 @@ const FeaturesSection4 = () => {
                             </div>
                         </div>
                         <div className="mt-3 pt-2 border-t">
-                            <div className="text-xs text-green-600 font-bold">👥 Customer Analytics</div>
+                            <div className="text-xs text-green-600 font-bold flex items-center gap-1">
+                                <Users size={14} /> Customer Analytics
+                            </div>
                         </div>
                     </div>
                 </div>

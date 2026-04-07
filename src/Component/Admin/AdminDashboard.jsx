@@ -18,6 +18,7 @@ const AdminDashboard = () => {
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,7 +43,7 @@ const AdminDashboard = () => {
       case 'overview':
         return <DashboardOverview bills={bills} customers={customers} products={products} />;
       case 'create-invoice':
-        return <CreateBill isDarkMode={false} />;
+        return <CreateBill isDarkMode={isDarkMode} />;
       case 'customers':
         return <CustomersManagement customers={customers} setCustomers={setCustomers} />;
       case 'products':
@@ -61,7 +62,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden relative bg-gray-50">
+    <div className={`flex h-screen overflow-hidden relative transition-all duration-500 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
       
       {/* Sidebar */}
       <AdminSidebar
@@ -83,7 +84,12 @@ const AdminDashboard = () => {
       <div className="flex-1 flex flex-col relative z-0 transition-all duration-300
                       ml-0 sm:ml-64 lg:ml-72">
         {/* Header */}
-        <AdminHeader isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+        <AdminHeader 
+          isSidebarOpen={isSidebarOpen} 
+          setIsSidebarOpen={setIsSidebarOpen} 
+          isDarkMode={isDarkMode} 
+          setIsDarkMode={setIsDarkMode} 
+        />
 
         {/* Page content */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">

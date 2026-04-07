@@ -1,6 +1,18 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { invoiceAPI } from '../../services/api';
+import {
+  FileText,
+  Search,
+  Calendar,
+  Eye,
+  Printer,
+  Trash2,
+  CheckCircle2,
+  XCircle,
+  RefreshCw,
+  Loader2
+} from 'lucide-react';
 
 const BillingsList = ({ isDarkMode, onEditBill }) => {
   const [billSearchTerm, setBillSearchTerm] = React.useState('');
@@ -8,7 +20,6 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
   const [selectedBill, setSelectedBill] = React.useState(null);
   const [showExchange, setShowExchange] = React.useState(false);
   const [exchangeBill, setExchangeBill] = React.useState(null);
-  const [openDropdown, setOpenDropdown] = React.useState(null);
   const [invoices, setInvoices] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [showUpdateModal, setShowUpdateModal] = React.useState(false);
@@ -26,13 +37,13 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
           'Content-Type': 'application/json',
         },
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const invoice = await response.json();
-      
+
       // Fetch company details separately using company ID
       let companyDetails = {
         name: 'Smart Sales',
@@ -41,7 +52,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
         gst: '27XXXXX1234X1ZX',
         brands: 'RELAXO adidas Bata Paragon FILA campus'
       };
-      
+
       if (invoice.company?.id) {
         try {
           const companyResponse = await fetch(`http://localhost:8080/api/billing/company/${invoice.company.id}`, {
@@ -50,7 +61,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
               'Content-Type': 'application/json',
             },
           });
-          
+
           if (companyResponse.ok) {
             const company = await companyResponse.json();
             companyDetails = {
@@ -66,34 +77,34 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
           console.error('Error fetching company details:', companyError);
         }
       }
-      
-        // Use totalAmount directly from backend if available
-        const calculatedAmount = invoice.totalAmount || invoice.grandTotal || 0;
-        
-        return {
-          id: invoice.id,
-          invoiceNo: invoice.invoiceNumber || `INV-${invoice.id}`,
-          customerName: invoice.customer?.name || 'N/A',
-          customerPhone: invoice.customer?.phone || 'N/A',
-          customerGst: invoice.customer?.gst || 'N/A',
-          customerAddress: invoice.customer?.address || 'N/A',
-          date: invoice.invoiceDate ? new Date(invoice.invoiceDate).toLocaleDateString() : new Date().toLocaleDateString(),
-          amount: calculatedAmount,
-          status: 'Completed',
-          paymentStatus: (invoice.paymentStatus === 'PAID' || invoice.paymentStatus === 'Paid' || (invoice.balanceAmount || 0) === 0) ? 'Paid' : 'Unpaid',
-          items: invoice.items || [],
-          totals: {
-            subtotal: invoice.subTotal || 0,
-            grandTotal: calculatedAmount,
-            balanceAmount: invoice.balanceAmount || 0,
-            advanceAmount: invoice.advanceAmount || 0,
-            cgstAmount: invoice.cgstAmount || 0,
-            sgstAmount: invoice.sgstAmount || 0,
-            totalDiscount: invoice.totalDiscount || 0
-          },
-          company: companyDetails,
-          employeeName: invoice.employee?.name || 'Sales Person'
-        };
+
+      // Use totalAmount directly from backend if available
+      const calculatedAmount = invoice.totalAmount || invoice.grandTotal || 0;
+
+      return {
+        id: invoice.id,
+        invoiceNo: invoice.invoiceNumber || `INV-${invoice.id}`,
+        customerName: invoice.customer?.name || 'N/A',
+        customerPhone: invoice.customer?.phone || 'N/A',
+        customerGst: invoice.customer?.gst || 'N/A',
+        customerAddress: invoice.customer?.address || 'N/A',
+        date: invoice.invoiceDate ? new Date(invoice.invoiceDate).toLocaleDateString() : new Date().toLocaleDateString(),
+        amount: calculatedAmount,
+        status: 'Completed',
+        paymentStatus: (invoice.paymentStatus === 'PAID' || invoice.paymentStatus === 'Paid' || (invoice.balanceAmount || 0) === 0) ? 'Paid' : 'Unpaid',
+        items: invoice.items || [],
+        totals: {
+          subtotal: invoice.subTotal || 0,
+          grandTotal: calculatedAmount,
+          balanceAmount: invoice.balanceAmount || 0,
+          advanceAmount: invoice.advanceAmount || 0,
+          cgstAmount: invoice.cgstAmount || 0,
+          sgstAmount: invoice.sgstAmount || 0,
+          totalDiscount: invoice.totalDiscount || 0
+        },
+        company: companyDetails,
+        employeeName: invoice.employee?.name || 'Sales Person'
+      };
     } catch (error) {
       console.error('Error fetching complete invoice data:', error);
       return null;
@@ -109,14 +120,14 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
           'Content-Type': 'application/json',
         },
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const responseText = await response.text();
       console.log('Raw response:', responseText);
-      
+
       let data;
       try {
         data = JSON.parse(responseText);
@@ -125,9 +136,9 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
         console.error('Response text:', responseText);
         throw new Error('Invalid JSON response from server');
       }
-      
+
       console.log('Parsed data:', data);
-      
+
       // Handle different response formats
       let invoicesArray = [];
       if (Array.isArray(data)) {
@@ -140,7 +151,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
         console.error('Unexpected response format:', data);
         invoicesArray = [];
       }
-      
+
       // Fetch company details for each invoice
       const apiInvoices = await Promise.all(invoicesArray.map(async (invoice) => {
         let companyDetails = {
@@ -150,7 +161,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
           gst: '27XXXXX1234X1ZX',
           brands: 'RELAXO adidas Bata Paragon FILA campus'
         };
-        
+
         // Fetch company details if company ID exists
         if (invoice.company?.id) {
           try {
@@ -160,7 +171,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                 'Content-Type': 'application/json',
               },
             });
-            
+
             if (companyResponse.ok) {
               const company = await companyResponse.json();
               companyDetails = {
@@ -176,10 +187,10 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
             console.error('Error fetching company details for invoice:', invoice.id, companyError);
           }
         }
-        
+
         // Use totalAmount directly from backend if available
         const calculatedAmount = invoice.totalAmount || invoice.grandTotal || 0;
-        
+
         return {
           id: invoice.id,
           invoiceNo: invoice.invoiceNumber || `INV-${invoice.id}`,
@@ -207,7 +218,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
           employeeName: invoice.employee?.name || 'N/A'
         };
       }));
-      
+
       console.log('Mapped invoices with company details:', apiInvoices);
       // Sort by ID descending (newest first)
       setInvoices(apiInvoices.sort((a, b) => b.id - a.id));
@@ -225,7 +236,6 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
   const handleUpdateBill = (bill) => {
     setUpdateBill(bill);
     setShowUpdateModal(true);
-    setOpenDropdown(null);
   };
 
   const updateInvoice = async (updatedData) => {
@@ -247,8 +257,8 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
   };
 
   const togglePaymentStatus = (billId) => {
-    const updatedInvoices = invoices.map(bill => 
-      bill.id === billId 
+    const updatedInvoices = invoices.map(bill =>
+      bill.id === billId
         ? { ...bill, paymentStatus: bill.paymentStatus === 'Paid' ? 'Unpaid' : 'Paid' }
         : bill
     );
@@ -258,13 +268,13 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
   // Load invoices on component mount
   React.useEffect(() => {
     fetchInvoices();
-    
+
     // Load saved logo and signature
     const savedLogo = localStorage.getItem('companyLogo');
     if (savedLogo) {
       setCompanyLogo(savedLogo);
     }
-    
+
     const savedSignature = localStorage.getItem('digitalSignature');
     if (savedSignature) {
       setDigitalSignature(savedSignature);
@@ -285,43 +295,43 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
   const calculateRowAmount = (product) => {
     const unitPrice = product.rate || product.price;
     const subtotal = product.quantity * unitPrice;
-    const afterDiscount = subtotal * (1 - (product.discount || 0)/100);
+    const afterDiscount = subtotal * (1 - (product.discount || 0) / 100);
     return afterDiscount;
   };
 
   const calculateTotals = (items, cgstRate = 9, sgstRate = 9, advanceAmount = 0) => {
     let subtotal = 0, totalDiscount = 0;
-    
+
     items.forEach(item => {
       const itemSubtotal = item.quantity * item.price;
       const itemDiscount = itemSubtotal * (item.discount || 0) / 100;
       subtotal += itemSubtotal;
       totalDiscount += itemDiscount;
     });
-    
+
     const taxableAmount = subtotal - totalDiscount;
     const cgstAmount = taxableAmount * cgstRate / 100;
     const sgstAmount = taxableAmount * sgstRate / 100;
     const grandTotal = taxableAmount + cgstAmount + sgstAmount;
     const balanceAmount = grandTotal - advanceAmount;
-    
-    return { 
-      subtotal, 
-      totalDiscount, 
-      taxableAmount, 
-      cgstAmount, 
-      sgstAmount, 
-      grandTotal, 
-      balanceAmount 
+
+    return {
+      subtotal,
+      totalDiscount,
+      taxableAmount,
+      cgstAmount,
+      sgstAmount,
+      grandTotal,
+      balanceAmount
     };
   };
 
   const convertToWords = (num) => {
     const ones = ['', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 'TEN', 'ELEVEN', 'TWELVE', 'THIRTEEN', 'FOURTEEN', 'FIFTEEN', 'SIXTEEN', 'SEVENTEEN', 'EIGHTEEN', 'NINETEEN'];
     const tens = ['', '', 'TWENTY', 'THIRTY', 'FORTY', 'FIFTY', 'SIXTY', 'SEVENTY', 'EIGHTY', 'NINETY'];
-    
+
     if (num === 0) return 'ZERO RUPEES ONLY';
-    
+
     let words = '';
     if (num >= 10000000) { words += ones[Math.floor(num / 10000000)] + ' CRORE '; num %= 10000000; }
     if (num >= 100000) { words += ones[Math.floor(num / 100000)] + ' LAKH '; num %= 100000; }
@@ -329,17 +339,17 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
     if (num >= 100) { words += ones[Math.floor(num / 100)] + ' HUNDRED '; num %= 100; }
     if (num >= 20) { words += tens[Math.floor(num / 10)] + ' '; num %= 10; }
     if (num > 0) words += ones[num] + ' ';
-    
+
     return words.trim() + ' RUPEES ONLY';
   };
 
   const printBill = async (bill) => {
     const completeData = await fetchCompleteInvoiceData(bill.id);
     const billData = completeData || bill;
-    
+
     // Get logged-in employee data
     const employeeName = localStorage.getItem('loggedInEmployee') || billData.employeeName || 'Sales Person';
-    
+
     // Use backend totals directly
     const calculatedTotals = {
       subtotal: billData.totals?.subtotal || billData.amount,
@@ -350,11 +360,11 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
       grandTotal: billData.totals?.grandTotal || billData.amount,
       balanceAmount: billData.totals?.balanceAmount || (billData.amount - (billData.totals?.advanceAmount || 0))
     };
-    
+
     // Generate products HTML from actual items
-    const productsHTML = billData.items && billData.items.length > 0 
-      ? billData.items.map((item, index) => 
-          `<tr>
+    const productsHTML = billData.items && billData.items.length > 0
+      ? billData.items.map((item, index) =>
+        `<tr>
             <td class="border border-black p-2 text-center text-sm">${index + 1}</td>
             <td class="border border-black p-2 text-sm">${item.product?.name || 'Product'}</td>
             <td class="border border-black p-2 text-center text-sm">${item.quantity || 1}</td>
@@ -362,7 +372,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
             <td class="border border-black p-2 text-center text-sm">${item.discount || 0}%</td>
             <td class="border border-black p-2 text-center text-sm">₹${calculateRowAmount(item).toFixed(2)}</td>
           </tr>`
-        ).join('')
+      ).join('')
       : `<tr>
           <td class="border border-black p-2 text-center text-sm">1</td>
           <td class="border border-black p-2 text-sm">Service</td>
@@ -496,11 +506,11 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
             'Content-Type': 'application/json',
           },
         });
-        
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const updatedInvoices = invoices.filter(bill => bill.id !== billId);
         setInvoices(updatedInvoices);
         alert('Bill deleted successfully!');
@@ -514,32 +524,25 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
   const handleExchange = (bill) => {
     setExchangeBill(bill);
     setShowExchange(true);
-    setOpenDropdown(null);
   };
 
-  const toggleDropdown = (billId) => {
-    setOpenDropdown(openDropdown === billId ? null : billId);
-  };
 
-  // Close dropdown when clicking outside
-  React.useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (!event.target.closest('.dropdown-container')) {
-        setOpenDropdown(null);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
   const savedBills = invoices;
   const filteredBills = savedBills.filter(bill => {
     const matchesSearch = bill.invoiceNo.toLowerCase().includes(billSearchTerm.toLowerCase()) ||
       bill.customerName.toLowerCase().includes(billSearchTerm.toLowerCase()) ||
       bill.customerPhone.includes(billSearchTerm) ||
       bill.amount.toString().includes(billSearchTerm);
-    
-    const matchesDate = !selectedDate || bill.date === new Date(selectedDate).toLocaleDateString();
-    
+
+    // Robust date matching
+    let matchesDate = true;
+    if (selectedDate) {
+      const filterDate = new Date(selectedDate).toDateString();
+      // Ensure bill.date is properly parsed for comparison
+      const billDateStr = bill.date ? new Date(bill.date.split('/').reverse().join('-')).toDateString() : '';
+      matchesDate = billDateStr === filterDate;
+    }
+
     return matchesSearch && matchesDate;
   });
 
@@ -551,61 +554,70 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
         <div className="absolute bottom-10 left-20 w-24 h-24 bg-gradient-to-r from-green-400 to-blue-400 rounded-full opacity-15 animate-bounce-slow"></div>
         <div className="absolute top-1/2 left-10 w-16 h-16 bg-gradient-to-r from-pink-400 to-red-400 rounded-full opacity-20 animate-float"></div>
       </div>
-      
-      <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 mb-6 backdrop-blur-sm bg-white/90 hover:shadow-2xl hover:shadow-blue-200/50 transition-all duration-500 transform hover:scale-[1.01] border border-gray-100 relative z-10">
-        <div className="flex flex-col gap-4 mb-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h2 className="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2">
-                <span className="text-2xl">📄</span> My Billings
-              </h2>
-              <p className="text-sm text-gray-600">View and manage your billing history</p>
+
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-8 mb-6 relative z-10 transition-all duration-300 hover:shadow-md">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-black text-gray-900 flex items-center gap-3 tracking-tight">
+              <div className="p-2 bg-blue-50 rounded-xl">
+                <FileText className="text-blue-600" size={24} />
+              </div>
+              My Billings
+            </h2>
+            <p className="text-sm text-gray-500 mt-1 font-medium italic">View and manage your billing history</p>
+          </div>
+          
+          <div className="flex flex-col md:flex-row items-center gap-4 w-full lg:w-auto">
+            {/* Date Filter */}
+            <div className="relative w-full md:w-64 group">
+              <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                placeholder="dd/mm/yyyy"
+              />
             </div>
-            <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
-              <div className="relative w-full md:w-64">
-                <input 
-                  type="date" 
-                  className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all cursor-pointer"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  onClick={(e) => e.target.showPicker && e.target.showPicker()}
-                />
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">📅</span>
-              </div>
-              <div className="relative w-full md:w-80">
-                <input 
-                  type="text" 
-                  placeholder="Search bills..."
-                  className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-                  value={billSearchTerm}
-                  onChange={(e) => setBillSearchTerm(e.target.value)}
-                />
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
-              </div>
+
+            {/* Search Filter */}
+            <div className="relative w-full md:w-80 group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
+              <input
+                type="text"
+                value={billSearchTerm}
+                onChange={(e) => setBillSearchTerm(e.target.value)}
+                placeholder="Search bills..."
+                className="w-full pl-12 pr-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm font-medium text-gray-700 placeholder:text-gray-400 hover:bg-gray-50 transition-colors"
+              />
             </div>
           </div>
-          {selectedDate && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Showing bills for: <strong>{new Date(selectedDate).toLocaleDateString()}</strong></span>
-              <button 
-                onClick={() => setSelectedDate('')}
-                className="text-sm text-blue-600 hover:text-blue-800 underline"
-              >
-                Clear filter
-              </button>
-            </div>
-          )}
         </div>
-        
+
+        {selectedDate && (
+          <div className="flex items-center gap-3 mb-6 animate-fadeIn">
+            <span className="bg-blue-50 text-blue-700 px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 border border-blue-100">
+              <Calendar size={12} />
+              {new Date(selectedDate).toLocaleDateString('en-GB')}
+            </span>
+            <button
+              onClick={() => setSelectedDate('')}
+              className="text-xs font-bold text-gray-400 hover:text-red-500 transition-colors bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100"
+            >
+              Clear Filter
+            </button>
+          </div>
+        )}
+
         {loading ? (
           <div className="text-center py-12 text-gray-500">
-            <div className="text-6xl mb-4">⏳</div>
-            <p className="text-lg">Loading invoices...</p>
+            <Loader2 className="mx-auto h-12 w-12 animate-spin text-blue-500 mb-4" />
+            <p className="text-lg font-medium">Loading invoices...</p>
           </div>
         ) : filteredBills.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
-            <div className="text-6xl mb-4">📋</div>
-            <p className="text-lg">{billSearchTerm ? 'No bills found matching your search.' : 'No bills found. Create your first bill!'}</p>
+            <FileText size={64} className="mx-auto text-gray-200 mb-4" />
+            <p className="text-lg font-medium">{billSearchTerm ? 'No bills found matching your search.' : 'No bills found. Create your first bill!'}</p>
           </div>
         ) : (
           <>
@@ -626,7 +638,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                 <tbody>
                   {filteredBills.map(bill => (
                     <tr key={bill.id} className="border-b hover:bg-gray-50 transition-colors">
-                      <td className="p-4 font-medium text-blue-600 cursor-pointer hover:text-blue-800 hover:underline" onClick={() => onEditBill && onEditBill({...bill, isEdit: true})}>{bill.invoiceNo}</td>
+                      <td className="p-4 font-medium text-blue-600 cursor-pointer hover:text-blue-800 hover:underline" onClick={() => onEditBill && onEditBill({ ...bill, isEdit: true })}>{bill.invoiceNo}</td>
                       <td className="p-4 text-gray-800">{bill.customerName}</td>
                       <td className="p-4 text-gray-600">{bill.date}</td>
                       <td className="p-4 font-semibold text-green-600">₹{bill.amount.toFixed(2)}</td>
@@ -636,89 +648,64 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                         </span>
                       </td>
                       <td className="p-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          (bill.paymentStatus || 'Unpaid') === 'Paid' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {(bill.paymentStatus || 'Unpaid') === 'Paid' ? '✅' : '❌'} {bill.paymentStatus || 'Unpaid'}
+                        <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${(bill.paymentStatus || 'Unpaid') === 'Paid'
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-red-100 text-red-700'
+                          }`}>
+                          {(bill.paymentStatus || 'Unpaid') === 'Paid' ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
+                          {bill.paymentStatus || 'Unpaid'}
                         </span>
                       </td>
-                      <td className="p-4 text-center relative dropdown-container">
-                        <button 
-                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 mx-auto ${
-                            isDarkMode 
-                              ? 'bg-gray-700 hover:bg-gray-600 text-white border border-gray-600' 
-                              : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
-                          }`}
-                          onClick={() => toggleDropdown(bill.id)}
-                        >
-                          Actions ⋮
-                        </button>
-                        {openDropdown === bill.id && (
-                          <div className={`absolute right-4 top-12 rounded-lg shadow-lg min-w-32 ${
-                            isDarkMode 
-                              ? 'bg-gray-800 border border-gray-600 text-white' 
-                              : 'bg-white border border-gray-200 text-gray-800'
-                          }`} style={{zIndex: 1000}}>
-                            <button 
-                              className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 ${
-                                isDarkMode 
-                                  ? 'hover:bg-gray-700 text-white' 
-                                  : 'hover:bg-gray-50 text-gray-800'
-                              }`}
-                              onClick={() => { viewBill(bill); setOpenDropdown(null); }}
-                            >
-                              👁️ View
-                            </button>
-                            <button 
-                              className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 ${
-                                isDarkMode 
-                                  ? 'hover:bg-gray-700 text-white' 
-                                  : 'hover:bg-gray-50 text-gray-800'
-                              }`}
-                              onClick={() => { printBill(bill); setOpenDropdown(null); }}
-                            >
-                              🖨️ Print
-                            </button>
-                            <button 
-                              className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 text-red-500 hover:text-red-400 border-t ${
-                                isDarkMode 
-                                  ? 'hover:bg-gray-700 border-gray-600' 
-                                  : 'hover:bg-red-50 border-gray-200'
-                              }`}
-                              onClick={() => { deleteBill(bill.id); setOpenDropdown(null); }}
-                            >
-                              🗑️ Delete
-                            </button>
-                          </div>
-                        )}
+                      <td className="p-4 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            onClick={() => viewBill(bill)}
+                            className="bg-blue-500 text-white p-2.5 rounded-lg hover:bg-blue-600 transition-all shadow-sm hover:shadow-md active:scale-95"
+                            title="View Invoice"
+                          >
+                            <Eye size={20} />
+                          </button>
+                          <button
+                            onClick={() => printBill(bill)}
+                            className="bg-green-500 text-white p-2.5 rounded-lg hover:bg-green-600 transition-all shadow-sm hover:shadow-md active:scale-95"
+                            title="Print Invoice"
+                          >
+                            <Printer size={20} />
+                          </button>
+                          <button
+                            onClick={() => deleteBill(bill.id)}
+                            className="bg-red-500 text-white p-2.5 rounded-lg hover:bg-red-600 transition-all shadow-sm hover:shadow-md active:scale-95"
+                            title="Delete Invoice"
+                          >
+                            <Trash2 size={20} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-            
+
             {/* Mobile Cards */}
             <div className="md:hidden space-y-4">
               {filteredBills.map((bill, index) => (
-                <div key={bill.id} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] hover:shadow-blue-200/30 animate-slideInUp group" style={{animationDelay: `${index * 0.1}s`}}>
+                <div key={bill.id} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] hover:shadow-blue-200/30 animate-slideInUp group" style={{ animationDelay: `${index * 0.1}s` }}>
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <h3 className="font-bold text-blue-600 cursor-pointer hover:text-blue-800 hover:underline" onClick={() => onEditBill && onEditBill({...bill, isEdit: true})}>{bill.invoiceNo}</h3>
+                      <h3 className="font-bold text-blue-600 cursor-pointer hover:text-blue-800 hover:underline" onClick={() => onEditBill && onEditBill({ ...bill, isEdit: true })}>{bill.invoiceNo}</h3>
                       <p className="text-gray-800 font-medium">{bill.customerName}</p>
                     </div>
                     <div className="flex flex-col gap-1 items-end">
                       <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
                         {bill.status}
                       </span>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        (bill.paymentStatus || 'Unpaid') === 'Paid' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        <span>{(bill.paymentStatus || 'Unpaid') === 'Paid' ? '✅' : '❌'}</span> {bill.paymentStatus || 'Unpaid'}
+                      <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${(bill.paymentStatus || 'Unpaid') === 'Paid'
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-red-100 text-red-700'
+                        }`}>
+                        {(bill.paymentStatus || 'Unpaid') === 'Paid' ? <CheckCircle2 size={10} /> : <XCircle size={10} />}
+                        {bill.paymentStatus || 'Unpaid'}
                       </span>
                     </div>
                   </div>
@@ -727,23 +714,26 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                     <span className="font-bold text-green-600">₹{bill.amount.toFixed(2)}</span>
                   </div>
                   <div className="flex gap-2">
-                    <button 
-                      className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 rounded text-sm hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
+                    <button
+                      className="flex-1 bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all flex items-center justify-center shadow-sm active:scale-95"
                       onClick={() => viewBill(bill)}
+                      title="View Invoice"
                     >
-                      👁️ View
+                      <Eye size={20} />
                     </button>
-                    <button 
-                      className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-2 rounded text-sm hover:from-green-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
+                    <button
+                      className="flex-1 bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-all flex items-center justify-center shadow-sm active:scale-95"
                       onClick={() => printBill(bill)}
+                      title="Print Invoice"
                     >
-                      🖨️ Print
+                      <Printer size={20} />
                     </button>
-                    <button 
-                      className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white py-2 rounded text-sm hover:from-red-600 hover:to-red-700 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
+                    <button
+                      className="flex-1 bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all flex items-center justify-center shadow-sm active:scale-95"
                       onClick={() => deleteBill(bill.id)}
+                      title="Delete Invoice"
                     >
-                      🗑️ Delete
+                      <Trash2 size={20} />
                     </button>
                   </div>
                 </div>
@@ -755,30 +745,26 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
 
       {/* Exchange Modal */}
       {showExchange && exchangeBill && createPortal(
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{zIndex: 999999}} onClick={() => setShowExchange(false)}>
-          <div className={`rounded-xl shadow-2xl w-full max-w-4xl max-h-[95vh] overflow-y-auto m-2 md:m-4 ${
-            isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'
-          }`} onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{ zIndex: 999999 }} onClick={() => setShowExchange(false)}>
+          <div className={`rounded-xl shadow-2xl w-full max-w-4xl max-h-[95vh] overflow-y-auto m-2 md:m-4 ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'
+            }`} onClick={(e) => e.stopPropagation()}>
             <div className="p-4 md:p-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className={`text-xl font-bold flex items-center gap-2 ${
-                  isDarkMode ? 'text-white' : 'text-gray-800'
-                }`}>
-                  <span className="text-2xl">🔄</span> Exchange Product
+                <h3 className={`text-xl font-bold flex items-center gap-3 ${isDarkMode ? 'text-white' : 'text-gray-800'
+                  }`}>
+                  <RefreshCw className="text-blue-600" size={24} /> Exchange Product
                 </h3>
-                <button onClick={() => setShowExchange(false)} className={`text-2xl transition-colors ${
-                  isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
-                }`}>
+                <button onClick={() => setShowExchange(false)} className={`text-2xl transition-colors ${isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
+                  }`}>
                   ×
                 </button>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Original Bill Info */}
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className={`font-bold mb-3 ${
-                    isDarkMode ? 'text-white' : 'text-gray-800'
-                  }`}>Original Bill</h4>
+                  <h4 className={`font-bold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-800'
+                    }`}>Original Bill</h4>
                   <div className="space-y-2 text-sm">
                     <p><strong>Invoice No:</strong> {exchangeBill.invoiceNo}</p>
                     <p><strong>Customer:</strong> {exchangeBill.customerName}</p>
@@ -787,83 +773,74 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                     <p><strong>Amount:</strong> ₹{exchangeBill.amount.toFixed(2)}</p>
                   </div>
                 </div>
-                
+
                 {/* Exchange Form */}
                 <div className="space-y-4">
-                  <h4 className={`font-bold ${
-                    isDarkMode ? 'text-white' : 'text-gray-800'
-                  }`}>Exchange Details</h4>
-                  
+                  <h4 className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'
+                    }`}>Exchange Details</h4>
+
                   <div>
-                    <label className={`block text-sm font-medium mb-1 ${
-                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                    }`}>Exchange Product</label>
-                    <input 
-                      type="text" 
+                    <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                      }`}>Exchange Product</label>
+                    <input
+                      type="text"
                       placeholder="Enter new product name"
-                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                        isDarkMode 
-                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${isDarkMode
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
                           : 'bg-white border-gray-300 text-gray-800 placeholder-gray-500'
-                      }`}
+                        }`}
                     />
                   </div>
-                  
+
                   <div>
-                    <label className={`block text-sm font-medium mb-1 ${
-                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                    }`}>New Amount</label>
-                    <input 
-                      type="number" 
+                    <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                      }`}>New Amount</label>
+                    <input
+                      type="number"
                       placeholder="Enter new amount"
-                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                        isDarkMode 
-                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${isDarkMode
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
                           : 'bg-white border-gray-300 text-gray-800 placeholder-gray-500'
-                      }`}
+                        }`}
                     />
                   </div>
-                  
+
                   <div>
-                    <label className={`block text-sm font-medium mb-1 ${
-                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                    }`}>Exchange Reason</label>
-                    <textarea 
+                    <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                      }`}>Exchange Reason</label>
+                    <textarea
                       placeholder="Reason for exchange"
                       rows="3"
-                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                        isDarkMode 
-                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${isDarkMode
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
                           : 'bg-white border-gray-300 text-gray-800 placeholder-gray-500'
-                      }`}
+                        }`}
                     ></textarea>
                   </div>
-                  
+
                   <div>
-                    <label className={`block text-sm font-medium mb-1 ${
-                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                    }`}>Difference Amount</label>
-                    <input 
-                      type="number" 
+                    <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                      }`}>Difference Amount</label>
+                    <input
+                      type="number"
                       placeholder="Amount difference (+/-)"
-                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                        isDarkMode 
-                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${isDarkMode
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
                           : 'bg-white border-gray-300 text-gray-800 placeholder-gray-500'
-                      }`}
+                        }`}
                     />
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex gap-3 mt-6">
-                <button 
+                <button
                   onClick={() => setShowExchange(false)}
                   className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg font-medium transition-all shadow-md hover:shadow-lg"
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-medium transition-all shadow-md hover:shadow-lg"
                 >
                   Process Exchange
@@ -877,102 +854,91 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
 
       {/* Update Modal */}
       {showUpdateModal && updateBill && createPortal(
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{zIndex: 999999}} onClick={() => setShowUpdateModal(false)}>
-          <div className={`rounded-xl shadow-2xl w-full max-w-2xl max-h-[95vh] overflow-y-auto m-2 md:m-4 ${
-            isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'
-          }`} onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{ zIndex: 999999 }} onClick={() => setShowUpdateModal(false)}>
+          <div className={`rounded-xl shadow-2xl w-full max-w-2xl max-h-[95vh] overflow-y-auto m-2 md:m-4 ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'
+            }`} onClick={(e) => e.stopPropagation()}>
             <div className="p-4 md:p-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className={`text-xl font-bold flex items-center gap-2 ${
-                  isDarkMode ? 'text-white' : 'text-gray-800'
-                }`}>
+                <h3 className={`text-xl font-bold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-800'
+                  }`}>
                   <span className="text-2xl">✏️</span> Update Invoice
                 </h3>
-                <button onClick={() => setShowUpdateModal(false)} className={`text-2xl transition-colors ${
-                  isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
-                }`}>
+                <button onClick={() => setShowUpdateModal(false)} className={`text-2xl transition-colors ${isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
+                  }`}>
                   ×
                 </button>
               </div>
-              
+
               <div className="space-y-4 update-form">
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${
-                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                  }`}>Invoice Number</label>
-                  <input 
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                    }`}>Invoice Number</label>
+                  <input
                     name="invoiceNumber"
-                    type="text" 
+                    type="text"
                     defaultValue={updateBill.invoiceNo}
-                    className={`w-full p-3 border-2 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all ${
-                      isDarkMode 
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                    className={`w-full p-3 border-2 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all ${isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
                         : 'bg-white border-gray-200 text-gray-800 placeholder-gray-500'
-                    }`}
-                    placeholder="Invoice number" 
+                      }`}
+                    placeholder="Invoice number"
                   />
                 </div>
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${
-                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                  }`}>Customer Name</label>
-                  <input 
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                    }`}>Customer Name</label>
+                  <input
                     name="customerName"
-                    type="text" 
+                    type="text"
                     defaultValue={updateBill.customerName}
-                    className={`w-full p-3 border-2 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all ${
-                      isDarkMode 
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                    className={`w-full p-3 border-2 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all ${isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
                         : 'bg-white border-gray-200 text-gray-800 placeholder-gray-500'
-                    }`}
-                    placeholder="Customer name" 
+                      }`}
+                    placeholder="Customer name"
                     readOnly
                   />
                 </div>
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${
-                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                  }`}>Amount</label>
-                  <input 
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                    }`}>Amount</label>
+                  <input
                     name="amount"
-                    type="number" 
+                    type="number"
                     defaultValue={updateBill.amount}
-                    className={`w-full p-3 border-2 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all ${
-                      isDarkMode 
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                    className={`w-full p-3 border-2 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all ${isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
                         : 'bg-white border-gray-200 text-gray-800 placeholder-gray-500'
-                    }`}
-                    placeholder="Amount" 
+                      }`}
+                    placeholder="Amount"
                   />
                 </div>
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${
-                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                  }`}>Payment Status</label>
-                  <select 
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                    }`}>Payment Status</label>
+                  <select
                     name="paymentStatus"
                     defaultValue={updateBill.paymentStatus}
-                    className={`w-full p-3 border-2 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all ${
-                      isDarkMode 
-                        ? 'bg-gray-700 border-gray-600 text-white' 
+                    className={`w-full p-3 border-2 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all ${isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white'
                         : 'bg-white border-gray-200 text-gray-800'
-                    }`}
+                      }`}
                   >
                     <option value="Paid">Paid</option>
                     <option value="Unpaid">Unpaid</option>
                   </select>
                 </div>
               </div>
-              
+
               <div className="flex gap-3 mt-6">
-                <button 
+                <button
                   onClick={() => setShowUpdateModal(false)}
                   className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg font-medium transition-all shadow-md hover:shadow-lg"
                 >
                   Cancel
                 </button>
-                <button 
-                  onClick={() => {
+                <button
+                  onClick={(event) => {
                     const formData = new FormData(event.target.closest('.update-form'));
                     const updatedData = {
                       invoiceNumber: formData.get('invoiceNumber'),
@@ -999,24 +965,21 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
 
       {/* Preview Modal */}
       {showPreview && selectedBill && createPortal(
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{zIndex: 999999}} onClick={() => setShowPreview(false)}>
-          <div className={`rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-y-auto m-2 md:m-4 ${
-            isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'
-          }`} onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{ zIndex: 999999 }} onClick={() => setShowPreview(false)}>
+          <div className={`rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-y-auto m-2 md:m-4 ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'
+            }`} onClick={(e) => e.stopPropagation()}>
             <div className="p-3 md:p-6">
               <div className="flex justify-between items-center mb-4 md:mb-6">
-                <h3 className={`text-lg md:text-xl font-bold flex items-center gap-2 ${
-                  isDarkMode ? 'text-white' : 'text-gray-800'
-                }`}>
+                <h3 className={`text-lg md:text-xl font-bold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-800'
+                  }`}>
                   <span className="text-xl md:text-2xl">👁️</span> Invoice Preview
                 </h3>
-                <button onClick={() => setShowPreview(false)} className={`text-xl md:text-2xl transition-colors ${
-                  isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
-                }`}>
+                <button onClick={() => setShowPreview(false)} className={`text-xl md:text-2xl transition-colors ${isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
+                  }`}>
                   ×
                 </button>
               </div>
-              
+
               {/* Invoice Preview Content */}
               <div className="border border-gray-300 md:border-2 rounded-lg p-3 md:p-6 bg-white text-xs md:text-sm">
                 {/* Header */}
@@ -1032,8 +995,8 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                     <div className="flex-1">
                       <h1 className="text-lg md:text-xl font-bold">{selectedBill.company?.name || 'Smart Sales'}</h1>
                       <p className="text-xs md:text-sm text-gray-600">
-                        {selectedBill.company?.address || '123 Business Street, City - 400001'}<br/>
-                        Phone: {selectedBill.company?.phone || '+91 98765 43210'}<br/>
+                        {selectedBill.company?.address || '123 Business Street, City - 400001'}<br />
+                        Phone: {selectedBill.company?.phone || '+91 98765 43210'}<br />
                         GST: {selectedBill.company?.gst || '27XXXXX1234X1ZX'}
                       </p>
                       <p className="text-xs md:text-sm font-medium mt-2">{selectedBill.company?.brands || 'RELAXO adidas Bata Paragon FILA campus'}</p>
@@ -1043,12 +1006,12 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                     <h2 className="text-xl md:text-2xl font-bold">INVOICE</h2>
                   </div>
                 </div>
-                
+
                 {/* Tax Invoice Header */}
                 <div className="bg-black text-white text-center py-2 mb-4 font-bold text-sm md:text-lg">
                   TAX INVOICE
                 </div>
-                
+
                 {/* Bill Details */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
                   <div className="bg-gray-50 p-3 md:p-4 rounded">
@@ -1080,16 +1043,15 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                       </div>
                       <div className="flex justify-between">
                         <span className="font-bold">Payment Status:</span>
-                        <span className={`px-2 py-1 rounded text-xs font-bold ${
-                          (selectedBill.paymentStatus || 'Unpaid') === 'Paid' 
-                            ? 'bg-green-100 text-green-600' 
+                        <span className={`px-2 py-1 rounded text-xs font-bold ${(selectedBill.paymentStatus || 'Unpaid') === 'Paid'
+                            ? 'bg-green-100 text-green-600'
                             : 'bg-red-100 text-red-600'
-                        }`}>{selectedBill.paymentStatus || 'Unpaid'}</span>
+                          }`}>{selectedBill.paymentStatus || 'Unpaid'}</span>
                       </div>
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Products - Mobile Card */}
                 <div className="md:hidden mb-4">
                   <h4 className="font-bold mb-2">Products:</h4>
@@ -1121,7 +1083,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                     </div>
                   )}
                 </div>
-                
+
                 {/* Products Table - Desktop */}
                 <div className="hidden md:block mb-6">
                   <table className="w-full border-collapse border-2 border-black">
@@ -1160,7 +1122,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                     </tbody>
                   </table>
                 </div>
-                
+
                 {/* Totals */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <div className="bg-gray-50 p-3 md:p-4 rounded">
@@ -1223,22 +1185,22 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Signatures */}
                 <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-black md:border-t-2">
-                  <div className="text-right relative" style={{minHeight: '100px', paddingTop: '20px'}}>
+                  <div className="text-right relative" style={{ minHeight: '100px', paddingTop: '20px' }}>
                     {digitalSignature && (
                       <img src={digitalSignature} alt="Signature" className="w-32 h-16 object-contain absolute top-0 right-8" />
                     )}
-                    <div className="border-t border-black pt-2 font-bold text-xs md:text-sm inline-block min-w-[200px]" style={{marginTop: '60px'}}>
+                    <div className="border-t border-black pt-2 font-bold text-xs md:text-sm inline-block min-w-[200px]" style={{ marginTop: '60px' }}>
                       Authorized Signature
                     </div>
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex gap-3 mt-4 md:mt-6">
-                <button 
+                <button
                   onClick={() => setShowPreview(false)}
                   className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 md:py-3 rounded-lg font-medium transition-all text-sm md:text-base shadow-md hover:shadow-lg"
                 >

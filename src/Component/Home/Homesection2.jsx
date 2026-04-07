@@ -1,20 +1,19 @@
-
-// src/Component/Home/Homesection2.jsx
 import React, { useEffect, useState } from 'react';
+import { Smartphone, IndianRupee, FileText } from 'lucide-react';
 
 const features = [
     { 
-        icon: '📱', 
+        icon: <Smartphone className="text-blue-500" />, 
         title: 'WhatsApp Integration', 
         description: 'Send invoices directly to customers via WhatsApp with formatted bill details.'
     },
     { 
-        icon: '💰', 
+        icon: <IndianRupee className="text-green-500" />, 
         title: 'Payment Tracking', 
         description: 'Track advance payments, balance amounts, and payment status for each invoice.'
     },
     { 
-        icon: '🧾', 
+        icon: <FileText className="text-purple-500" />, 
         title: 'Professional Invoices', 
         description: 'Generate clear, branded invoices with CGST/SGST calculation and digital signatures.'
     },
@@ -150,7 +149,7 @@ const Homesection2 = () => {
                             key={index} 
                             className="p-8 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 border border-gray-100 bg-gray-50"
                         >
-                            <div className="text-5xl mb-4">{feature.icon}</div>
+                            <div className="flex justify-center mb-4">{feature.icon}</div>
                             <h3 className="text-xl font-bold text-gray-800 mb-3">{feature.title}</h3>
                             <p className="text-gray-600">{feature.description}</p>
                         </div>
