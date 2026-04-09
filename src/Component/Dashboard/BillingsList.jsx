@@ -1,6 +1,5 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { invoiceAPI } from '../../services/api';
 import {
   FileText,
   Search,
@@ -13,6 +12,7 @@ import {
   RefreshCw,
   Loader2
 } from 'lucide-react';
+import { invoiceAPI, companyAPI } from '../../services/api';
 
 const BillingsList = ({ isDarkMode, onEditBill }) => {
   const [billSearchTerm, setBillSearchTerm] = React.useState('');
@@ -28,83 +28,44 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
   const [companyLogo, setCompanyLogo] = React.useState(null);
   const [digitalSignature, setDigitalSignature] = React.useState(null);
 
+  // ✅ CENTRALIZED MAPPING FUNCTION
+  const mapInvoiceToUI = (invoice) => {
+    if (!invoice) return null;
+
+    const items = invoice.items || invoice.invoiceItems || [];
+    const calculatedAmount = invoice.totalAmount || invoice.grandTotal || invoice.amount || 0;
+
+    return {
+      id: invoice.id,
+      invoiceNo: invoice.invoiceNumber || invoice.invoiceNo || `INV-${invoice.id || 'N/A'}`,
+      customerName: invoice.customer?.name || invoice.customerName || 'Walk-in Customer',
+      customerPhone: invoice.customer?.phone || invoice.customerPhone || 'N/A',
+      customerGst: invoice.customer?.gst || invoice.customerGst || 'N/A',
+      customerAddress: invoice.customer?.address || invoice.customerAddress || 'N/A',
+      date: invoice.invoiceDate ? new Date(invoice.invoiceDate).toLocaleDateString('en-GB') : (invoice.date || new Date().toLocaleDateString('en-GB')),
+      amount: calculatedAmount,
+      status: invoice.status || 'Completed',
+      paymentStatus: (invoice.paymentStatus?.toUpperCase() === 'PAID' || (invoice.balanceAmount || 0) === 0) ? 'Paid' : 'Unpaid',
+      items: Array.isArray(items) ? items : [],
+      totals: {
+        subtotal: invoice.subTotal || invoice.subtotal || invoice.totals?.subtotal || calculatedAmount,
+        grandTotal: calculatedAmount,
+        balanceAmount: invoice.balanceAmount !== undefined ? invoice.balanceAmount : (calculatedAmount - (invoice.advanceAmount || 0)),
+        advanceAmount: invoice.advanceAmount || 0,
+        cgstAmount: invoice.totalCgst || invoice.cgstAmount || invoice.totals?.cgstAmount || 0,
+        sgstAmount: invoice.totalSgst || invoice.sgstAmount || invoice.totals?.sgstAmount || 0,
+        totalDiscount: invoice.totalDiscount || invoice.totals?.totalDiscount || 0
+      },
+      employeeName: invoice.employee?.name || invoice.employeeName || 'Sales Person'
+    };
+  };
+
   // Fetch complete invoice data with all related entities
   const fetchCompleteInvoiceData = async (invoiceId) => {
     try {
-      const response = await fetch(`https://backend-billing-software-ahxt.onrender.com/api/billing/invoice/${invoiceId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const invoice = await response.json();
-
-      // Fetch company details separately using company ID
-      let companyDetails = {
-        name: 'Smart Sales',
-        address: '123 Business Street, City - 400001',
-        phone: '+91 98765 43210',
-        gst: '27XXXXX1234X1ZX',
-        brands: 'RELAXO adidas Bata Paragon FILA campus'
-      };
-
-      if (invoice.company?.id) {
-        try {
-          const companyResponse = await fetch(`http://localhost:8080/api/billing/company/${invoice.company.id}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
-
-          if (companyResponse.ok) {
-            const company = await companyResponse.json();
-            companyDetails = {
-              id: company.id,
-              name: company.name || 'Smart Sales',
-              address: company.address || '123 Business Street, City - 400001',
-              phone: company.phone || '+91 98765 43210',
-              gst: company.gst || '27XXXXX1234X1ZX',
-              brands: company.brands || 'RELAXO adidas Bata Paragon FILA campus'
-            };
-          }
-        } catch (companyError) {
-          console.error('Error fetching company details:', companyError);
-        }
-      }
-
-      // Use totalAmount directly from backend if available
-      const calculatedAmount = invoice.totalAmount || invoice.grandTotal || 0;
-
-      return {
-        id: invoice.id,
-        invoiceNo: invoice.invoiceNumber || `INV-${invoice.id}`,
-        customerName: invoice.customer?.name || 'N/A',
-        customerPhone: invoice.customer?.phone || 'N/A',
-        customerGst: invoice.customer?.gst || 'N/A',
-        customerAddress: invoice.customer?.address || 'N/A',
-        date: invoice.invoiceDate ? new Date(invoice.invoiceDate).toLocaleDateString() : new Date().toLocaleDateString(),
-        amount: calculatedAmount,
-        status: 'Completed',
-        paymentStatus: (invoice.paymentStatus === 'PAID' || invoice.paymentStatus === 'Paid' || (invoice.balanceAmount || 0) === 0) ? 'Paid' : 'Unpaid',
-        items: invoice.items || [],
-        totals: {
-          subtotal: invoice.subTotal || 0,
-          grandTotal: calculatedAmount,
-          balanceAmount: invoice.balanceAmount || 0,
-          advanceAmount: invoice.advanceAmount || 0,
-          cgstAmount: invoice.cgstAmount || 0,
-          sgstAmount: invoice.sgstAmount || 0,
-          totalDiscount: invoice.totalDiscount || 0
-        },
-        company: companyDetails,
-        employeeName: invoice.employee?.name || 'Sales Person'
-      };
+      const response = await invoiceAPI.getById(invoiceId);
+      const invoice = response.data || response;
+      return mapInvoiceToUI(invoice);
     } catch (error) {
       console.error('Error fetching complete invoice data:', error);
       return null;
@@ -114,30 +75,8 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
   const fetchInvoices = async () => {
     setLoading(true);
     try {
-      const response = await fetch('https://backend-billing-software-ahxt.onrender.com/api/billing/invoices', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const responseText = await response.text();
-      console.log('Raw response:', responseText);
-
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error('JSON parse error:', parseError);
-        console.error('Response text:', responseText);
-        throw new Error('Invalid JSON response from server');
-      }
-
-      console.log('Parsed data:', data);
+      const response = await invoiceAPI.getAll();
+      const data = response.data;
 
       // Handle different response formats
       let invoicesArray = [];
@@ -148,84 +87,19 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
       } else if (data && Array.isArray(data.invoices)) {
         invoicesArray = data.invoices;
       } else {
-        console.error('Unexpected response format:', data);
         invoicesArray = [];
       }
 
-      // Fetch company details for each invoice
-      const apiInvoices = await Promise.all(invoicesArray.map(async (invoice) => {
-        let companyDetails = {
-          name: 'Smart Sales',
-          address: '123 Business Street, City - 400001',
-          phone: '+91 98765 43210',
-          gst: '27XXXXX1234X1ZX',
-          brands: 'RELAXO adidas Bata Paragon FILA campus'
-        };
+      // Map invoices using centralized helper
+      const mappedInvoices = invoicesArray.map((invoice) => mapInvoiceToUI(invoice)).filter(Boolean);
 
-        // Fetch company details if company ID exists
-        if (invoice.company?.id) {
-          try {
-            const companyResponse = await fetch(`https://backend-billing-software-ahxt.onrender.com/api/billing/company/${invoice.company.id}`, {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            });
+      setInvoices(mappedInvoices.sort((a, b) => b.id - a.id));
 
-            if (companyResponse.ok) {
-              const company = await companyResponse.json();
-              companyDetails = {
-                id: company.id,
-                name: company.name || 'Smart Sales',
-                address: company.address || '123 Business Street, City - 400001',
-                phone: company.phone || '+91 98765 43210',
-                gst: company.gst || '27XXXXX1234X1ZX',
-                brands: company.brands || 'RELAXO adidas Bata Paragon FILA campus'
-              };
-            }
-          } catch (companyError) {
-            console.error('Error fetching company details for invoice:', invoice.id, companyError);
-          }
-        }
-
-        // Use totalAmount directly from backend if available
-        const calculatedAmount = invoice.totalAmount || invoice.grandTotal || 0;
-
-        return {
-          id: invoice.id,
-          invoiceNo: invoice.invoiceNumber || `INV-${invoice.id}`,
-          customerName: invoice.customer?.name || 'N/A',
-          customerPhone: invoice.customer?.phone || 'N/A',
-          customerGst: invoice.customer?.gst || 'N/A',
-          customerAddress: invoice.customer?.address || 'N/A',
-          date: invoice.invoiceDate ? new Date(invoice.invoiceDate).toLocaleDateString() : new Date().toLocaleDateString(),
-          amount: calculatedAmount,
-          status: 'Completed',
-          paymentStatus: (invoice.paymentStatus === 'PAID' || invoice.paymentStatus === 'Paid' || (invoice.balanceAmount || 0) === 0) ? 'Paid' : 'Unpaid',
-          items: invoice.items || [],
-          totals: {
-            subtotal: invoice.subTotal || 0,
-            grandTotal: calculatedAmount,
-            balanceAmount: invoice.balanceAmount || 0,
-            advanceAmount: invoice.advanceAmount || 0,
-            cgstAmount: invoice.cgstAmount || 0,
-            sgstAmount: invoice.sgstAmount || 0,
-            totalDiscount: invoice.totalDiscount || 0
-          },
-          companyId: invoice.company?.id,
-          customerId: invoice.customer?.id,
-          company: companyDetails,
-          employeeName: invoice.employee?.name || 'N/A'
-        };
-      }));
-
-      console.log('Mapped invoices with company details:', apiInvoices);
-      // Sort by ID descending (newest first)
-      setInvoices(apiInvoices.sort((a, b) => b.id - a.id));
+      setInvoices(mappedInvoices.sort((a, b) => b.id - a.id));
     } catch (error) {
       console.error('Error fetching invoices:', error);
-      // Fallback to localStorage
-      const savedBills = JSON.parse(localStorage.getItem('billings') || '[]');
+      // Fallback to localStorage - IMPORTANT: use 'bills'
+      const savedBills = JSON.parse(localStorage.getItem('bills') || '[]');
       setInvoices(savedBills);
     } finally {
       setLoading(false);
@@ -453,16 +327,15 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
               <div class="customer-details">
                 <strong>Name:</strong> ${billData.customerName}<br>
                 <strong>Phone:</strong> ${billData.customerPhone}<br>
-                <strong>GST:</strong> ${billData.customerGst || 'N/A'}<br>
                 <strong>Address:</strong> ${billData.customerAddress || 'N/A'}
               </div>
             </div>
             <div class="invoice-info">
               <table class="invoice-info-table">
-                <tr><td>Invoice No.:</td><td>${billData.invoiceNo}</td></tr>
-                <tr><td>Invoice Date:</td><td>${billData.date}</td></tr>
-                <tr><td>Salesperson:</td><td><strong>${employeeName}</strong></td></tr>
-                <tr><td>Payment Method:</td><td><span class="payment-method">💵 Cash</span></td></tr>
+                <tr><td>Invoice No.:</td><td>${billData.invoiceNo || 'N/A'}</td></tr>
+                <tr><td>Invoice Date:</td><td>${billData.date || new Date().toLocaleDateString()}</td></tr>
+                <tr><td>Salesperson:</td><td><strong>${employeeName || 'Staff'}</strong></td></tr>
+                <tr><td>Payment Method:</td><td><span class="payment-method">Cash</span></td></tr>
                 <tr><td>Payment Status:</td><td><span class="payment-status">${billData.paymentStatus || 'Unpaid'}</span></td></tr>
               </table>
             </div>
@@ -566,7 +439,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
             </h2>
             <p className="text-sm text-gray-500 mt-1 font-medium italic">View and manage your billing history</p>
           </div>
-          
+
           <div className="flex flex-col md:flex-row items-center gap-4 w-full lg:w-auto">
             {/* Date Filter */}
             <div className="relative w-full md:w-64 group">
@@ -649,8 +522,8 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                       </td>
                       <td className="p-4">
                         <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${(bill.paymentStatus || 'Unpaid') === 'Paid'
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-red-100 text-red-700'
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-red-100 text-red-700'
                           }`}>
                           {(bill.paymentStatus || 'Unpaid') === 'Paid' ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
                           {bill.paymentStatus || 'Unpaid'}
@@ -701,8 +574,8 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                         {bill.status}
                       </span>
                       <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${(bill.paymentStatus || 'Unpaid') === 'Paid'
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-red-100 text-red-700'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-red-100 text-red-700'
                         }`}>
                         {(bill.paymentStatus || 'Unpaid') === 'Paid' ? <CheckCircle2 size={10} /> : <XCircle size={10} />}
                         {bill.paymentStatus || 'Unpaid'}
@@ -786,8 +659,8 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                       type="text"
                       placeholder="Enter new product name"
                       className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${isDarkMode
-                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                          : 'bg-white border-gray-300 text-gray-800 placeholder-gray-500'
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                        : 'bg-white border-gray-300 text-gray-800 placeholder-gray-500'
                         }`}
                     />
                   </div>
@@ -799,8 +672,8 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                       type="number"
                       placeholder="Enter new amount"
                       className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${isDarkMode
-                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                          : 'bg-white border-gray-300 text-gray-800 placeholder-gray-500'
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                        : 'bg-white border-gray-300 text-gray-800 placeholder-gray-500'
                         }`}
                     />
                   </div>
@@ -812,8 +685,8 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                       placeholder="Reason for exchange"
                       rows="3"
                       className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${isDarkMode
-                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                          : 'bg-white border-gray-300 text-gray-800 placeholder-gray-500'
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                        : 'bg-white border-gray-300 text-gray-800 placeholder-gray-500'
                         }`}
                     ></textarea>
                   </div>
@@ -825,8 +698,8 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                       type="number"
                       placeholder="Amount difference (+/-)"
                       className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${isDarkMode
-                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                          : 'bg-white border-gray-300 text-gray-800 placeholder-gray-500'
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                        : 'bg-white border-gray-300 text-gray-800 placeholder-gray-500'
                         }`}
                     />
                   </div>
@@ -878,8 +751,8 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                     type="text"
                     defaultValue={updateBill.invoiceNo}
                     className={`w-full p-3 border-2 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all ${isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                        : 'bg-white border-gray-200 text-gray-800 placeholder-gray-500'
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                      : 'bg-white border-gray-200 text-gray-800 placeholder-gray-500'
                       }`}
                     placeholder="Invoice number"
                   />
@@ -892,8 +765,8 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                     type="text"
                     defaultValue={updateBill.customerName}
                     className={`w-full p-3 border-2 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all ${isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                        : 'bg-white border-gray-200 text-gray-800 placeholder-gray-500'
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                      : 'bg-white border-gray-200 text-gray-800 placeholder-gray-500'
                       }`}
                     placeholder="Customer name"
                     readOnly
@@ -907,8 +780,8 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                     type="number"
                     defaultValue={updateBill.amount}
                     className={`w-full p-3 border-2 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all ${isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                        : 'bg-white border-gray-200 text-gray-800 placeholder-gray-500'
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                      : 'bg-white border-gray-200 text-gray-800 placeholder-gray-500'
                       }`}
                     placeholder="Amount"
                   />
@@ -920,8 +793,8 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                     name="paymentStatus"
                     defaultValue={updateBill.paymentStatus}
                     className={`w-full p-3 border-2 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all ${isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white'
-                        : 'bg-white border-gray-200 text-gray-800'
+                      ? 'bg-gray-700 border-gray-600 text-white'
+                      : 'bg-white border-gray-200 text-gray-800'
                       }`}
                   >
                     <option value="Paid">Paid</option>
@@ -1019,7 +892,6 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                     <div className="text-xs md:text-sm space-y-1">
                       <p><strong>Name:</strong> {selectedBill.customerName}</p>
                       <p><strong>Phone:</strong> {selectedBill.customerPhone}</p>
-                      <p><strong>GST:</strong> {selectedBill.customerGst || 'N/A'}</p>
                       <p><strong>Address:</strong> {selectedBill.customerAddress || 'N/A'}</p>
                     </div>
                   </div>
@@ -1027,11 +899,11 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                     <div className="space-y-2 text-xs md:text-sm">
                       <div className="flex justify-between">
                         <span className="font-bold">Invoice No.:</span>
-                        <span>{selectedBill.invoiceNo}</span>
+                        <span>{selectedBill.invoiceNo || 'N/A'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="font-bold">Invoice Date:</span>
-                        <span>{selectedBill.date}</span>
+                        <span>{selectedBill.date || new Date().toLocaleDateString()}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="font-bold">Salesperson:</span>
@@ -1039,13 +911,13 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                       </div>
                       <div className="flex justify-between">
                         <span className="font-bold">Payment Method:</span>
-                        <span className="bg-green-500 text-white px-2 py-1 rounded text-xs">💵 Cash</span>
+                        <span className="bg-green-500 text-white px-2 py-1 rounded text-xs">Cash</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="font-bold">Payment Status:</span>
                         <span className={`px-2 py-1 rounded text-xs font-bold ${(selectedBill.paymentStatus || 'Unpaid') === 'Paid'
-                            ? 'bg-green-100 text-green-600'
-                            : 'bg-red-100 text-red-600'
+                          ? 'bg-green-100 text-green-600'
+                          : 'bg-red-100 text-red-600'
                           }`}>{selectedBill.paymentStatus || 'Unpaid'}</span>
                       </div>
                     </div>

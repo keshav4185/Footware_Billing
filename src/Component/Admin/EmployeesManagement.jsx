@@ -50,16 +50,21 @@ const EmployeesManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const trimmedData = {
+      name: formData.name.trim(),
+      phone: formData.phone.trim(),
+      email: formData.email.trim(),
+      password: formData.password ? formData.password.trim() : null,
+      empId: formData.empId.trim()
+    };
+
     if (editingEmployee) {
-      await axios.put(`${API}/${editingEmployee.id}`, {
-        ...formData,
-        password: formData.password || null
-      });
+      await axios.put(`${API}/${editingEmployee.id}`, trimmedData);
       alert('Employee updated successfully!');
     } else {
       await axios.post(API, {
-        ...formData,
-        empId: formData.empId || generateEmpId(),
+        ...trimmedData,
+        empId: trimmedData.empId || generateEmpId(),
         status: 'Active'
       });
       alert('Employee added successfully!');

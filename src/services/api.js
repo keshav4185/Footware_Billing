@@ -30,7 +30,7 @@ export const companyAPI = {
     gst: company.gst,
     brands: company.brands
   }),
-   getAll: () => axios.get("/company"),   // ✅ ADD THIS
+  getAll: () => axios.get("/company"),
   getById: (id) => axios.get(`/company/${id}`)
 };
 
@@ -58,6 +58,7 @@ export const productAPI = {
 // Invoice API
 export const invoiceAPI = {
   create: (invoice) => api.post('/invoice', invoice),
+  getById: (id) => api.get(`/invoice/${id}`),
   getAll: () => api.get('/invoices'),
   update: (id, invoice) => api.put(`/invoice/${id}`, invoice),
   delete: (id) => axios.delete(`https://backend-billing-software-ahxt.onrender.com/api/billing/invoices/${id}`),

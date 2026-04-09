@@ -1,14 +1,15 @@
 import React from 'react';
-import { 
-  LayoutDashboard, 
-  IndianRupee, 
-  FileText, 
-  CheckCircle2, 
-  TrendingUp, 
-  BarChart3, 
+import {
+  LayoutDashboard,
+  IndianRupee,
+  FileText,
+  CheckCircle2,
+  TrendingUp,
+  BarChart3,
   ClipboardList,
   Search
 } from 'lucide-react';
+import { invoiceAPI } from '../../services/api';
 
 const EmployeeDashboard = ({ isDarkMode }) => {
   const [dateRange, setDateRange] = React.useState('today');
@@ -22,103 +23,133 @@ const EmployeeDashboard = ({ isDarkMode }) => {
     avgSale: 0,
     topCustomers: [],
     recentBills: [],
-    dailySales: []
+    dailySales: [],
+    topProducts: []
   });
   const [loading, setLoading] = React.useState(false);
 
   // Fetch dashboard summary from API
+  const processDashboardData = (allInvoices) => {
+    if (!allInvoices || !Array.isArray(allInvoices)) return;
+
+    let invoicesData = [...allInvoices];
+    let totalSales = 0;
+    let totalInvoices = 0;
+    let paidBillsCount = 0;
+
+    // Filter by date range for statistics
+    if (dateRange === 'today') {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      invoicesData = invoicesData.filter(invoice => {
+        const d = invoice.invoiceDate || invoice.date;
+        const invoiceDate = new Date(d);
+        invoiceDate.setHours(0, 0, 0, 0);
+        return invoiceDate.getTime() === today.getTime();
+      });
+    } else if (dateRange === 'week') {
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      weekAgo.setHours(0, 0, 0, 0);
+      invoicesData = invoicesData.filter(invoice => {
+        const d = invoice.invoiceDate || invoice.date;
+        const invoiceDate = new Date(d);
+        return invoiceDate >= weekAgo;
+      });
+    } else if (dateRange === 'month') {
+      const monthAgo = new Date();
+      monthAgo.setDate(monthAgo.getDate() - 30);
+      monthAgo.setHours(0, 0, 0, 0);
+      invoicesData = invoicesData.filter(invoice => {
+        const d = invoice.invoiceDate || invoice.date;
+        const invoiceDate = new Date(d);
+        return invoiceDate >= monthAgo;
+      });
+    }
+
+    // Calculate totals from filtered data
+    totalSales = invoicesData.reduce((sum, inv) => sum + (inv.totalAmount || inv.grandTotal || 0), 0);
+    totalInvoices = invoicesData.length;
+    paidBillsCount = invoicesData.filter(invoice => {
+      const status = (invoice.paymentStatus || '').toUpperCase();
+      return status === 'PAID';
+    }).length;
+
+    // Recent Bills should be from ALL invoices, unfiltered
+    const recentInvoices = allInvoices.slice(-5).reverse().map(invoice => ({
+      id: invoice.id,
+      invoiceNo: invoice.invoiceNumber || invoice.id,
+      customerName: invoice.customer?.name || (invoice.customer ? invoice.customer.name : 'Walk-in Customer'),
+      date: invoice.invoiceDate || invoice.date,
+      amount: invoice.totalAmount || invoice.grandTotal,
+      paymentStatus: (invoice.paymentStatus || '').toUpperCase() === 'PAID' ? 'Paid' : 'Unpaid'
+    }));
+
+    // Calculate average sale
+    const avgSale = totalInvoices > 0 ? totalSales / totalInvoices : 0;
+
+    // Aggregate chart data from filtered data
+    const salesMap = {};
+    invoicesData.forEach(inv => {
+      const d = inv.invoiceDate || inv.date;
+      const dateStr = new Date(d).toLocaleDateString();
+      salesMap[dateStr] = (salesMap[dateStr] || 0) + (inv.totalAmount || inv.grandTotal || 0);
+    });
+    const manualDailySales = Object.entries(salesMap)
+      .map(([date, amount]) => ({ date, amount }))
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // Aggregate product sales from filtered data
+    const productAggregation = {};
+    invoicesData.forEach(invoice => {
+      // API format uses invoice.items, LocalStorage might use invoice.products
+      const items = invoice.items || invoice.products || [];
+      if (Array.isArray(items)) {
+        items.forEach(item => {
+          const name = item.itemName || item.name || 'Unknown Item';
+          const qty = item.quantity || item.qty || 0;
+          const rev = item.rowTotal || (item.price * item.qty) || 0;
+          if (!productAggregation[name]) {
+            productAggregation[name] = { name, qty: 0, total: 0 };
+          }
+          productAggregation[name].qty += qty;
+          productAggregation[name].total += rev;
+        });
+      }
+    });
+
+    const topProducts = Object.values(productAggregation)
+      .sort((a, b) => b.qty - a.qty)
+      .slice(0, 10);
+
+    setDashboardData({
+      totalSales: totalSales,
+      totalInvoices: totalInvoices,
+      paidBills: paidBillsCount,
+      avgSale: avgSale,
+      topCustomers: [], 
+      recentBills: recentInvoices,
+      dailySales: manualDailySales,
+      topProducts: topProducts
+    });
+  };
+
   const fetchDashboardSummary = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`https://backend-billing-software-ahxt.onrender.com/api/billing/dashboard/summary?period=${dateRange}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const response = await invoiceAPI.getAll();
+      if (response && response.data && response.data.length > 0) {
+        processDashboardData(response.data);
+      } else {
+        // Fallback to localStorage if API returns empty
+        const savedBills = JSON.parse(localStorage.getItem('bills') || '[]');
+        processDashboardData(savedBills);
       }
-      
-      const data = await response.json();
-      console.log('Dashboard API Response:', data);
-      
-      // Fetch recent invoices separately
-      const invoicesResponse = await fetch('https://backend-billing-software-ahxt.onrender.com/api/billing/invoices', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      let recentInvoices = [];
-      let paidBillsCount = 0;
-      let totalSales = 0;
-      let totalInvoices = 0;
-      if (invoicesResponse.ok) {
-        const invoicesText = await invoicesResponse.text();
-        let invoicesData = JSON.parse(invoicesText);
-        
-        // Filter by date range
-        if (dateRange === 'today') {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          invoicesData = invoicesData.filter(invoice => {
-            const invoiceDate = new Date(invoice.invoiceDate);
-            invoiceDate.setHours(0, 0, 0, 0);
-            return invoiceDate.getTime() === today.getTime();
-          });
-        } else if (dateRange === 'week') {
-          const weekAgo = new Date();
-          weekAgo.setDate(weekAgo.getDate() - 7);
-          weekAgo.setHours(0, 0, 0, 0);
-          invoicesData = invoicesData.filter(invoice => {
-            const invoiceDate = new Date(invoice.invoiceDate);
-            return invoiceDate >= weekAgo;
-          });
-        } else if (dateRange === 'month') {
-          const monthAgo = new Date();
-          monthAgo.setDate(monthAgo.getDate() - 30);
-          monthAgo.setHours(0, 0, 0, 0);
-          invoicesData = invoicesData.filter(invoice => {
-            const invoiceDate = new Date(invoice.invoiceDate);
-            return invoiceDate >= monthAgo;
-          });
-        }
-        
-        // Calculate totals from filtered data
-        totalSales = invoicesData.reduce((sum, inv) => sum + (inv.totalAmount || 0), 0);
-        totalInvoices = invoicesData.length;
-        paidBillsCount = invoicesData.filter(invoice => invoice.paymentStatus === 'PAID').length;
-        
-        recentInvoices = invoicesData.slice(-5).map(invoice => ({
-          id: invoice.id,
-          invoiceNo: invoice.invoiceNumber,
-          customerName: invoice.customer?.name,
-          date: invoice.invoiceDate,
-          amount: invoice.totalAmount,
-          paymentStatus: invoice.paymentStatus === 'PAID' ? 'Paid' : 'Unpaid'
-        }));
-      }
-      
-      // Calculate average sale
-      const avgSale = totalInvoices > 0 ? totalSales / totalInvoices : 0;
-      
-      setDashboardData({
-        totalSales: totalSales,
-        totalInvoices: totalInvoices,
-        paidBills: paidBillsCount,
-        avgSale: avgSale,
-        topCustomers: data.topCustomers || [],
-        recentBills: recentInvoices,
-        dailySales: data.dailySales || []
-      });
     } catch (error) {
       console.error('Error fetching dashboard summary:', error);
-      // Fallback to localStorage calculation
-      const savedBills = JSON.parse(localStorage.getItem('billings') || '[]');
-      setBills(savedBills);
+      // Fallback to localStorage on error
+      const savedBills = JSON.parse(localStorage.getItem('bills') || '[]');
+      processDashboardData(savedBills);
     } finally {
       setLoading(false);
     }
@@ -129,7 +160,7 @@ const EmployeeDashboard = ({ isDarkMode }) => {
     const employeeData = JSON.parse(localStorage.getItem('employee') || '{}');
     const employeeName = localStorage.getItem('loggedInEmployee') || employeeData.name || 'Employee';
     setLoggedInEmployee(employeeName);
-    
+
     // Fetch dashboard data
     fetchDashboardSummary();
   }, [dateRange]);
@@ -138,11 +169,11 @@ const EmployeeDashboard = ({ isDarkMode }) => {
     // This is now handled by the API, but keeping for fallback
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    
+
     return bills.filter(bill => {
       const billDate = new Date(bill.date);
-      
-      switch(dateRange) {
+
+      switch (dateRange) {
         case 'today':
           return billDate >= today;
         case 'week':
@@ -183,8 +214,8 @@ const EmployeeDashboard = ({ isDarkMode }) => {
             </h1>
             <p className="text-gray-600">Welcome, {loggedInEmployee}</p>
           </div>
-          <select 
-            value={dateRange} 
+          <select
+            value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           >
@@ -210,7 +241,7 @@ const EmployeeDashboard = ({ isDarkMode }) => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6 transform hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-green-300/50 animate-slideInUp group hover:-rotate-1" style={{animationDelay: '0.1s'}}>
+        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6 transform hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-green-300/50 animate-slideInUp group hover:-rotate-1" style={{ animationDelay: '0.1s' }}>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-green-100 text-sm font-medium">Total Invoices</p>
@@ -222,7 +253,7 @@ const EmployeeDashboard = ({ isDarkMode }) => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl p-6 transform hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-purple-300/50 animate-slideInUp group hover:rotate-1" style={{animationDelay: '0.2s'}}>
+        <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl p-6 transform hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-purple-300/50 animate-slideInUp group hover:rotate-1" style={{ animationDelay: '0.2s' }}>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-purple-100 text-sm font-medium">Paid Bills</p>
@@ -234,7 +265,7 @@ const EmployeeDashboard = ({ isDarkMode }) => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl p-6 transform hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-orange-300/50 animate-slideInRight group hover:-rotate-1" style={{animationDelay: '0.3s'}}>
+        <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl p-6 transform hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-orange-300/50 animate-slideInRight group hover:-rotate-1" style={{ animationDelay: '0.3s' }}>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-orange-100 text-sm font-medium">Avg Sale</p>
@@ -254,38 +285,78 @@ const EmployeeDashboard = ({ isDarkMode }) => {
           <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-3">
             <BarChart3 className="text-blue-500" size={22} /> Daily Sales ({dateRange === 'today' ? 'Today' : dateRange === 'week' ? 'Last 7 Days' : dateRange === 'month' ? 'Last 30 Days' : 'All Time'})
           </h3>
-          <div className="space-y-3">
-            {dashboardData.dailySales.length > 0 ? (
-              dashboardData.dailySales.map((dayData, index) => (
-                <div key={dayData.date || index} className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">{dayData.date}</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-32 bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-blue-500 h-2 rounded-full" 
-                        style={{width: `${Math.min((dayData.amount / Math.max(...dashboardData.dailySales.map(d => d.amount))) * 100, 100)}%`}}
-                      ></div>
+          <div className="space-y-6">
+            {/* Chart Area */}
+            <div className="space-y-3">
+              {dashboardData.dailySales.length > 0 ? (
+                dashboardData.dailySales.map((dayData, index) => (
+                  <div key={dayData.date || index} className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600 font-medium">{dayData.date}</span>
+                    <div className="flex items-center gap-4 flex-1 justify-end">
+                      <div className="w-full max-w-[120px] md:max-w-[200px] bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className="bg-blue-600 h-full rounded-full transition-all duration-1000"
+                          style={{ width: `${Math.min((dayData.amount / Math.max(...dashboardData.dailySales.map(d => d.amount))) * 100, 100)}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-sm font-bold text-gray-900 min-w-[70px] text-right">₹{(dayData.amount || 0).toLocaleString()}</span>
                     </div>
-                    <span className="text-sm font-semibold text-gray-800">₹{(dayData.amount || 0).toFixed(2)}</span>
                   </div>
-                </div>
-              ))
-            ) : (
-              Object.entries(salesByDay).slice(-7).map(([date, amount]) => (
-                <div key={date} className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">{date}</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-32 bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-blue-500 h-2 rounded-full" 
-                        style={{width: `${Math.min((amount / Math.max(...Object.values(salesByDay))) * 100, 100)}%`}}
-                      ></div>
+                ))
+              ) : (
+                Object.entries(salesByDay).slice(-7).map(([date, amount]) => (
+                  <div key={date} className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600 font-medium">{date}</span>
+                    <div className="flex items-center gap-4 flex-1 justify-end">
+                      <div className="w-full max-w-[120px] md:max-w-[200px] bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className="bg-blue-600 h-full rounded-full"
+                          style={{ width: `${Math.min((amount / Math.max(...Object.values(salesByDay))) * 100, 100)}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-sm font-bold text-gray-900 min-w-[70px] text-right">₹{amount.toLocaleString()}</span>
                     </div>
-                    <span className="text-sm font-semibold text-gray-800">₹{amount.toFixed(2)}</span>
                   </div>
-                </div>
-              ))
-            )}
+                ))
+              )}
+            </div>
+
+            {/* Products Area (Inside the same card) */}
+            <div className="pt-6 border-t border-gray-100">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2">
+                   Products Sold {dateRange === 'today' ? 'Today' : 'this Period'}
+                </h4>
+                <span className="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded">Top 10 Items</span>
+              </div>
+              
+              <div className="overflow-x-auto">
+                {dashboardData.topProducts.length > 0 ? (
+                  <table className="w-full border-separate border-spacing-y-2">
+                    <thead>
+                      <tr className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                        <th className="text-left pb-1 pl-1">Name</th>
+                        <th className="text-center pb-1">Qty</th>
+                        <th className="text-right pb-1 pr-1">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dashboardData.topProducts.map((p, i) => (
+                        <tr key={i} className="group hover:bg-blue-50/50 transition-colors rounded-lg">
+                          <td className="py-2 pl-2 text-sm text-gray-700 font-medium rounded-l-lg border-y border-l border-transparent group-hover:border-blue-100">{p.name}</td>
+                          <td className="py-2 text-center text-sm font-bold text-blue-600 border-y border-transparent group-hover:border-blue-100">{p.qty}</td>
+                          <td className="py-2 pr-2 text-right text-sm font-bold text-gray-900 rounded-r-lg border-y border-r border-transparent group-hover:border-blue-100">₹{p.total.toLocaleString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="text-center py-6 text-gray-400 italic text-sm">
+                    No transactions recorded for this period
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -314,11 +385,10 @@ const EmployeeDashboard = ({ isDarkMode }) => {
                   <td className="p-3 text-sm text-gray-600">{bill.date || 'N/A'}</td>
                   <td className="p-3 text-sm font-semibold text-green-600">₹{(bill.amount || 0).toFixed(2)}</td>
                   <td className="p-3">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      bill.paymentStatus === 'Paid' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${bill.paymentStatus === 'Paid'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                      }`}>
                       {bill.paymentStatus || 'Unpaid'}
                     </span>
                   </td>

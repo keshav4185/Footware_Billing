@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  BarChart, Bar, Legend
+  BarChart, Bar, Legend, PieChart, Pie, Cell
 } from "recharts";
 import CountUp from "react-countup";
 import * as XLSX from "xlsx";
@@ -252,17 +252,43 @@ const Reports = () => {
   };
 
   const ProductReport = () => {
-    const topProducts = products
-      .map(p => ({
-        name: p.name,
-        total: (p.price || 0) * (p.stock || 0)
-      }))
-      .sort((a, b) => b.total - a.total)
-      .slice(0, 5);
+    // 1. Calculate actual sales revenue per product from all invoices
+    const productStats = products.map(p => {
+      // Find all items in all bills that match this product
+      let soldQty = 0;
+      let revenue = 0;
+      
+      filteredBills.forEach(bill => {
+        const items = bill.items || bill.invoiceItems || [];
+        items.forEach(item => {
+          // Comprehensive matching by ID or Name
+          if (item.product?.id === p.id || item.productId === p.id || item.productName === p.name || item.itemName === p.name) {
+            soldQty += (item.quantity || item.qty || 0);
+            revenue += (item.rowTotal || (item.quantity * item.rate) || 0);
+          }
+        });
+      });
+
+      return {
+        ...p,
+        soldQty,
+        revenue,
+        // Calculate inventory value
+        inventoryValue: (p.price || 0) * (p.stock || 0)
+      };
+    });
+
+    // 2. Data for Charts
+    const sortedByRevenue = [...productStats].sort((a, b) => b.revenue - a.revenue).slice(0, 10);
+    const top5Revenue = sortedByRevenue.slice(0, 5);
+    
+    // 3. Colors for Pie Chart
+    const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
     return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="space-y-8 animate-fadeIn">
+        {/* KPI Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <KPICard
             title="Total Products"
             value={products.length}
@@ -270,46 +296,94 @@ const Reports = () => {
             colorTo="#b45309"
           />
           <KPICard
-            title="Low Stock"
-            value={products.filter(p => p.stock < 10).length}
-            colorFrom="#ef4444"
-            colorTo="#7f1d1d"
+            title="Total Sales Value"
+            value={productStats.reduce((sum, p) => sum + p.revenue, 0).toFixed(2)}
+            colorFrom="#8b5cf6"
+            colorTo="#4c1d95"
           />
           <KPICard
-            title="Total Value"
-            value={products.reduce((sum, p) => sum + (p.price * p.stock), 0).toFixed(2)}
+            title="Inventory Value"
+            value={productStats.reduce((sum, p) => sum + p.inventoryValue, 0).toFixed(2)}
             colorFrom="#eab308"
             colorTo="#78350f"
           />
+
         </div>
 
-        <div className="bg-white p-4 rounded-xl shadow-lg mt-4">
-          <h3 className="text-lg font-bold mb-4">Product Stock Levels</h3>
-          {products.length > 0 ? (
-            <ResponsiveContainer width="100%" height={350}>
-              <BarChart data={products}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="stock" fill="#3b82f6" radius={[5,5,0,0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          ) : <p className="text-gray-500 text-center py-10">No product data available.</p>}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Chart 1: Revenue Performance (Top 10) */}
+          <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+            <h3 className="text-lg font-bold mb-4 text-gray-800 flex items-center gap-2">
+              <span className="w-2 h-6 bg-blue-500 rounded-full"></span>
+              Top Products by Revenue
+            </h3>
+            <div className="h-[350px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={sortedByRevenue} layout="vertical" margin={{ left: 40, right: 30 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
+                  <XAxis type="number" hide />
+                  <YAxis dataKey="name" type="category" width={100} tick={{ fontSize: 11 }} />
+                  <Tooltip 
+                    cursor={{ fill: '#f3f4f6' }}
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div className="bg-white p-3 shadow-xl rounded-lg border border-gray-100">
+                            <p className="font-bold text-gray-800 mb-1">{payload[0].payload.name}</p>
+                            <p className="text-blue-600 font-bold">Revenue: ₹{payload[0].value.toLocaleString('en-IN')}</p>
+                            <p className="text-gray-500 text-xs">Units Sold: {payload[0].payload.soldQty}</p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Bar dataKey="revenue" fill="#3b82f6" radius={[0, 5, 5, 0]} barSize={20} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Chart 2: Revenue Distribution (Pie) */}
+          <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+            <h3 className="text-lg font-bold mb-4 text-gray-800 flex items-center gap-2">
+              <span className="w-2 h-6 bg-purple-500 rounded-full"></span>
+              Revenue Share %
+            </h3>
+            <div className="h-[350px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={top5Revenue}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    paddingAngle={5}
+                    dataKey="revenue"
+                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                  >
+                    {top5Revenue.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend verticalAlign="bottom" height={36}/>
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </div>
 
-        <div className="mt-4">
-          <h3 className="text-lg font-bold mb-2">Top 5 Products by Value</h3>
-          {topProducts.length > 0 ? (
-            <ul className="list-disc pl-5">
-              {topProducts.map(p => (
-                <li key={p.name}>{p.name}: ₹{p.total.toFixed(2)}</li>
-              ))}
-            </ul>
-          ) : <p className="text-gray-500">No product data available.</p>}
-          <button onClick={() => exportToExcel(products, `products.xlsx`)}
-            className="bg-blue-500 text-white px-4 py-2 mt-2 rounded-lg hover:bg-blue-600">
-            Export Excel
+
+
+        {/* Action Bar */}
+        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+          <button 
+            onClick={() => exportToExcel(productStats, `product_performance_report.xlsx`)}
+            className="flex items-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-xl hover:bg-blue-700 transition font-medium shadow-md shadow-blue-100"
+          >
+            Export Detailed Analytics
           </button>
         </div>
       </div>

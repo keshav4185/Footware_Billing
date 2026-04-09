@@ -37,9 +37,9 @@ const Signin = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    const empId = e.target.empId.value;
-    const email = e.target.email.value;
-    const password = e.target.password.value;
+    const empId = e.target.empId.value.trim();
+    const email = e.target.email.value.trim();
+    const password = e.target.password.value.trim();
 
     try {
       const res = await axios.post(

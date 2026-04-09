@@ -43,6 +43,19 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   const [paymentStatus, setPaymentStatus] = React.useState('Unpaid');
   const [showCompanyWatermark, setShowCompanyWatermark] = React.useState(false);
   const [loggedInEmployee, setLoggedInEmployee] = React.useState('');
+
+  // Robust employee name initialization
+  React.useEffect(() => {
+    const savedName = localStorage.getItem('loggedInEmployee');
+    const employeeData = JSON.parse(localStorage.getItem('employee') || '{}');
+    if (savedName) {
+      setLoggedInEmployee(savedName);
+    } else if (employeeData && employeeData.name) {
+      setLoggedInEmployee(employeeData.name);
+    } else {
+      setLoggedInEmployee('Sales Person');
+    }
+  }, []);
   const [digitalSignature, setDigitalSignature] = React.useState(null);
   const [customers, setCustomers] = React.useState([]);
   const [apiProducts, setApiProducts] = React.useState([]);
@@ -317,7 +330,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       `👤 Customer: ${customerFormData.name}\n` +
       `📞 Phone: ${customerFormData.phone}\n\n` +
       `📦 *PRODUCTS:*\n${productsText}\n\n` +
-      `💰 *BILL SUMMARY:*\n` +
+      ` *BILL SUMMARY:*\n` +
       `Subtotal: ₹${totals.subtotal.toFixed(2)}\n` +
       `Discount: ₹${totals.totalDiscount.toFixed(2)}\n` +
       `${cgstEnabled ? `CGST (${cgstRate}%): ₹${totals.cgstAmount.toFixed(2)}\n` : ''}` +
@@ -325,7 +338,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       `*Total Amount: ₹${totals.grandTotal.toFixed(2)}*\n` +
       `Advance: ₹${advance.toFixed(2)}\n` +
       `*Balance: ₹${totals.balanceAmount.toFixed(2)}*\n\n` +
-      `👨💼 Salesperson: ${loggedInEmployee}\n` +
+      ` Salesperson: ${loggedInEmployee}\n` +
       `🏢 ${companyDetails.name}\n` +
       `📍 ${companyDetails.address}\n` +
       `📞 ${companyDetails.phone}`;
@@ -335,7 +348,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
     alert('Invoice sent via WhatsApp!');
   };
 
-  const handleAction = (action) => {
+  const handleAction = async (action) => {
     // Apply validation criteria before any action
     if (!validateCompanyDetails()) return;
     if (!validateBasicForm()) return;
@@ -352,10 +365,10 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
     if (action === 'print') openDirectPrintPreview();
     else if (action === 'preview') {
       // Auto-save before showing preview
-      saveBillToAPI();
+      await saveBillToAPI(false);
       setShowPreview(true);
     }
-    else if (action === 'save') saveBillToAPI();
+    else if (action === 'save') await saveBillToAPI(true);
     else if (action === 'send') sendInvoice();
   };
 
@@ -421,7 +434,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
 
 
 
-  const saveBillToAPI = async () => {
+  const saveBillToAPI = async (shouldReset = true) => {
     setLoading(true);
 
     try {
@@ -628,9 +641,11 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
 
       alert(isEditMode ? "Invoice updated successfully!" : "Bill saved to database successfully!");
 
-      // Reset form after successful save
-      setCustomerFormData({ name: "", phone: "", gst: "", address: "" });
-      setProducts([{ id: 1, name: "", qty: 1, price: 0, discount: 0 }]);
+      if (shouldReset) {
+        // Reset form after successful save
+        setCustomerFormData({ name: "", phone: "", gst: "", address: "" });
+        setProducts([{ id: 1, name: "", qty: 1, price: 0, discount: 0 }]);
+      }
 
     } catch (error) {
       console.error("Error saving to API:", error);
@@ -992,7 +1007,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
               <div class="logo-box">${companyLogo ? `<img src="${companyLogo}" alt="Logo" style="width:100%;height:100%;object-fit:contain;">` : 'YOUR<br>LOGO'}</div>
               <div class="company-info">
                 <div class="company-name">${companyDetails.name}</div>
-                <div class="company-details">${companyDetails.address}<br>Phone: ${companyDetails.phone}<!--<br>GST: ${companyDetails.gst}--></div>
+                <div class="company-details">${companyDetails.address}<br>Phone: ${companyDetails.phone}<br>GST: ${companyDetails.gst}</div>
                 <!--<div class="brand-line">${companyDetails.brands}</div>-->
               </div>
             </div>
@@ -1005,7 +1020,6 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
               <div class="customer-details">
                 <strong>Name:</strong> ${customerFormData.name}<br>
                 <strong>Phone:</strong> ${customerFormData.phone}<br>
-                <!--<strong>GST:</strong> ${customerFormData.gst}<br>-->
                 <strong>Address:</strong> ${customerFormData.address}
               </div>
             </div>
@@ -1014,7 +1028,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
                 <tr><td>Invoice No.:</td><td>INV-${Date.now().toString().slice(-6)}</td></tr>
                 <tr><td>Invoice Date:</td><td>${new Date(invoiceDate).toLocaleDateString('en-GB')}</td></tr>
                 <tr><td>Salesperson:</td><td><strong>${loggedInEmployee}</strong></td></tr>
-                <tr><td>Payment Method:</td><td><span class="payment-method">💵 Cash</span></td></tr>
+                <tr><td>Payment Method:</td><td><span class="payment-method">Cash</span></td></tr>
                 <tr><td>Payment Status:</td><td><span class="payment-status">${paymentStatus}</span></td></tr>
               </table>
             </div>
@@ -1065,8 +1079,8 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       </div>
       {/* Mobile Header */}
       <div className={`rounded-xl shadow-xl p-4 mb-4 border backdrop-blur-sm ${isDarkMode
-          ? 'bg-gray-800/90 border-gray-700 text-white'
-          : 'bg-white/90 border-gray-100 text-gray-800'
+        ? 'bg-gray-800/90 border-gray-700 text-white'
+        : 'bg-white/90 border-gray-100 text-gray-800'
         }`}>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div className="animate-slideInLeft w-full text-center sm:text-left">
@@ -1087,8 +1101,8 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         {/* Customer Details Card */}
         <div className={`rounded-xl shadow-xl p-4 md:p-6 border animate-slideInLeft backdrop-blur-sm ${isDarkMode
-            ? 'bg-gray-800/95 border-gray-700 text-white'
-            : 'bg-white/95 border-gray-100 text-gray-800'
+          ? 'bg-gray-800/95 border-gray-700 text-white'
+          : 'bg-white/95 border-gray-100 text-gray-800'
           }`}>
           <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-800'
             }`}>
@@ -1101,8 +1115,8 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
               <input
                 type="text"
                 className={`w-full p-3 border-2 rounded-lg focus:ring-4 focus:ring-blue-100 transition-all duration-300 hover:shadow-md ${isDarkMode
-                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400 hover:border-blue-500'
-                    : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500 hover:border-blue-300'
+                  ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400 hover:border-blue-500'
+                  : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500 hover:border-blue-300'
                   }`}
                 placeholder="Enter customer name (letters only)"
                 value={customerFormData.name}
@@ -1120,16 +1134,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
                 onChange={handlePhoneChange}
               />
             </div>
-            {/* <div className="animate-fadeInUp" style={{animationDelay: '0.3s'}}>
-              <label className="block text-sm font-medium text-red-600 mb-1">GST Number *</label>
-              <input 
-                type="text" 
-                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 hover:border-blue-300 hover:shadow-md" 
-                placeholder="Enter GST number"
-                value={customerFormData.gst}
-                onChange={(e) => setCustomerFormData({...customerFormData, gst: e.target.value})}
-              />
-            </div> */}
+
             <div className="animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
               <label className="block text-sm font-medium text-red-600 mb-1">Invoice Address *</label>
               <textarea
@@ -1145,8 +1150,8 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
 
         {/* Company Details Card */}
         <div className={`rounded-xl shadow-xl p-4 md:p-6 border animate-slideInRight backdrop-blur-sm ${isDarkMode
-            ? 'bg-gray-800/95 border-gray-700 text-white'
-            : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-300 text-gray-800'
+          ? 'bg-gray-800/95 border-gray-700 text-white'
+          : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-300 text-gray-800'
           }`}>
           <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-800'
             }`}>
@@ -1187,8 +1192,8 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
               <input
                 type="text"
                 className={`w-full p-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 transition-all ${isDarkMode
-                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400'
-                    : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500'
+                  ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400'
+                  : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500'
                   }`}
                 placeholder="Enter company name (letters & business chars only)"
                 value={companyDetails.name}
@@ -1200,8 +1205,8 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
                 }`}>Company Address</label>
               <textarea
                 className={`w-full p-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 transition-all resize-none ${isDarkMode
-                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400'
-                    : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500'
+                  ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400'
+                  : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500'
                   }`}
                 rows="3"
                 value={companyDetails.address}
@@ -1214,8 +1219,8 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
               <input
                 type="text"
                 className={`w-full p-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 transition-all ${isDarkMode
-                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400'
-                    : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500'
+                  ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400'
+                  : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500'
                   }`}
                 placeholder="Enter phone number (numbers only)"
                 maxLength="10"
@@ -1223,28 +1228,27 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
                 onChange={handleCompanyPhoneChange}
               />
             </div>
-            {/* <div>
-              <label className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}>GST Number</label>
-              <input 
-                type="text" 
-                className={`w-full p-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 transition-all ${
-                  isDarkMode 
-                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400' 
-                    : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500'
-                }`} 
+            <div>
+              <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>GST Number</label>
+              <input
+                type="text"
+                className={`w-full p-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 transition-all ${isDarkMode
+                  ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400'
+                  : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500'
+                  }`}
+                placeholder="Enter Company GST"
                 value={companyDetails.gst}
-                onChange={(e) => setCompanyDetails({...companyDetails, gst: e.target.value})}
+                onChange={handleCompanyGstChange}
               />
-            </div> */}
+            </div>
 
             <div>
               <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'
                 }`}>Payment Method</label>
               <select className={`w-full p-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 transition-all ${isDarkMode
-                  ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400'
-                  : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500'
+                ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400'
+                : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500'
                 }`}>
                 <option>Cash</option>
                 <option>Card</option>
@@ -1257,8 +1261,8 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
 
       {/* Products Section */}
       <div className={`rounded-xl shadow-xl p-4 md:p-6 mb-6 border animate-fadeInUp backdrop-blur-sm ${isDarkMode
-          ? 'bg-gray-800/95 border-gray-700 text-white'
-          : 'bg-white/95 border-gray-100 text-gray-800'
+        ? 'bg-gray-800/95 border-gray-700 text-white'
+        : 'bg-white/95 border-gray-100 text-gray-800'
         }`}>
         <div className="flex items-center justify-between mb-4">
           <h3 className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-800'
@@ -1436,8 +1440,8 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
 
       {/* Bill Summary */}
       <div className={`rounded-xl shadow-xl p-4 md:p-6 border animate-fadeInUp backdrop-blur-sm ${isDarkMode
-          ? 'bg-gray-800/90 border-gray-700 text-white'
-          : 'bg-gradient-to-br from-blue-50 to-indigo-100 border-blue-200 text-gray-800'
+        ? 'bg-gray-800/90 border-gray-700 text-white'
+        : 'bg-gradient-to-br from-blue-50 to-indigo-100 border-blue-200 text-gray-800'
         }`}>
         <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-800'
           }`}>
@@ -1446,8 +1450,8 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
         <div className={`rounded-lg p-4 space-y-3 shadow-inner ${isDarkMode ? 'bg-gray-700/50' : 'bg-white'
           }`}>
           <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b transition-all duration-300 rounded px-2 ${isDarkMode
-              ? 'border-gray-600 hover:bg-gray-700 text-gray-200'
-              : 'border-gray-100 hover:bg-gray-50 text-gray-800'
+            ? 'border-gray-600 hover:bg-gray-700 text-gray-200'
+            : 'border-gray-100 hover:bg-gray-50 text-gray-800'
             }`}>
             <span className={`text-sm mb-1 sm:mb-0 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'
               }`}>Untaxed Amount:</span>
@@ -1455,8 +1459,8 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
               }`}>₹ {calculateTotals().subtotal.toFixed(2)}</span>
           </div>
           <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b transition-all duration-300 rounded px-2 ${isDarkMode
-              ? 'border-gray-600 hover:bg-gray-700 text-gray-200'
-              : 'border-gray-100 hover:bg-gray-50 text-gray-800'
+            ? 'border-gray-600 hover:bg-gray-700 text-gray-200'
+            : 'border-gray-100 hover:bg-gray-50 text-gray-800'
             }`}>
             <span className={`text-sm mb-1 sm:mb-0 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'
               }`}>Discount Amount:</span>
@@ -1477,8 +1481,8 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
               <input
                 type="number"
                 className={`w-12 p-1 border rounded text-xs text-center ${isDarkMode
-                    ? 'border-gray-600 bg-gray-700 text-white'
-                    : 'border-gray-300 bg-white text-gray-900'
+                  ? 'border-gray-600 bg-gray-700 text-white'
+                  : 'border-gray-300 bg-white text-gray-900'
                   }`}
                 value={cgstRate}
                 min="0"
@@ -1506,8 +1510,8 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
               <input
                 type="number"
                 className={`w-12 p-1 border rounded text-xs text-center ${isDarkMode
-                    ? 'border-gray-600 bg-gray-700 text-white'
-                    : 'border-gray-300 bg-white text-gray-900'
+                  ? 'border-gray-600 bg-gray-700 text-white'
+                  : 'border-gray-300 bg-white text-gray-900'
                   }`}
                 value={sgstRate}
                 min="0"
@@ -1557,10 +1561,10 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
           </div>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 py-2 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg px-4 border border-gray-200 mt-2">
             <span className={`px-3 py-1 rounded-lg font-bold text-sm ${calculateTotals().balanceAmount === 0
-                ? 'bg-green-500 text-white'
-                : calculateTotals().balanceAmount === calculateTotals().grandTotal
-                  ? 'bg-red-500 text-white'
-                  : 'bg-orange-500 text-white'
+              ? 'bg-green-500 text-white'
+              : calculateTotals().balanceAmount === calculateTotals().grandTotal
+                ? 'bg-red-500 text-white'
+                : 'bg-orange-500 text-white'
               }`}>
               {calculateTotals().balanceAmount === 0
                 ? 'Paid'
@@ -1671,7 +1675,6 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
                     <div className="text-xs md:text-sm space-y-1">
                       <p><strong>Name:</strong> {customerFormData.name}</p>
                       <p><strong>Phone:</strong> {customerFormData.phone}</p>
-                      <p><strong>GST:</strong> {customerFormData.gst}</p>
                       <p><strong>Address:</strong> {customerFormData.address}</p>
                     </div>
                   </div>
@@ -1679,29 +1682,29 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
                     <div className="space-y-2 text-xs md:text-sm">
                       <div className="flex justify-between">
                         <span className="font-bold">Invoice No.:</span>
-                        <span>INV-{Date.now().toString().slice(-6)}</span>
+                        <span>{Date.now() ? `INV-${Date.now().toString().slice(-6)}` : 'N/A'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="font-bold">Invoice Date:</span>
                         <input
                           type="date"
-                          value={invoiceDate}
+                          value={invoiceDate || new Date().toISOString().split('T')[0]}
                           onChange={(e) => setInvoiceDate(e.target.value)}
                           className="text-sm border border-gray-300 rounded px-2 py-1 focus:border-blue-500 focus:outline-none"
                         />
                       </div>
                       <div className="flex justify-between">
                         <span className="font-bold">Salesperson:</span>
-                        <span className="font-semibold text-blue-600">{loggedInEmployee}</span>
+                        <span className="font-semibold text-blue-600">{loggedInEmployee || 'Staff'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="font-bold">Payment Method:</span>
-                        <span className="bg-green-500 text-white px-2 py-1 rounded text-xs">💵 Cash</span>
+                        <span className="bg-green-500 text-white px-2 py-1 rounded text-xs">Cash</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="font-bold">Payment Status:</span>
                         <span className={`px-2 py-1 rounded text-xs font-bold ${paymentStatus === 'Paid' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
-                          }`}>{paymentStatus}</span>
+                          }`}>{paymentStatus || 'Unpaid'}</span>
                       </div>
                     </div>
                   </div>
