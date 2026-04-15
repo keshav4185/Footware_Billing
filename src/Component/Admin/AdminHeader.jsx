@@ -62,15 +62,19 @@ const AdminHeader = ({ isSidebarOpen, setIsSidebarOpen, isDarkMode, setIsDarkMod
             </div>
             
             {/* Dropdown */}
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+            <div className={`absolute right-0 mt-2 w-48 rounded-xl shadow-2xl border transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 opacity-0 invisible group-hover:opacity-100 group-hover:visible ${
+              isDarkMode ? 'bg-gray-800 border-gray-700 shadow-black/50' : 'bg-white border-gray-100'
+            }`}>
               <div className="py-3">
-                <div className="px-4 py-2 border-b border-gray-100">
-                  <p className="text-sm font-medium text-gray-900">Keshav</p>
-                  <p className="text-xs text-gray-500">Administrator</p>
+                <div className={`px-4 py-2 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}>
+                  <p className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Keshav</p>
+                  <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Administrator</p>
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-all flex items-center space-x-2 font-medium"
+                  className={`w-full text-left px-4 py-3 text-sm flex items-center space-x-2 font-bold transition-all ${
+                    isDarkMode ? 'text-red-400 hover:bg-red-900/20' : 'text-red-600 hover:bg-red-50'
+                  }`}
                 >
                   <LogOut size={16} />
                   <span>Logout</span>

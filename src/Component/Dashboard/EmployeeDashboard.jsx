@@ -196,93 +196,90 @@ const EmployeeDashboard = ({ isDarkMode }) => {
   }, {});
 
   return (
-    <div className="p-4 md:p-6 space-y-6 relative overflow-hidden">
-      {/* Dynamic Wave Background */}
+    <div className="p-4 md:p-6 space-y-6 relative overflow-hidden h-full">
+      {/* Dynamic Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-0 w-full h-full">
-          <div className="absolute top-10 left-10 w-64 h-64 bg-gradient-to-r from-blue-200 to-purple-200 rounded-full opacity-10 animate-pulse-slow blur-3xl"></div>
-          <div className="absolute bottom-20 right-20 w-48 h-48 bg-gradient-to-r from-green-200 to-blue-200 rounded-full opacity-15 animate-float blur-2xl"></div>
-          <div className="absolute top-1/2 left-1/3 w-32 h-32 bg-gradient-to-r from-pink-200 to-orange-200 rounded-full opacity-20 animate-bounce-slow blur-xl"></div>
-        </div>
-      </div>
-      {/* Header */}
-      <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 backdrop-blur-sm bg-white/90 hover:shadow-2xl hover:shadow-blue-200/50 transition-all duration-500 transform hover:scale-[1.01] border border-gray-100 relative z-10 group">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
-              <LayoutDashboard className="text-blue-600" size={28} /> Dashboard
-            </h1>
-            <p className="text-gray-600">Welcome, {loggedInEmployee}</p>
-          </div>
-          <select
-            value={dateRange}
-            onChange={(e) => setDateRange(e.target.value)}
-            className={`px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'}`}
-          >
-            <option value="today">Today</option>
-            <option value="week">Last 7 Days</option>
-            <option value="month">Last 30 Days</option>
-            <option value="all">All Time</option>
-          </select>
+        <div className={`absolute top-0 left-0 w-full h-full opacity-10 ${
+          isDarkMode ? 'bg-blue-900/20' : 'bg-blue-50/50'
+        }`}>
+          <div className="absolute top-10 left-10 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-20 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-float"></div>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6 transform hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-blue-300/50 animate-slideInLeft group hover:rotate-1">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-blue-100 text-sm font-medium">Total Sales</p>
-              <p className="text-2xl font-bold animate-pulse">₹{dashboardData.totalSales.toFixed(2)}</p>
+      {/* Header Card */}
+      <div className={`rounded-2xl shadow-xl p-6 md:p-8 backdrop-blur-md transition-all duration-500 border relative z-10 ${
+        isDarkMode ? 'bg-gray-800/80 border-gray-700 hover:shadow-gray-900/50' : 'bg-white/90 border-gray-100'
+      }`}>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+          <div className="flex items-center gap-4">
+            <div className={`p-4 rounded-2xl ${isDarkMode ? 'bg-blue-900/40 text-blue-400' : 'bg-blue-50 text-blue-600'}`}>
+              <LayoutDashboard size={32} className="animate-pulse" />
             </div>
-            <div className="bg-white/20 p-3 rounded-lg backdrop-blur-sm group-hover:bg-white/30 transition-colors">
-              <IndianRupee size={28} className="text-white" />
+            <div>
+              <h1 className={`text-2xl md:text-3xl font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                Advanced Analytics
+              </h1>
+              <p className={`text-base font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                Welcome back, <span className="text-blue-500 font-bold">{loggedInEmployee}</span>
+              </p>
+            </div>
+          </div>
+          <div className="relative w-full sm:w-auto">
+            <select
+              value={dateRange}
+              onChange={(e) => setDateRange(e.target.value)}
+              className={`w-full sm:w-48 appearance-none px-6 py-3 border-2 rounded-xl font-bold shadow-lg focus:ring-4 transition-all cursor-pointer ${
+                isDarkMode 
+                  ? 'bg-gray-700 border-gray-600 text-white focus:ring-blue-900/30' 
+                  : 'bg-white border-blue-50 text-gray-800 focus:ring-blue-100'
+              }`}
+            >
+              <option value="today">Today</option>
+              <option value="week">Past 7 Days</option>
+              <option value="month">Last 30 Days</option>
+              <option value="all">Full History</option>
+            </select>
+            <div className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-400'}`}>
+              ▼
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6 transform hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-green-300/50 animate-slideInUp group hover:-rotate-1" style={{ animationDelay: '0.1s' }}>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-green-100 text-sm font-medium">Total Invoices</p>
-              <p className="text-2xl font-bold animate-pulse">{dashboardData.totalInvoices}</p>
+      {/* Interactive Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+        {[
+          { label: 'Total Sales', value: `₹${dashboardData.totalSales.toLocaleString()}`, icon: IndianRupee, color: 'blue' },
+          { label: 'Total Invoices', value: dashboardData.totalInvoices, icon: FileText, color: 'green' },
+          { label: 'Paid Bills', value: dashboardData.paidBills, icon: CheckCircle2, color: 'purple' },
+          { label: 'Avg Sale', value: `₹${dashboardData.avgSale.toFixed(0)}`, icon: TrendingUp, color: 'orange' }
+        ].map((stat, i) => (
+          <div key={i} className={`rounded-2xl p-6 border-2 transform hover:scale-105 transition-all duration-300 shadow-lg group ${
+            isDarkMode 
+              ? `bg-gray-800/60 border-gray-700 hover:border-blue-500/50 shadow-gray-900/40` 
+              : `bg-white border-gray-50 hover:border-blue-100 shadow-blue-100/30`
+          }`}>
+            <div className="flex items-center justify-between mb-4">
+              <div className={`p-3 rounded-xl ${isDarkMode ? `bg-gray-700 text-blue-400` : `bg-blue-50 text-blue-600`}`}>
+                <stat.icon size={26} className="group-hover:rotate-12 transition-transform" />
+              </div>
+              <div className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                {stat.label}
+              </div>
             </div>
-            <div className="bg-white/20 p-3 rounded-lg backdrop-blur-sm group-hover:bg-white/30 transition-colors">
-              <FileText size={28} className="text-white" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl p-6 transform hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-purple-300/50 animate-slideInUp group hover:rotate-1" style={{ animationDelay: '0.2s' }}>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-purple-100 text-sm font-medium">Paid Bills</p>
-              <p className="text-2xl font-bold animate-pulse">{dashboardData.paidBills}</p>
-            </div>
-            <div className="bg-white/20 p-3 rounded-lg backdrop-blur-sm group-hover:bg-white/30 transition-colors">
-              <CheckCircle2 size={28} className="text-white" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl p-6 transform hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-orange-300/50 animate-slideInRight group hover:-rotate-1" style={{ animationDelay: '0.3s' }}>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-orange-100 text-sm font-medium">Avg Sale</p>
-              <p className="text-2xl font-bold animate-pulse">₹{dashboardData.avgSale.toFixed(2)}</p>
-            </div>
-            <div className="bg-white/20 p-3 rounded-lg backdrop-blur-sm group-hover:bg-white/30 transition-colors">
-              <TrendingUp size={28} className="text-white" />
+            <div className={`text-2xl font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              {stat.value}
             </div>
           </div>
-        </div>
+        ))}
       </div>
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 gap-6 relative z-10">
         {/* Daily Sales */}
-        <div className="bg-white rounded-xl shadow-lg p-6 backdrop-blur-sm bg-white/90 hover:shadow-2xl hover:shadow-blue-200/50 transition-all duration-500 transform hover:scale-[1.02] border border-gray-100 group">
-          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-3">
+        <div className={`rounded-xl shadow-lg p-6 backdrop-blur-sm transition-all duration-500 transform hover:scale-[1.02] border group ${isDarkMode ? 'bg-gray-800/90 border-gray-700 hover:shadow-2xl hover:shadow-gray-900/50' : 'bg-white/90 border-gray-100 hover:shadow-2xl hover:shadow-blue-200/50'}`}>
+          <h3 className={`text-lg font-bold mb-4 flex items-center gap-3 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
             <BarChart3 className="text-blue-500" size={22} /> Daily Sales ({dateRange === 'today' ? 'Today' : dateRange === 'week' ? 'Last 7 Days' : dateRange === 'month' ? 'Last 30 Days' : 'All Time'})
           </h3>
           <div className="space-y-6">
@@ -291,30 +288,30 @@ const EmployeeDashboard = ({ isDarkMode }) => {
               {dashboardData.dailySales.length > 0 ? (
                 dashboardData.dailySales.map((dayData, index) => (
                   <div key={dayData.date || index} className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600 font-medium">{dayData.date}</span>
+                    <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{dayData.date}</span>
                     <div className="flex items-center gap-4 flex-1 justify-end">
-                      <div className="w-full max-w-[120px] md:max-w-[200px] bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                      <div className={`w-full max-w-[120px] md:max-w-[200px] rounded-full h-1.5 overflow-hidden ${isDarkMode ? 'bg-gray-600' : 'bg-gray-100'}`}>
                         <div
                           className="bg-blue-600 h-full rounded-full transition-all duration-1000"
                           style={{ width: `${Math.min((dayData.amount / Math.max(...dashboardData.dailySales.map(d => d.amount))) * 100, 100)}%` }}
                         ></div>
                       </div>
-                      <span className="text-sm font-bold text-gray-900 min-w-[70px] text-right">₹{(dayData.amount || 0).toLocaleString()}</span>
+                      <span className={`text-sm font-bold min-w-[70px] text-right ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>₹{(dayData.amount || 0).toLocaleString()}</span>
                     </div>
                   </div>
                 ))
               ) : (
                 Object.entries(salesByDay).slice(-7).map(([date, amount]) => (
                   <div key={date} className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600 font-medium">{date}</span>
+                    <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{date}</span>
                     <div className="flex items-center gap-4 flex-1 justify-end">
-                      <div className="w-full max-w-[120px] md:max-w-[200px] bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                      <div className={`w-full max-w-[120px] md:max-w-[200px] rounded-full h-1.5 overflow-hidden ${isDarkMode ? 'bg-gray-600' : 'bg-gray-100'}`}>
                         <div
                           className="bg-blue-600 h-full rounded-full"
                           style={{ width: `${Math.min((amount / Math.max(...Object.values(salesByDay))) * 100, 100)}%` }}
                         ></div>
                       </div>
-                      <span className="text-sm font-bold text-gray-900 min-w-[70px] text-right">₹{amount.toLocaleString()}</span>
+                      <span className={`text-sm font-bold min-w-[70px] text-right ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>₹{amount.toLocaleString()}</span>
                     </div>
                   </div>
                 ))
@@ -322,19 +319,19 @@ const EmployeeDashboard = ({ isDarkMode }) => {
             </div>
 
             {/* Products Area (Inside the same card) */}
-            <div className="pt-6 border-t border-gray-100">
+            <div className={`pt-6 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}>
               <div className="flex items-center justify-between mb-4">
-                <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2">
+                <h4 className={`text-sm font-bold uppercase tracking-wider flex items-center gap-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                   Products Sold {dateRange === 'today' ? 'Today' : 'this Period'}
                 </h4>
-                <span className="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded">Top 10 Items</span>
+                <span className={`text-xs px-2 py-1 rounded ${isDarkMode ? 'text-gray-400 bg-gray-700' : 'text-gray-400 bg-gray-50'}`}>Top 10 Items</span>
               </div>
 
               <div className="overflow-x-auto">
                 {dashboardData.topProducts.length > 0 ? (
                   <table className="w-full border-separate border-spacing-y-2">
                     <thead>
-                      <tr className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                      <tr className={`text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
                         <th className="text-left pb-1 pl-1">Name</th>
                         <th className="text-center pb-1">Qty</th>
                         <th className="text-right pb-1 pr-1">Total</th>
@@ -342,16 +339,16 @@ const EmployeeDashboard = ({ isDarkMode }) => {
                     </thead>
                     <tbody>
                       {dashboardData.topProducts.map((p, i) => (
-                        <tr key={i} className="group hover:bg-blue-50/50 transition-colors rounded-lg">
-                          <td className="py-2 pl-2 text-sm text-gray-700 font-medium rounded-l-lg border-y border-l border-transparent group-hover:border-blue-100">{p.name}</td>
-                          <td className="py-2 text-center text-sm font-bold text-blue-600 border-y border-transparent group-hover:border-blue-100">{p.qty}</td>
-                          <td className="py-2 pr-2 text-right text-sm font-bold text-gray-900 rounded-r-lg border-y border-r border-transparent group-hover:border-blue-100">₹{p.total.toLocaleString()}</td>
+                        <tr key={i} className={`group transition-colors rounded-lg ${isDarkMode ? 'hover:bg-gray-700/50' : 'hover:bg-blue-50/50'}`}>
+                          <td className={`py-2 pl-2 text-sm font-medium rounded-l-lg border-y border-l border-transparent ${isDarkMode ? 'text-gray-300 group-hover:border-gray-600' : 'text-gray-700 group-hover:border-blue-100'}`}>{p.name}</td>
+                          <td className={`py-2 text-center text-sm font-bold border-y border-transparent ${isDarkMode ? 'text-blue-400 group-hover:border-gray-600' : 'text-blue-600 group-hover:border-blue-100'}`}>{p.qty}</td>
+                          <td className={`py-2 pr-2 text-right text-sm font-bold rounded-r-lg border-y border-r border-transparent ${isDarkMode ? 'text-gray-100 group-hover:border-gray-600' : 'text-gray-900 group-hover:border-blue-100'}`}>₹{p.total.toLocaleString()}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 ) : (
-                  <div className="text-center py-6 text-gray-400 italic text-sm">
+                  <div className={`text-center py-6 italic text-sm ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
                     No transactions recorded for this period
                   </div>
                 )}
@@ -362,28 +359,28 @@ const EmployeeDashboard = ({ isDarkMode }) => {
       </div>
 
       {/* Recent Bills */}
-      <div className="bg-white rounded-xl shadow-lg p-6 backdrop-blur-sm bg-white/90 hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 transform hover:scale-[1.01] border border-gray-100 relative z-10">
-        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-3">
+      <div className={`rounded-xl shadow-lg p-6 backdrop-blur-sm transition-all duration-500 transform hover:scale-[1.01] border relative z-10 ${isDarkMode ? 'bg-gray-800/90 border-gray-700 hover:shadow-2xl hover:shadow-gray-900/50' : 'bg-white/90 border-gray-100 hover:shadow-2xl hover:shadow-gray-200/50'}`}>
+        <h3 className={`text-lg font-bold mb-4 flex items-center gap-3 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
           <ClipboardList className="text-indigo-500" size={22} /> Recent Bills
         </h3>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b">
-                <th className="text-left p-3 text-sm font-semibold text-gray-700">Invoice</th>
-                <th className="text-left p-3 text-sm font-semibold text-gray-700">Customer</th>
-                <th className="text-left p-3 text-sm font-semibold text-gray-700">Date</th>
-                <th className="text-left p-3 text-sm font-semibold text-gray-700">Amount</th>
-                <th className="text-left p-3 text-sm font-semibold text-gray-700">Status</th>
+              <tr className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                <th className={`text-left p-3 text-sm font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Invoice</th>
+                <th className={`text-left p-3 text-sm font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Customer</th>
+                <th className={`text-left p-3 text-sm font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Date</th>
+                <th className={`text-left p-3 text-sm font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Amount</th>
+                <th className={`text-left p-3 text-sm font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Status</th>
               </tr>
             </thead>
             <tbody>
               {dashboardData.recentBills.map((bill, index) => (
-                <tr key={bill.id || index} className="border-b hover:bg-gray-50">
-                  <td className="p-3 text-sm font-medium text-blue-600">{bill.invoiceNo || 'N/A'}</td>
-                  <td className="p-3 text-sm text-gray-800">{bill.customerName || 'N/A'}</td>
-                  <td className="p-3 text-sm text-gray-600">{bill.date || 'N/A'}</td>
-                  <td className="p-3 text-sm font-semibold text-green-600">₹{(bill.amount || 0).toFixed(2)}</td>
+                <tr key={bill.id || index} className={`border-b ${isDarkMode ? 'border-gray-700 hover:bg-gray-700/50' : 'border-gray-100 hover:bg-gray-50'}`}>
+                  <td className={`p-3 text-sm font-medium ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>{bill.invoiceNo || 'N/A'}</td>
+                  <td className={`p-3 text-sm ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>{bill.customerName || 'N/A'}</td>
+                  <td className={`p-3 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{bill.date || 'N/A'}</td>
+                  <td className={`p-3 text-sm font-semibold ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>₹{(bill.amount || 0).toFixed(2)}</td>
                   <td className="p-3">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${bill.paymentStatus === 'Paid'
                       ? 'bg-green-100 text-green-800'

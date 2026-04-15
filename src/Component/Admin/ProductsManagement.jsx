@@ -12,7 +12,7 @@ import {
   Boxes
 } from 'lucide-react';
 
-const ProductsManagement = ({ products, setProducts }) => {
+const ProductsManagement = ({ products, setProducts, isDarkMode }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -81,13 +81,13 @@ const ProductsManagement = ({ products, setProducts }) => {
   const categories = [...new Set(products.map(p => p.category))];
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 transition-colors duration-300 ${isDarkMode ? 'text-white' : ''}`}>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
+          <h2 className={`text-2xl font-bold flex items-center gap-3 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
             <Package className="text-purple-600" size={28} /> Products Management
           </h2>
-          <p className="text-gray-600">Manage your product inventory</p>
+          <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>Manage your product inventory</p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}
@@ -135,7 +135,7 @@ const ProductsManagement = ({ products, setProducts }) => {
       </div>
 
       {/* Search and Filter */}
-      <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+      <div className={`rounded-xl shadow-lg p-4 sm:p-6 transition-colors duration-300 ${isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'}`}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-4">
           <div className="flex-1 relative w-full">
             <input
@@ -143,29 +143,35 @@ const ProductsManagement = ({ products, setProducts }) => {
               placeholder="Search products by name or category..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all shadow-sm"
+              className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 transition-all shadow-sm ${
+                isDarkMode 
+                  ? 'bg-gray-700 border-gray-600 text-white focus:ring-purple-900/50 focus:border-purple-500' 
+                  : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-500 focus:border-purple-500'
+              }`}
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
           </div>
-          <div className="text-sm text-gray-500">
+          <div className={`text-sm ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
             {filteredProducts.length} of {products.length} products
           </div>
         </div>
 
         {filteredProducts.length === 0 ? (
           <div className="text-center py-12">
-            <Package size={64} className="mx-auto text-gray-200 mb-4" />
-            <h3 className="text-lg font-medium text-gray-800 mb-2">No products found</h3>
+            <Package size={64} className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-700' : 'text-gray-200'}`} />
+            <h3 className={`text-lg font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>No products found</h3>
             <p className="text-gray-500">Add your first product to get started</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredProducts.map((product) => (
-              <div key={product.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+              <div key={product.id} className={`border rounded-lg p-4 hover:shadow-md transition-all ${
+                isDarkMode ? 'bg-gray-800/50 border-gray-700 hover:bg-gray-700/50' : 'bg-white border-gray-200 hover:shadow-lg'
+              }`}>
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex-1">
-                    <h3 className="font-bold text-gray-800 text-lg">{product.name}</h3>
-                    <p className="text-sm text-gray-500">{product.category}</p>
+                    <h3 className={`font-bold text-lg ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{product.name}</h3>
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>{product.category}</p>
                   </div>
                   <div className="flex space-x-1">
                     <button
@@ -187,23 +193,23 @@ const ProductsManagement = ({ products, setProducts }) => {
 
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Price:</span>
-                    <span className="font-bold text-green-600">₹{product.price.toFixed(2)}</span>
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Price:</span>
+                    <span className="font-bold text-green-500">₹{product.price.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Stock:</span>
-                    <span className={`font-medium ${product.stock < 10 ? 'text-red-600' : 'text-green-600'}`}>
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Stock:</span>
+                    <span className={`font-medium ${product.stock < 10 ? 'text-red-500' : 'text-green-500'}`}>
                       {product.stock} units
                     </span>
                   </div>
                   {product.hsn && (
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">HSN:</span>
-                      <span className="text-sm text-gray-800">{product.hsn}</span>
+                      <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>HSN:</span>
+                      <span className={`text-sm ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>{product.hsn}</span>
                     </div>
                   )}
                   {product.description && (
-                    <p className="text-sm text-gray-600 mt-2">{product.description}</p>
+                    <p className={`text-sm mt-2 line-clamp-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{product.description}</p>
                   )}
                 </div>
               </div>
@@ -214,11 +220,11 @@ const ProductsManagement = ({ products, setProducts }) => {
 
       {/* Add/Edit Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className={`rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto transition-colors duration-300 ${isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'}`}>
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-3">
+                <h3 className={`text-xl font-bold flex items-center gap-3 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
                   <Package className="text-purple-600" size={24} /> {editingProduct ? 'Edit Product' : 'Add New Product'}
                 </h3>
                 <button
@@ -233,38 +239,50 @@ const ProductsManagement = ({ products, setProducts }) => {
                 </button>
               </div>
 
-              <form onSubmit={editingProduct ? handleUpdateProduct : handleAddProduct} className="space-y-4">
+              <form onSubmit={editingProduct ? handleUpdateProduct : handleAddProduct} className="space-y-4 text-left">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Product Name *</label>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Product Name *</label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className={`w-full p-3 border-2 rounded-lg transition-all outline-none ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white focus:border-purple-500' 
+                          : 'bg-white border-gray-200 text-gray-900 focus:border-purple-500'
+                      }`}
                     required
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Price *</label>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Price *</label>
                     <input
                       type="number"
                       step="0.01"
                       value={formData.price}
                       onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      className={`w-full p-3 border-2 rounded-lg transition-all outline-none ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white focus:border-purple-500' 
+                          : 'bg-white border-gray-200 text-gray-900 focus:border-purple-500'
+                      }`}
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Stock *</label>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Stock *</label>
                     <input
                       type="number"
                       value={formData.stock}
                       onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      className={`w-full p-3 border-2 rounded-lg transition-all outline-none ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white focus:border-purple-500' 
+                          : 'bg-white border-gray-200 text-gray-900 focus:border-purple-500'
+                      }`}
                       required
                     />
                   </div>
@@ -272,33 +290,45 @@ const ProductsManagement = ({ products, setProducts }) => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Category *</label>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Category *</label>
                     <input
                       type="text"
                       value={formData.category}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      className={`w-full p-3 border-2 rounded-lg transition-all outline-none ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white focus:border-purple-500' 
+                          : 'bg-white border-gray-200 text-gray-900 focus:border-purple-500'
+                      }`}
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">HSN Code</label>
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>HSN Code</label>
                     <input
                       type="text"
                       value={formData.hsn}
                       onChange={(e) => setFormData({ ...formData, hsn: e.target.value })}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      className={`w-full p-3 border-2 rounded-lg transition-all outline-none ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white focus:border-purple-500' 
+                          : 'bg-white border-gray-200 text-gray-900 focus:border-purple-500'
+                      }`}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Description</label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none"
+                    className={`w-full p-3 border-2 rounded-lg transition-all outline-none resize-none ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white focus:border-purple-500' 
+                          : 'bg-white border-gray-200 text-gray-900 focus:border-purple-500'
+                      }`}
                     rows="3"
                   />
                 </div>

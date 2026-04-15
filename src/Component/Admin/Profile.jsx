@@ -3,7 +3,7 @@ import axios from "axios";
 import { MdPerson, MdEdit, MdVisibility, MdVisibilityOff } from 'react-icons/md';
 import { Save } from 'lucide-react';
 
-const Profile = () => {
+const Profile = ({ isDarkMode }) => {
   const [profileData, setProfileData] = useState({
     name: 'Keshav',
     email: 'admin@smartsales.com',
@@ -57,14 +57,14 @@ const Profile = () => {
   };
 
   return (
-    <div className="p-4 md:p-6">
-      <div className="bg-white rounded-xl shadow-lg p-4 md:p-6">
+    <div className={`p-4 md:p-6 transition-colors duration-300 ${isDarkMode ? 'text-white' : ''}`}>
+      <div className={`rounded-xl shadow-lg p-4 md:p-6 transition-colors duration-300 ${isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'}`}>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div>
-            <h2 className="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-3">
-              <MdPerson size={24} className="text-gray-700" /> Admin Profile
+            <h2 className={`text-xl md:text-2xl font-bold flex items-center gap-3 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+              <MdPerson size={24} className={isDarkMode ? 'text-blue-400' : 'text-gray-700'} /> Admin Profile
             </h2>
-            <p className="text-sm text-gray-600">Manage your account information</p>
+            <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Manage your account information</p>
           </div>
           <button
             onClick={() => {
@@ -82,43 +82,60 @@ const Profile = () => {
           <div className="space-y-4">
             {/* 1. OLD CREDENTIALS (UPPER SIDE) */}
             {isEditing && (
-              <div className="bg-orange-50 p-4 rounded-lg border border-orange-200 space-y-3">
-                <p className="text-xs font-bold text-orange-700 uppercase">Verify Current Identity</p>
-                <div>
+              <div className={`p-5 rounded-xl border-2 space-y-4 mb-6 transition-all ${
+                isDarkMode 
+                  ? 'bg-orange-900/10 border-orange-900/30 shadow-inner' 
+                  : 'bg-orange-50 border-orange-100 shadow-sm'
+              }`}>
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${isDarkMode ? 'bg-orange-500 animate-pulse' : 'bg-orange-500'}`} />
+                  <p className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-orange-400' : 'text-orange-700'}`}>Verify Current Identity</p>
+                </div>
+                <div className="space-y-3">
                   <input
                     type="text"
-                    placeholder="Enter Old Username"
+                    placeholder="Current Username"
                     value={oldAuth.oldUser}
                     onChange={(e) => setOldAuth({ ...oldAuth, oldUser: e.target.value })}
-                    className="w-full p-2 text-sm border-2 border-orange-200 rounded focus:border-orange-500 outline-none"
+                    className={`w-full p-3 text-sm border-2 rounded-xl outline-none transition-all ${
+                      isDarkMode 
+                        ? 'bg-gray-800 border-gray-700 text-white focus:border-orange-500 focus:ring-4 focus:ring-orange-900/20' 
+                        : 'bg-white border-orange-200 text-gray-900 focus:border-orange-500 focus:ring-4 focus:ring-orange-50'
+                    }`}
                   />
-                </div>
-                <div>
                   <input
                     type="password"
-                    placeholder="Enter Old Password"
+                    placeholder="Current Password"
                     value={oldAuth.oldPass}
                     onChange={(e) => setOldAuth({ ...oldAuth, oldPass: e.target.value })}
-                    className="w-full p-2 text-sm border-2 border-orange-200 rounded focus:border-orange-500 outline-none"
+                    className={`w-full p-3 text-sm border-2 rounded-xl outline-none transition-all ${
+                      isDarkMode 
+                        ? 'bg-gray-800 border-gray-700 text-white focus:border-orange-500 focus:ring-4 focus:ring-orange-900/20' 
+                        : 'bg-white border-orange-200 text-gray-900 focus:border-orange-500 focus:ring-4 focus:ring-orange-50'
+                    }`}
                   />
                 </div>
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Full Name</label>
               <input
                 type="text"
                 value={profileData.name}
                 onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
                 disabled={!isEditing}
-                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 disabled:bg-gray-50"
+                className={`w-full p-3 border-2 rounded-lg transition-all outline-none ${
+                    isDarkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500 disabled:bg-gray-800 disabled:text-gray-500' 
+                      : 'bg-white border-gray-200 text-gray-900 focus:border-blue-500 disabled:bg-gray-50'
+                  }`}
               />
             </div>
 
             {/* 2. NEW CREDENTIALS (DOWN SIDE) */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                 {isEditing ? 'New Username' : 'Username'}
               </label>
               <input
@@ -126,11 +143,15 @@ const Profile = () => {
                 value={profileData.username}
                 onChange={(e) => setProfileData({ ...profileData, username: e.target.value })}
                 disabled={!isEditing}
-                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 disabled:bg-gray-50"
+                className={`w-full p-3 border-2 rounded-lg transition-all outline-none ${
+                    isDarkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500 disabled:bg-gray-800 disabled:text-gray-500' 
+                      : 'bg-white border-gray-200 text-gray-900 focus:border-blue-500 disabled:bg-gray-50'
+                  }`}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                 {isEditing ? 'New Password' : 'Password'}
               </label>
               <div className="relative">
@@ -139,7 +160,11 @@ const Profile = () => {
                   value={profileData.password}
                   onChange={(e) => setProfileData({ ...profileData, password: e.target.value })}
                   disabled={!isEditing}
-                  className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 disabled:bg-gray-50 pr-10"
+                  className={`w-full p-3 border-2 rounded-lg transition-all outline-none pr-10 ${
+                    isDarkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500 disabled:bg-gray-800 disabled:text-gray-500' 
+                      : 'bg-white border-gray-200 text-gray-900 focus:border-blue-500 disabled:bg-gray-50'
+                  }`}
                 />
                 <button
                   type="button"
@@ -155,40 +180,52 @@ const Profile = () => {
           {/* Right Column */}
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Email</label>
               <input
                 type="email"
                 value={profileData.email}
                 onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
                 disabled={!isEditing}
-                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 disabled:bg-gray-50"
+                className={`w-full p-3 border-2 rounded-lg transition-all outline-none ${
+                    isDarkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500 disabled:bg-gray-800 disabled:text-gray-500' 
+                      : 'bg-white border-gray-200 text-gray-900 focus:border-blue-500 disabled:bg-gray-50'
+                  }`}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Role</label>
               <input
                 type="text"
                 value={profileData.role}
                 disabled
-                className="w-full p-3 border-2 border-gray-200 rounded-lg bg-gray-50"
+                className={`w-full p-3 border-2 rounded-lg transition-all ${
+                  isDarkMode ? 'bg-gray-800 border-gray-700 text-gray-500' : 'bg-gray-50 border-gray-200 text-gray-500'
+                }`}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Join Date</label>
+              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Join Date</label>
               <input
                 type="date"
                 value={profileData.joinDate}
                 onChange={(e) => setProfileData({ ...profileData, joinDate: e.target.value })}
                 disabled={!isEditing}
-                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 disabled:bg-gray-50"
+                className={`w-full p-3 border-2 rounded-lg transition-all outline-none ${
+                    isDarkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500 disabled:bg-gray-800 disabled:text-gray-500' 
+                      : 'bg-white border-gray-200 text-gray-900 focus:border-blue-500 disabled:bg-gray-50'
+                  }`}
               />
             </div>
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg text-center">
-              <div className="bg-purple-600 text-white w-16 h-16 rounded-full flex items-center justify-center font-bold text-xl mx-auto mb-2">
+            <div className={`p-6 rounded-lg text-center transition-colors ${
+              isDarkMode ? 'bg-gray-700/50' : 'bg-gradient-to-r from-blue-50 to-purple-50'
+            }`}>
+              <div className="bg-gradient-to-br from-purple-600 to-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center font-bold text-xl mx-auto mb-2 shadow-lg">
                 {profileData.name.charAt(0)}
               </div>
-              <h3 className="font-bold text-gray-800">{profileData.name}</h3>
-              <p className="text-sm text-gray-600">{profileData.role}</p>
+              <h3 className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{profileData.name}</h3>
+              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{profileData.role}</p>
             </div>
           </div>
         </div>

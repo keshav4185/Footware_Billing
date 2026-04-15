@@ -7,7 +7,7 @@ import {
 import CountUp from "react-countup";
 import * as XLSX from "xlsx";
 
-const Reports = () => {
+const Reports = ({ isDarkMode }) => {
   const [activeReport, setActiveReport] = useState("payments");
   const [bills, setBills] = useState([]);
   const [customers, setCustomers] = useState([]);
@@ -49,10 +49,10 @@ const Reports = () => {
 
   const KPICard = ({ title, value, colorFrom, colorTo }) => (
     <div
-      className={`p-4 rounded-xl text-white transform transition duration-300 hover:scale-105 hover:shadow-2xl`}
+      className={`p-4 rounded-xl text-white transform transition duration-300 hover:scale-105 hover:shadow-2xl flex flex-col justify-between ${isDarkMode ? 'shadow-blue-900/20 shadow-lg' : ''}`}
       style={{ background: `linear-gradient(to right, ${colorFrom}, ${colorTo})` }}
     >
-      <h3 className="text-lg font-bold">{title}</h3>
+      <h3 className="text-lg font-bold opacity-90">{title}</h3>
       <p className="text-2xl font-extrabold mt-2">
         <CountUp end={Number(value)} duration={1.5} separator="," prefix={value.toString().includes("₹") ? "₹" : ""}/>
       </p>
@@ -62,10 +62,13 @@ const Reports = () => {
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-2 shadow-lg rounded-lg border border-gray-200 animate-fadeIn">
+        <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white border-gray-200 text-gray-800'} p-3 shadow-2xl rounded-xl border animate-fadeIn transition-colors`}>
           {payload.map((p) => (
-            <p key={p.name} className="text-gray-800 font-medium">
-              {p.name}: {["revenue", "paid", "unpaid"].includes(p.dataKey) ? p.value.toLocaleString('en-IN', { style: 'currency', currency: 'INR' }) : p.value.toLocaleString()}
+            <p key={p.name} className="font-bold flex justify-between gap-4">
+              <span>{p.name}:</span>
+              <span className={isDarkMode ? 'text-blue-400' : 'text-blue-600'}>
+                {["revenue", "paid", "unpaid"].includes(p.dataKey) ? p.value.toLocaleString('en-IN', { style: 'currency', currency: 'INR' }) : p.value.toLocaleString()}
+              </span>
             </p>
           ))}
         </div>
@@ -104,28 +107,28 @@ const Reports = () => {
       <div className="space-y-6">
         <div className="flex flex-wrap gap-4 mb-4 items-center">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Start Date</label>
+            <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>Start Date</label>
             <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
-              className="mt-1 block p-2 border rounded-lg" />
+              className={`mt-1 block p-2 border rounded-lg outline-none transition-all ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' : 'bg-white border-gray-300'}`} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">End Date</label>
+            <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>End Date</label>
             <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}
-              className="mt-1 block p-2 border rounded-lg" />
+              className={`mt-1 block p-2 border rounded-lg outline-none transition-all ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' : 'bg-white border-gray-300'}`} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Payment Status</label>
+            <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>Payment Status</label>
             <select value={paymentStatusFilter} onChange={(e) => setPaymentStatusFilter(e.target.value)}
-              className="mt-1 block p-2 border rounded-lg">
+              className={`mt-1 block p-2 border rounded-lg outline-none transition-all ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' : 'bg-white border-gray-300'}`}>
               <option value="all">All</option>
               <option value="PAID">Paid</option>
               <option value="UNPAID">Unpaid</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Report Type</label>
+            <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>Report Type</label>
             <select value={reportType} onChange={(e) => setReportType(e.target.value)}
-              className="mt-1 block p-2 border rounded-lg">
+              className={`mt-1 block p-2 border rounded-lg outline-none transition-all ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' : 'bg-white border-gray-300'}`}>
               <option value="daily">Daily</option>
               <option value="monthly">Monthly</option>
               <option value="yearly">Yearly</option>
@@ -133,7 +136,7 @@ const Reports = () => {
           </div>
           <div className="mt-6">
             <button onClick={() => exportToExcel(chartData, `payments_${reportType}.xlsx`)}
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all shadow-md font-medium active:scale-95">
               Export Excel
             </button>
           </div>
@@ -160,21 +163,21 @@ const Reports = () => {
           />
         </div>
 
-        <div className="bg-white p-4 rounded-xl shadow-lg mt-4">
-          <h3 className="text-lg font-bold mb-4">Payment Status</h3>
+        <div className={`p-4 rounded-xl shadow-lg mt-4 transition-colors ${isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'}`}>
+          <h3 className={`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Payment Status</h3>
           {chartData.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="label" />
-                <YAxis />
+                <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#374151' : '#e5e7eb'} />
+                <XAxis dataKey="label" tick={{ fill: isDarkMode ? '#9ca3af' : '#4b5563' }} />
+                <YAxis tick={{ fill: isDarkMode ? '#9ca3af' : '#4b5563' }} />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
                 <Bar dataKey="paid" fill="#4ade80" radius={[5,5,0,0]} />
                 <Bar dataKey="unpaid" fill="#f87171" radius={[5,5,0,0]} />
               </BarChart>
             </ResponsiveContainer>
-          ) : <p className="text-gray-500 text-center py-10">No data available for selected period.</p>}
+          ) : <p className={`text-center py-10 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>No data available for selected period.</p>}
         </div>
       </div>
     );
@@ -214,30 +217,33 @@ const Reports = () => {
         </div>
 
         <div className="flex flex-wrap gap-4 mt-4">
-          <div className="bg-white p-4 rounded-xl shadow-lg w-full sm:w-1/2">
-            <h3 className="text-lg font-bold mb-4">Revenue</h3>
+          <div className={`p-4 rounded-xl shadow-lg w-full sm:w-1/2 transition-colors ${isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'}`}>
+            <h3 className={`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Revenue</h3>
             {chartData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="label" />
-                  <YAxis />
+                  <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#374151' : '#e5e7eb'} />
+                  <XAxis dataKey="label" tick={{ fill: isDarkMode ? '#9ca3af' : '#4b5563' }} />
+                  <YAxis tick={{ fill: isDarkMode ? '#9ca3af' : '#4b5563' }} />
                   <Tooltip content={<CustomTooltip />} />
                   <Line type="monotone" dataKey="revenue" stroke="#8884d8" strokeWidth={3} />
                 </LineChart>
               </ResponsiveContainer>
-            ) : <p className="text-gray-500 text-center py-10">No data available for selected period.</p>}
+            ) : <p className={`text-center py-10 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>No data available for selected period.</p>}
           </div>
 
-          <div className="bg-white p-4 rounded-xl shadow-lg w-full sm:w-1/2">
-            <h3 className="text-lg font-bold mb-4">Top 5 Customers</h3>
+          <div className={`p-4 rounded-xl shadow-lg w-full sm:w-1/2 transition-colors ${isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'}`}>
+            <h3 className={`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Top 5 Customers</h3>
             {topCustomers.length > 0 ? (
-              <ul className="list-disc pl-5">
+              <ul className={`list-disc pl-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-800'}`}>
                 {topCustomers.map(c => (
-                  <li key={c.name}>{c.name}: ₹{c.total.toFixed(2)}</li>
+                  <li key={c.name} className="py-1">
+                    <span className={isDarkMode ? 'text-gray-300' : 'text-gray-800'}>{c.name}: </span>
+                    <span className="font-bold text-blue-500">₹{c.total.toFixed(2)}</span>
+                  </li>
                 ))}
               </ul>
-            ) : <p className="text-gray-500">No customer data available.</p>}
+            ) : <p className={`text-center py-10 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>No customer data available.</p>}
           </div>
         </div>
 
@@ -312,26 +318,26 @@ const Reports = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Chart 1: Revenue Performance (Top 10) */}
-          <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-            <h3 className="text-lg font-bold mb-4 text-gray-800 flex items-center gap-2">
+          <div className={`p-5 rounded-2xl shadow-sm border transition-colors ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
+            <h3 className={`text-lg font-bold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
               <span className="w-2 h-6 bg-blue-500 rounded-full"></span>
               Top Products by Revenue
             </h3>
             <div className="h-[350px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={sortedByRevenue} layout="vertical" margin={{ left: 40, right: 30 }}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke={isDarkMode ? '#374151' : '#e5e7eb'} />
                   <XAxis type="number" hide />
-                  <YAxis dataKey="name" type="category" width={100} tick={{ fontSize: 11 }} />
+                  <YAxis dataKey="name" type="category" width={100} tick={{ fontSize: 11, fill: isDarkMode ? '#9ca3af' : '#4b5563' }} />
                   <Tooltip 
-                    cursor={{ fill: '#f3f4f6' }}
+                    cursor={{ fill: isDarkMode ? '#1f2937' : '#f3f4f6' }}
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
                         return (
-                          <div className="bg-white p-3 shadow-xl rounded-lg border border-gray-100">
-                            <p className="font-bold text-gray-800 mb-1">{payload[0].payload.name}</p>
-                            <p className="text-blue-600 font-bold">Revenue: ₹{payload[0].value.toLocaleString('en-IN')}</p>
-                            <p className="text-gray-500 text-xs">Units Sold: {payload[0].payload.soldQty}</p>
+                          <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700 text-white shadow-2xl' : 'bg-white border-gray-200 text-gray-800 shadow-xl'} p-3 rounded-lg border animate-fadeIn`}>
+                            <p className="font-bold mb-1">{payload[0].payload.name}</p>
+                            <p className="text-blue-500 font-bold">Revenue: ₹{payload[0].value.toLocaleString('en-IN')}</p>
+                            <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'} text-xs`}>Units Sold: {payload[0].payload.soldQty}</p>
                           </div>
                         );
                       }
@@ -345,8 +351,8 @@ const Reports = () => {
           </div>
 
           {/* Chart 2: Revenue Distribution (Pie) */}
-          <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-            <h3 className="text-lg font-bold mb-4 text-gray-800 flex items-center gap-2">
+          <div className={`p-5 rounded-2xl shadow-sm border transition-colors ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
+            <h3 className={`text-lg font-bold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
               <span className="w-2 h-6 bg-purple-500 rounded-full"></span>
               Revenue Share %
             </h3>
@@ -362,13 +368,18 @@ const Reports = () => {
                     paddingAngle={5}
                     dataKey="revenue"
                     label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                    stroke={isDarkMode ? '#1f2937' : '#fff'}
                   >
                     {top5Revenue.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip />
-                  <Legend verticalAlign="bottom" height={36}/>
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend 
+                    verticalAlign="bottom" 
+                    height={36}
+                    formatter={(value) => <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>{value}</span>}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -378,10 +389,10 @@ const Reports = () => {
 
 
         {/* Action Bar */}
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+        <div className={`flex justify-end gap-3 pt-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}>
           <button 
             onClick={() => exportToExcel(productStats, `product_performance_report.xlsx`)}
-            className="flex items-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-xl hover:bg-blue-700 transition font-medium shadow-md shadow-blue-100"
+            className="flex items-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-xl hover:bg-blue-700 transition font-medium shadow-md active:scale-95"
           >
             Export Detailed Analytics
           </button>
@@ -402,18 +413,20 @@ const Reports = () => {
   if (loading) return <div className="text-center py-20 text-gray-500">Loading reports...</div>;
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800">Reports & Analytics</h2>
-      <div className="bg-white rounded-xl shadow-lg p-4">
+    <div className={`space-y-6 transition-colors duration-300 ${isDarkMode ? 'text-white' : ''}`}>
+      <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Reports & Analytics</h2>
+      <div className={`rounded-xl shadow-lg p-4 transition-colors duration-300 ${isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'}`}>
         <div className="flex flex-wrap gap-2 mb-4">
           {["payments", "sales", "products"].map(id => (
             <button
               key={id}
               onClick={() => setActiveReport(id)}
-              className={`px-3 py-2 rounded-lg text-sm ${
+              className={`px-3 py-2 rounded-lg text-sm transition-all font-medium ${
                 activeReport === id
-                  ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/20"
+                  : isDarkMode 
+                    ? "bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600" 
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
               {id.charAt(0).toUpperCase() + id.slice(1)}

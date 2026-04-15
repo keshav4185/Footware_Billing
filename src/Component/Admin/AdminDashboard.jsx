@@ -41,23 +41,23 @@ const AdminDashboard = () => {
   const renderContent = () => {
     switch(activeSection) {
       case 'overview':
-        return <DashboardOverview bills={bills} customers={customers} products={products} />;
+        return <DashboardOverview bills={bills} customers={customers} products={products} isDarkMode={isDarkMode} />;
       case 'create-invoice':
         return <CreateBill isDarkMode={isDarkMode} />;
       case 'customers':
-        return <CustomersManagement customers={customers} setCustomers={setCustomers} />;
+        return <CustomersManagement customers={customers} setCustomers={setCustomers} isDarkMode={isDarkMode} />;
       case 'products':
-        return <ProductsManagement products={products} setProducts={setProducts} />;
+        return <ProductsManagement products={products} setProducts={setProducts} isDarkMode={isDarkMode} />;
       case 'invoices':
-        return <InvoiceList bills={bills} setBills={setBills} />;
+        return <InvoiceList bills={bills} setBills={setBills} isDarkMode={isDarkMode} />;
       case 'employees':
-        return <EmployeesManagement />;
+        return <EmployeesManagement isDarkMode={isDarkMode} />;
       case 'reports':
-        return <Reports bills={bills} customers={customers} products={products} />;
+        return <Reports bills={bills} customers={customers} products={products} isDarkMode={isDarkMode} />;
       case 'profile':
-        return <Settings />;
+        return <Settings isDarkMode={isDarkMode} />;
       default:
-        return <DashboardOverview bills={bills} customers={customers} products={products} />;
+        return <DashboardOverview bills={bills} customers={customers} products={products} isDarkMode={isDarkMode} />;
     }
   };
 
@@ -70,6 +70,7 @@ const AdminDashboard = () => {
         setActiveSection={setActiveSection}
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
+        isDarkMode={isDarkMode}
       />
 
       {/* Mobile overlay */}

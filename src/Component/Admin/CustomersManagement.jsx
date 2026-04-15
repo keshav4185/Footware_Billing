@@ -12,7 +12,7 @@ import {
   Phone
 } from 'lucide-react';
 
-const CustomersManagement = ({ customers, setCustomers }) => {
+const CustomersManagement = ({ customers, setCustomers, isDarkMode }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState(null);
@@ -139,10 +139,10 @@ const CustomersManagement = ({ customers, setCustomers }) => {
     <div className="space-y-3 sm:space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center sm:gap-4">
         <div>
-          <h2 className="text-lg sm:text-2xl font-bold text-gray-800 flex items-center gap-3">
+          <h2 className={`text-lg sm:text-2xl font-bold flex items-center gap-3 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
             <Users className="text-blue-600" size={28} /> Customers Management
           </h2>
-          <p className="text-sm sm:text-base text-gray-600">
+          <p className={`text-sm sm:text-base ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
             Manage your customer database
           </p>
         </div>
@@ -155,19 +155,23 @@ const CustomersManagement = ({ customers, setCustomers }) => {
       </div>
 
       {/* Search */}
-      <div className="bg-white rounded-xl shadow-lg p-3 sm:p-6">
+      <div className={`rounded-xl shadow-lg p-3 sm:p-6 transition-all duration-300 ${isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'}`}>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 mb-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input
               type="text"
               placeholder="Search by name or phone..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 transition-all"
+              className={`w-full pl-10 pr-3 py-3 text-sm border-2 rounded-xl outline-none transition-all duration-300 ${
+                isDarkMode 
+                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-900/30' 
+                  : 'bg-white border-gray-100 text-gray-800 focus:border-blue-500 focus:ring-4 focus:ring-blue-50'
+              }`}
             />
           </div>
-          <div className="text-xs text-gray-500">
+          <div className={`text-xs font-medium px-3 py-1 rounded-full ${isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-500'}`}>
             {filteredCustomers.length} of {customers.length} customers
           </div>
         </div>
@@ -183,28 +187,28 @@ const CustomersManagement = ({ customers, setCustomers }) => {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[280px]">
               <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2 px-2 sm:px-4 text-xs sm:text-sm">
+                <tr className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                  <th className={`text-left py-2 px-2 sm:px-4 text-xs sm:text-sm ${isDarkMode ? 'text-gray-300' : ''}`}>
                     Name
                   </th>
-                  <th className="text-left py-2 px-2 sm:px-4 text-xs sm:text-sm">
+                  <th className={`text-left py-2 px-2 sm:px-4 text-xs sm:text-sm ${isDarkMode ? 'text-gray-300' : ''}`}>
                     Phone
                   </th>
-                  <th className="text-left py-2 px-2 sm:px-4 text-xs sm:text-sm">
+                  <th className={`text-left py-2 px-2 sm:px-4 text-xs sm:text-sm ${isDarkMode ? 'text-gray-300' : ''}`}>
                     Actions
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {filteredCustomers.map(customer => (
-                  <tr key={customer.id} className="border-b hover:bg-gray-50">
+                  <tr key={customer.id} className={`border-b ${isDarkMode ? 'border-gray-700 hover:bg-gray-700/50' : 'border-gray-100 hover:bg-gray-50'}`}>
                     <td className="py-2 px-2 sm:px-4">
-                      <p className="font-medium">{customer.name}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{customer.name}</p>
+                      <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                         {customer.address}
                       </p>
                     </td>
-                    <td className="py-2 px-2 sm:px-4">{customer.phone}</td>
+                    <td className={`py-2 px-2 sm:px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{customer.phone}</td>
                     <td className="py-2 px-2 sm:px-4">
                       <div className="flex gap-1">
                         <button
@@ -231,73 +235,95 @@ const CustomersManagement = ({ customers, setCustomers }) => {
         )}
       </div>
 
-      {/* ADD / EDIT MODAL (EMAIL REMOVED) */}
+      {/* ADD / EDIT MODAL */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm">
-            <div className="p-4">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold flex items-center gap-2">
-                  <UserPlus className="text-blue-600" size={20} /> {editingCustomer ? 'Edit Customer' : 'Add Customer'}
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => { setShowAddModal(false); setEditingCustomer(null); }}>
+          <div className={`rounded-2xl shadow-2xl w-full max-w-md transform transition-all animate-scaleIn ${
+            isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'
+          }`} onClick={e => e.stopPropagation()}>
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className={`text-xl font-bold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                  <UserPlus className="text-blue-500" size={24} /> {editingCustomer ? 'Edit Customer' : 'Add Customer'}
                 </h3>
                 <button
                   onClick={() => { setShowAddModal(false); setEditingCustomer(null); }}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  className={`transition-colors p-1 rounded-full ${isDarkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-400'}`}
                 >
-                  <X size={20} />
+                  <X size={24} />
                 </button>
               </div>
 
               <form
                 onSubmit={editingCustomer ? handleUpdateCustomer : handleAddCustomer}
-                className="space-y-3"
+                className="space-y-4"
               >
-                <input
-                  placeholder="Name"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  className="w-full p-2 border rounded"
-                  required
-                />
+                <div className="space-y-1">
+                  <label className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>Full Name</label>
+                  <input
+                    placeholder="Enter customer name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className={`w-full p-3 border-2 rounded-xl outline-none transition-all ${
+                      isDarkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' 
+                        : 'bg-white border-gray-100 text-gray-900 focus:border-blue-500'
+                    }`}
+                    required
+                  />
+                </div>
 
-                <input
-                  placeholder="Phone"
-                  value={formData.phone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phone: e.target.value })
-                  }
-                  className="w-full p-2 border rounded"
-                  required
-                />
+                <div className="space-y-1">
+                  <label className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>Phone Number</label>
+                  <input
+                    placeholder="Enter phone number"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className={`w-full p-3 border-2 rounded-xl outline-none transition-all ${
+                      isDarkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' 
+                        : 'bg-white border-gray-100 text-gray-900 focus:border-blue-500'
+                    }`}
+                    required
+                  />
+                </div>
 
-                <input
-                  placeholder="GST"
-                  value={formData.gst}
-                  onChange={(e) =>
-                    setFormData({ ...formData, gst: e.target.value })
-                  }
-                  className="w-full p-2 border rounded"
-                />
+                <div className="space-y-1">
+                  <label className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>GST Number (Optional)</label>
+                  <input
+                    placeholder="Enter GST number"
+                    value={formData.gst}
+                    onChange={(e) => setFormData({ ...formData, gst: e.target.value })}
+                    className={`w-full p-3 border-2 rounded-xl outline-none transition-all ${
+                      isDarkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' 
+                        : 'bg-white border-gray-100 text-gray-900 focus:border-blue-500'
+                    }`}
+                  />
+                </div>
 
-                <textarea
-                  placeholder="Address"
-                  value={formData.address}
-                  onChange={(e) =>
-                    setFormData({ ...formData, address: e.target.value })
-                  }
-                  className="w-full p-2 border rounded"
-                  rows="2"
-                  required
-                />
+                <div className="space-y-1">
+                  <label className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>Address</label>
+                  <textarea
+                    placeholder="Enter customer address"
+                    value={formData.address}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                    className={`w-full p-3 border-2 rounded-xl outline-none transition-all resize-none ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' 
+                          : 'bg-white border-gray-100 text-gray-900 focus:border-blue-500'
+                      }`}
+                    rows="3"
+                    required
+                  />
+                </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-3 pt-4">
                   <button
                     type="submit"
-                    className="flex-1 bg-blue-600 text-white py-2 rounded"
+                    className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl font-bold shadow-lg hover:shadow-blue-500/20 transition-all active:scale-95"
                   >
-                    {editingCustomer ? 'Update' : 'Add'}
+                    {editingCustomer ? 'Update Customer' : 'Save Customer'}
                   </button>
                   <button
                     type="button"
@@ -305,13 +331,16 @@ const CustomersManagement = ({ customers, setCustomers }) => {
                       setShowAddModal(false);
                       setEditingCustomer(null);
                     }}
-                    className="flex-1 bg-gray-500 text-white py-2 rounded"
+                    className={`flex-1 py-3 rounded-xl font-bold transition-all active:scale-95 ${
+                      isDarkMode 
+                        ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
                   >
                     Cancel
                   </button>
                 </div>
               </form>
-
             </div>
           </div>
         </div>

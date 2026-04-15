@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 
-const PaymentsReport = ({ bills }) => {
+const PaymentsReport = ({ bills, isDarkMode }) => {
   const [dateRange, setDateRange] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
 
@@ -95,12 +95,12 @@ const PaymentsReport = ({ bills }) => {
   };
 
   return (
-    <div className="space-y-3 sm:space-y-6">
+    <div className={`space-y-3 sm:space-y-6 transition-colors duration-300 ${isDarkMode ? 'text-white' : ''}`}>
       {/* Header */}
       <div className="flex flex-col gap-3">
         <div>
-          <h2 className="text-lg sm:text-3xl font-bold text-gray-800">Payments Report</h2>
-          <p className="text-sm sm:text-lg text-gray-600">Track payment collections</p>
+          <h2 className={`text-lg sm:text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Payments Report</h2>
+          <p className={`text-sm sm:text-lg ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Track payment collections</p>
         </div>
         <button
           onClick={exportReport}
@@ -111,14 +111,18 @@ const PaymentsReport = ({ bills }) => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-lg p-3 sm:p-6">
+      <div className={`rounded-xl shadow-lg p-3 sm:p-6 transition-colors duration-300 ${isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'}`}>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6 mb-3 sm:mb-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-3">Date Range</label>
+            <label className={`block text-sm font-medium mb-1 sm:mb-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Date Range</label>
             <select
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
-              className="w-full p-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+              className={`w-full p-2 text-sm border rounded-lg focus:ring-2 outline-none transition-all ${
+                isDarkMode 
+                  ? 'bg-gray-700 border-gray-600 text-white focus:ring-teal-900/50 focus:border-teal-500' 
+                  : 'bg-white border-gray-300 text-gray-900 focus:ring-teal-500 focus:border-teal-500'
+              }`}
             >
               <option value="all">All Time</option>
               <option value="today">Today</option>
@@ -130,11 +134,15 @@ const PaymentsReport = ({ bills }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-3">Payment Status</label>
+            <label className={`block text-sm font-medium mb-1 sm:mb-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Payment Status</label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full p-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+              className={`w-full p-2 text-sm border rounded-lg focus:ring-2 outline-none transition-all ${
+                isDarkMode 
+                  ? 'bg-gray-700 border-gray-600 text-white focus:ring-teal-900/50 focus:border-teal-500' 
+                  : 'bg-white border-gray-300 text-gray-900 focus:ring-teal-500 focus:border-teal-500'
+              }`}
             >
               <option value="all">All Status</option>
               <option value="paid">Paid Only</option>
@@ -198,17 +206,19 @@ const PaymentsReport = ({ bills }) => {
         </div>
 
         {/* Collection Rate */}
-        <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-3 sm:p-6 rounded-lg mb-3 sm:mb-6">
+        <div className={`p-3 sm:p-6 rounded-lg mb-3 sm:mb-6 transition-colors ${
+          isDarkMode ? 'bg-purple-900/10 border border-purple-900/30' : 'bg-gradient-to-r from-purple-50 to-pink-50'
+        }`}>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
             <div>
-              <h3 className="text-base sm:text-xl font-bold text-gray-800">Collection Rate</h3>
-              <p className="text-xs sm:text-base text-gray-600">Revenue collected percentage</p>
+              <h3 className={`text-base sm:text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Collection Rate</h3>
+              <p className={`text-xs sm:text-base ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Revenue collected percentage</p>
             </div>
             <div className="text-left sm:text-right">
               <div className="text-xl sm:text-4xl font-bold text-purple-600">{reportData.collectionRate.toFixed(1)}%</div>
-              <div className="w-24 sm:w-40 bg-gray-200 rounded-full h-2 sm:h-3 mt-1 sm:mt-3">
+              <div className={`w-24 sm:w-40 rounded-full h-2 sm:h-3 mt-1 sm:mt-3 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
                 <div
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 sm:h-3 rounded-full transition-all duration-500"
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 sm:h-3 rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(147,51,234,0.5)]"
                   style={{ width: `${Math.min(reportData.collectionRate, 100)}%` }}
                 ></div>
               </div>
@@ -218,8 +228,8 @@ const PaymentsReport = ({ bills }) => {
       </div>
 
       {/* Monthly Breakdown */}
-      <div className="bg-white rounded-xl shadow-lg p-3 sm:p-6">
-        <h3 className="text-base sm:text-xl font-bold text-gray-800 mb-3 sm:mb-6">Monthly Breakdown</h3>
+      <div className={`rounded-xl shadow-lg p-3 sm:p-6 transition-colors duration-300 ${isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'}`}>
+        <h3 className={`text-base sm:text-xl font-bold mb-3 sm:mb-6 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Monthly Breakdown</h3>
 
         {monthlyData.length === 0 ? (
           <div className="text-center py-4 sm:py-8 text-gray-500">
@@ -233,9 +243,11 @@ const PaymentsReport = ({ bills }) => {
               {monthlyData.map(([month, data]) => {
                 const collectionRate = data.total > 0 ? (data.paid / data.total) * 100 : 0;
                 return (
-                  <div key={month} className="bg-gray-50 rounded-lg p-3 border">
+                  <div key={month} className={`rounded-lg p-3 border transition-colors ${
+                    isDarkMode ? 'bg-gray-700/50 border-gray-600' : 'bg-gray-50 border-gray-200'
+                  }`}>
                     <div className="flex justify-between items-start mb-2">
-                      <span className="font-medium text-gray-800 text-sm">
+                      <span className={`font-medium text-sm ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
                         {new Date(month + '-01').toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
                       </span>
                       <span className="text-xs text-gray-500">{data.count} invoices</span>
@@ -243,21 +255,21 @@ const PaymentsReport = ({ bills }) => {
                     <div className="grid grid-cols-2 gap-2 mb-2 text-xs">
                       <div>
                         <span className="text-gray-500">Total: </span>
-                        <span className="font-bold">₹{data.total.toFixed(0)}</span>
+                        <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>₹{data.total.toFixed(0)}</span>
                       </div>
                       <div>
                         <span className="text-gray-500">Collected: </span>
-                        <span className="text-green-600 font-medium">₹{data.paid.toFixed(0)}</span>
+                        <span className="text-green-500 font-medium">₹{data.paid.toFixed(0)}</span>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className="flex-1 bg-gray-200 rounded-full h-2">
+                      <div className={`flex-1 rounded-full h-2 ${isDarkMode ? 'bg-gray-600' : 'bg-gray-200'}`}>
                         <div
-                          className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-500"
+                          className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-500 shadow-[0_0_5px_rgba(34,197,94,0.3)]"
                           style={{ width: `${Math.min(collectionRate, 100)}%` }}
                         ></div>
                       </div>
-                      <span className="text-xs font-medium text-gray-700">{collectionRate.toFixed(1)}%</span>
+                      <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{collectionRate.toFixed(1)}%</span>
                     </div>
                   </div>
                 );
@@ -268,36 +280,36 @@ const PaymentsReport = ({ bills }) => {
             <div className="hidden sm:block overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-4 px-4 font-medium text-gray-700">Month</th>
-                    <th className="text-left py-4 px-4 font-medium text-gray-700">Invoices</th>
-                    <th className="text-left py-4 px-4 font-medium text-gray-700">Total</th>
-                    <th className="text-left py-4 px-4 font-medium text-gray-700">Collected</th>
-                    <th className="text-left py-4 px-4 font-medium text-gray-700">Pending</th>
-                    <th className="text-left py-4 px-4 font-medium text-gray-700">Rate %</th>
+                  <tr className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                    <th className={`text-left py-4 px-4 font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>Month</th>
+                    <th className={`text-left py-4 px-4 font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>Invoices</th>
+                    <th className={`text-left py-4 px-4 font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>Total</th>
+                    <th className={`text-left py-4 px-4 font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>Collected</th>
+                    <th className={`text-left py-4 px-4 font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>Pending</th>
+                    <th className={`text-left py-4 px-4 font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>Rate %</th>
                   </tr>
                 </thead>
                 <tbody>
                   {monthlyData.map(([month, data]) => {
                     const collectionRate = data.total > 0 ? (data.paid / data.total) * 100 : 0;
                     return (
-                      <tr key={month} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                        <td className="py-4 px-4 font-medium text-gray-800">
+                      <tr key={month} className={`border-b transition-colors ${isDarkMode ? 'border-gray-700/50 hover:bg-gray-700' : 'border-gray-100 hover:bg-gray-50'}`}>
+                        <td className={`py-4 px-4 font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
                           {new Date(month + '-01').toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
                         </td>
-                        <td className="py-4 px-4 text-gray-700">{data.count}</td>
-                        <td className="py-4 px-4 font-bold text-gray-800">₹{data.total.toFixed(2)}</td>
-                        <td className="py-4 px-4 text-green-600 font-medium">₹{data.paid.toFixed(2)}</td>
-                        <td className="py-4 px-4 text-yellow-600 font-medium">₹{data.pending.toFixed(2)}</td>
+                        <td className={`py-4 px-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>{data.count}</td>
+                        <td className={`py-4 px-4 font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>₹{data.total.toFixed(2)}</td>
+                        <td className="py-4 px-4 text-green-500 font-medium">₹{data.paid.toFixed(2)}</td>
+                        <td className="py-4 px-4 text-yellow-500 font-medium">₹{data.pending.toFixed(2)}</td>
                         <td className="py-4 px-4">
                           <div className="flex items-center space-x-3">
-                            <div className="flex-1 bg-gray-200 rounded-full h-3">
+                            <div className={`flex-1 rounded-full h-3 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
                               <div
-                                className="bg-gradient-to-r from-green-500 to-blue-500 h-3 rounded-full transition-all duration-500"
+                                className="bg-gradient-to-r from-green-500 to-blue-500 h-3 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(34,197,94,0.3)]"
                                 style={{ width: `${Math.min(collectionRate, 100)}%` }}
                               ></div>
                             </div>
-                            <span className="font-medium text-gray-700">{collectionRate.toFixed(1)}%</span>
+                            <span className={`font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{collectionRate.toFixed(1)}%</span>
                           </div>
                         </td>
                       </tr>
@@ -311,8 +323,8 @@ const PaymentsReport = ({ bills }) => {
       </div>
 
       {/* Recent Transactions */}
-      <div className="bg-white rounded-xl shadow-lg p-3 sm:p-6">
-        <h3 className="text-base sm:text-xl font-bold text-gray-800 mb-3 sm:mb-6">Recent Transactions</h3>
+      <div className={`rounded-xl shadow-lg p-3 sm:p-6 transition-colors duration-300 ${isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'}`}>
+        <h3 className={`text-base sm:text-xl font-bold mb-3 sm:mb-6 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Recent Transactions</h3>
 
         {filteredBills.length === 0 ? (
           <div className="text-center py-4 sm:py-8 text-gray-500">
@@ -322,20 +334,22 @@ const PaymentsReport = ({ bills }) => {
         ) : (
           <div className="space-y-2 sm:space-y-4">
             {filteredBills.slice(0, 10).map((bill) => (
-              <div key={bill.id} className="flex items-center justify-between p-2 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div key={bill.id} className={`flex items-center justify-between p-2 sm:p-4 rounded-lg transition-colors ${
+                isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-50 hover:bg-gray-100'
+              }`}>
                 <div className="flex items-center space-x-2 sm:space-x-4">
                   <div className={`w-2 h-2 sm:w-4 sm:h-4 rounded-full ${bill.paymentStatus === 'paid' ? 'bg-green-500' :
                       bill.paymentStatus === 'overdue' ? 'bg-red-500' : 'bg-yellow-500'
-                    }`}></div>
+                    } ${isDarkMode ? 'shadow-[0_0_5px_currentColor]' : ''}`}></div>
                   <div>
-                    <p className="font-medium text-gray-800 text-sm">{bill.customerName}</p>
-                    <p className="text-xs text-gray-500">#{bill.id} • {bill.date}</p>
+                    <p className={`font-medium text-sm ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{bill.customerName}</p>
+                    <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>#{bill.id} • {bill.date}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-gray-800 text-sm sm:text-lg">₹{bill.grandTotal?.toFixed(0) || '0'}</p>
-                  <p className={`text-xs font-medium ${bill.paymentStatus === 'paid' ? 'text-green-600' :
-                      bill.paymentStatus === 'overdue' ? 'text-red-600' : 'text-yellow-600'
+                  <p className={`font-bold text-sm sm:text-lg ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>₹{bill.grandTotal?.toFixed(0) || '0'}</p>
+                  <p className={`text-xs font-medium ${bill.paymentStatus === 'paid' ? 'text-green-500' :
+                      bill.paymentStatus === 'overdue' ? 'text-red-500' : 'text-yellow-500'
                     }`}>
                     {bill.paymentStatus || 'pending'}
                   </p>

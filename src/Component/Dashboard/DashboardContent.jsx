@@ -17,9 +17,8 @@ import CustomersList from './CustomersList';
 import DashboardHome from './DashboardHome';
 import EmployeeDashboard from './EmployeeDashboard';
 
-const DashboardContent = ({ activeSection, sidebarOpen, setSidebarOpen, setActiveSection }) => {
+const DashboardContent = ({ activeSection, sidebarOpen, setSidebarOpen, setActiveSection, isDarkMode, setIsDarkMode }) => {
   const navigate = useNavigate();
-  const [isDarkMode, setIsDarkMode] = React.useState(false);
   const [currentTime, setCurrentTime] = React.useState(new Date());
   const [editingBill, setEditingBill] = React.useState(null);
   const [selectedCustomer, setSelectedCustomer] = React.useState(null);
@@ -47,8 +46,8 @@ const DashboardContent = ({ activeSection, sidebarOpen, setSidebarOpen, setActiv
 
   const getThemeClasses = () => {
     return isDarkMode
-      ? 'bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 text-white'
-      : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 text-gray-800';
+      ? 'bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 text-white shadow-inner'
+      : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 text-gray-800';
   };
 
   const handleLogout = () => {

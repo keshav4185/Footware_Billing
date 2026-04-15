@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import axios from "axios";
 import { Eye, Printer, Trash2 } from 'lucide-react';
 
-const InvoiceList = ({ bills, setBills }) => {
+const InvoiceList = ({ bills, setBills, isDarkMode }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [companyLogo, setCompanyLogo] = useState(null);
@@ -182,6 +182,7 @@ const InvoiceList = ({ bills, setBills }) => {
               <table class="invoice-info-table">
                 <tr><td>Invoice No.:</td><td>${bill.invoiceNumber}</td></tr>
                 <tr><td>Invoice Date:</td><td>${new Date(bill.invoiceDate).toLocaleDateString()}</td></tr>
+                <tr><td>Salesperson:</td><td><span style="font-weight: bold; color: #2563eb;">${bill.salesperson || bill.employee?.name || bill.employeeName || 'Admin'}</span></td></tr>
                 <tr><td>Payment Method:</td><td><span class="payment-method">💵 Cash</span></td></tr>
                 <tr><td>Payment Status:</td><td><span class="payment-status">${bill.paymentStatus || 'Unpaid'}</span></td></tr>
               </table>
@@ -224,61 +225,66 @@ const InvoiceList = ({ bills, setBills }) => {
   return (
     <>
       {/* Search */}
-      <div className="p-4 bg-gray-50 min-h-screen">
-        <div className="mb-4 max-w-md">
+      <div className={`p-4 min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-800'}`}>
+        <div className="mb-6 max-w-md relative group">
           <input
             type="text"
             placeholder="Search Invoice / Name / Mobile"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-orange-500"
+            className={`w-full px-5 py-3 border-2 rounded-xl shadow-sm outline-none transition-all duration-300 ${isDarkMode
+              ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-900/30'
+              : 'bg-white border-gray-100 text-gray-900 focus:border-blue-500 focus:ring-4 focus:ring-blue-50'
+              }`}
           />
         </div>
 
         {/* Desktop Table */}
-        <div className="hidden md:block overflow-x-auto border rounded-lg shadow-sm bg-white">
+        <div className={`hidden md:block overflow-x-auto border rounded-lg shadow-sm transition-all ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+          }`}>
           <table className="w-full text-sm">
-            <thead className="bg-gray-100">
+            <thead className={`${isDarkMode ? 'bg-gray-700 text-gray-200' : 'bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700'}`}>
               <tr>
-                <th className="px-3 py-2 text-left">Invoice No</th>
-                <th className="px-3 py-2 text-left">Customer</th>
-                <th className="px-3 py-2 text-left">Mobile</th>
-                <th className="px-3 py-2 text-left">Company</th>
-                <th className="px-3 py-2 text-left">Total</th>
-                <th className="px-3 py-2 text-left">Advance</th>
-                <th className="px-3 py-2 text-left">Balance</th>
-                <th className="px-3 py-2 text-left">Actions</th>
+                <th className="px-4 py-3 text-left font-semibold">Invoice No</th>
+                <th className="px-4 py-3 text-left font-semibold">Customer</th>
+                <th className="px-4 py-3 text-left font-semibold">Mobile</th>
+                <th className="px-4 py-3 text-left font-semibold">Company</th>
+                <th className="px-4 py-3 text-left font-semibold">Total</th>
+                <th className="px-4 py-3 text-left font-semibold">Advance</th>
+                <th className="px-4 py-3 text-left font-semibold">Balance</th>
+                <th className="px-4 py-3 text-center font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredBills.map((bill) => (
                 <tr
                   key={bill.id}
-                  className="border-b hover:bg-gray-50 transition"
+                  className={`border-b transition ${isDarkMode ? 'border-gray-700 hover:bg-gray-700/50' : 'border-gray-100 hover:bg-gray-50'
+                    }`}
                 >
-                  <td className="px-3 py-2">{bill.invoiceNumber}</td>
-                  <td className="px-3 py-2">{bill.customer?.name}</td>
-                  <td className="px-3 py-2">{bill.customer?.phone}</td>
-                  <td className="px-3 py-2">
+                  <td className={`px-3 py-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{bill.invoiceNumber}</td>
+                  <td className={`px-3 py-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{bill.customer?.name}</td>
+                  <td className={`px-3 py-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{bill.customer?.phone}</td>
+                  <td className={`px-3 py-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     {bill.company?.name || "-"}
                   </td>
-                  <td className="px-3 py-2 font-medium">
+                  <td className={`px-3 py-2 font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                     ₹{bill.totalAmount}
                   </td>
-                  <td className="px-3 py-2">
+                  <td className={`px-3 py-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     ₹{bill.advanceAmount || 0}
                   </td>
                   <td
                     className={`px-3 py-2 font-semibold ${bill.balanceAmount === 0
-                        ? "text-green-600"
-                        : bill.balanceAmount < bill.totalAmount
-                          ? "text-yellow-600"
-                          : "text-red-600"
+                      ? "text-green-500"
+                      : bill.balanceAmount < bill.totalAmount
+                        ? "text-yellow-500"
+                        : "text-red-500"
                       }`}
                   >
                     ₹{bill.balanceAmount}
                   </td>
-                  <td className="px-3 py-2 flex gap-2">
+                  <td className="px-3 py-2 flex gap-2 justify-center">
                     <button
                       onClick={() => setSelectedInvoice(bill)}
                       className="bg-blue-500 text-white p-2.5 rounded-lg hover:bg-blue-600 transition-colors shadow-sm"
@@ -305,7 +311,7 @@ const InvoiceList = ({ bills, setBills }) => {
               ))}
               {filteredBills.length === 0 && (
                 <tr>
-                  <td colSpan="8" className="text-center py-6 text-gray-500">
+                  <td colSpan="8" className={`text-center py-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     No invoices found
                   </td>
                 </tr>
@@ -319,26 +325,27 @@ const InvoiceList = ({ bills, setBills }) => {
           {filteredBills.map((bill) => (
             <div
               key={bill.id}
-              className="bg-white rounded-lg shadow-sm border p-4"
+              className={`rounded-lg shadow-sm border p-4 transition-all ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                }`}
             >
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <p className="font-semibold text-blue-600">
+                  <p className={`font-semibold ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>
                     {bill.invoiceNumber}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                     {bill.customer?.name}
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     {bill.customer?.phone}
                   </p>
                 </div>
                 <span
                   className={`px-2 py-1 rounded text-xs font-semibold ${bill.balanceAmount === 0
-                      ? "bg-green-100 text-green-600"
-                      : bill.balanceAmount < bill.totalAmount
-                        ? "bg-yellow-100 text-yellow-600"
-                        : "bg-red-100 text-red-600"
+                    ? "bg-green-100 text-green-600"
+                    : bill.balanceAmount < bill.totalAmount
+                      ? "bg-yellow-100 text-yellow-600"
+                      : "bg-red-100 text-red-600"
                     }`}
                 >
                   ₹{bill.balanceAmount} Due
@@ -347,12 +354,12 @@ const InvoiceList = ({ bills, setBills }) => {
 
               <div className="grid grid-cols-2 gap-2 text-sm mb-3">
                 <div>
-                  <span className="text-gray-500">Total:</span>
-                  <span className="font-medium ml-1">₹{bill.totalAmount}</span>
+                  <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Total:</span>
+                  <span className={`font-medium ml-1 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>₹{bill.totalAmount}</span>
                 </div>
                 <div>
-                  <span className="text-gray-500">Advance:</span>
-                  <span className="font-medium ml-1">₹{bill.advanceAmount || 0}</span>
+                  <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Advance:</span>
+                  <span className={`font-medium ml-1 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>₹{bill.advanceAmount || 0}</span>
                 </div>
               </div>
 
@@ -382,7 +389,7 @@ const InvoiceList = ({ bills, setBills }) => {
             </div>
           ))}
           {filteredBills.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
+            <div className={`text-center py-12 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               No invoices found
             </div>
           )}
@@ -391,120 +398,212 @@ const InvoiceList = ({ bills, setBills }) => {
 
       {/* Invoice Modal */}
       {selectedInvoice && createPortal(
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" onClick={() => setSelectedInvoice(null)}>
-          <div className="bg-white w-full max-w-6xl max-h-[95vh] overflow-y-auto rounded-xl p-6 relative m-4" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => setSelectedInvoice(null)}
-              className="absolute top-4 right-4 text-2xl hover:text-gray-700"
-            >
-              ×
-            </button>
-
-            <div className="border border-gray-300 md:border-2 rounded-lg p-3 md:p-6 bg-white text-xs md:text-sm">
-              <div className="flex flex-col md:flex-row justify-between items-start mb-4 md:mb-6 pb-3 md:pb-4 border-b border-black md:border-b-2">
-                <div className="flex items-start w-full md:w-auto mb-3 md:mb-0">
-                  <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center text-xs font-bold mr-3 md:mr-4">
-                    {companyLogo ? <img src={companyLogo} alt="Logo" className="w-full h-full object-contain" /> : 'YOUR LOGO'}
-                  </div>
-                  <div className="flex-1">
-                    <h1 className="text-lg md:text-xl font-bold">{selectedInvoice.company?.name || 'Smart Sales'}</h1>
-                    <p className="text-xs md:text-sm text-gray-600">
-                      {selectedInvoice.company?.address || '123 Business Street'}<br />
-                      Phone: {selectedInvoice.company?.phone || '+91 98765 43210'}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-left md:text-right w-full md:w-auto">
-                  <h2 className="text-xl md:text-2xl font-bold">INVOICE</h2>
-                </div>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4" onClick={() => setSelectedInvoice(null)}>
+          <div className={`w-full max-w-6xl max-h-[95vh] overflow-y-auto rounded-2xl p-4 md:p-8 relative transition-all duration-300 ${isDarkMode ? 'bg-gray-900 border border-gray-700 shadow-2xl' : 'bg-white shadow-2xl'
+            }`} onClick={(e) => e.stopPropagation()}>
+            <div className="p-3 md:p-6">
+              <div className="flex justify-between items-center mb-4 md:mb-6">
+                <h3 className={`text-lg md:text-xl font-bold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-800'
+                  }`}>
+                  <Eye className="text-blue-600" size={24} /> Invoice Preview
+                </h3>
+                <button
+                  onClick={() => setSelectedInvoice(null)}
+                  className={`text-xl md:text-2xl transition-colors ${isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                >
+                  ×
+                </button>
               </div>
 
-              <div className="bg-black text-white text-center py-2 mb-4 font-bold text-sm md:text-lg">TAX INVOICE</div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
-                <div className="bg-gray-50 p-3 md:p-4 rounded">
-                  <h3 className="font-bold mb-2 md:mb-3 border-b pb-1 md:pb-2">BILL TO:</h3>
-                  <div className="text-xs md:text-sm space-y-1">
-                    <p><strong>Name:</strong> {selectedInvoice.customer?.name}</p>
-                    <p><strong>Phone:</strong> {selectedInvoice.customer?.phone}</p>
-                    <p><strong>Address:</strong> {selectedInvoice.customer?.address || 'N/A'}</p>
+              {/* Invoice Preview Content - Classic Style */}
+              <div className={`border rounded-lg p-3 md:p-6 text-xs md:text-sm ${isDarkMode ? 'border-gray-600 bg-gray-800 text-gray-100' : 'border-gray-300 md:border-2 bg-white text-gray-800'}`}>
+                {/* Header */}
+                <div className="flex flex-col md:flex-row justify-between items-start mb-4 md:mb-6 pb-3 md:pb-4 border-b border-black md:border-b-2">
+                  <div className="flex items-start w-full md:w-auto mb-3 md:mb-0">
+                    <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center text-xs font-bold mr-3 md:mr-4">
+                      {companyLogo ? (
+                        <img src={companyLogo} alt="Logo" className="w-full h-full object-contain" />
+                      ) : (
+                        'YOUR LOGO'
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <h1 className="text-lg md:text-xl font-bold">{selectedInvoice.company?.name || 'Smart Sales'}</h1>
+                      <p className={`text-xs md:text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        {selectedInvoice.company?.address || '123 Business Street, City'}<br />
+                        Phone: {selectedInvoice.company?.phone || '+91 98765 43210'}<br />
+                        GST: {selectedInvoice.company?.gst || '27XXXXX1234X1ZX'}
+                      </p>
+                      <p className={`text-xs md:text-sm font-medium mt-2 ${isDarkMode ? 'text-gray-300' : ''}`}>{selectedInvoice.company?.brands || 'RELAXO adidas Bata Paragon FILA campus'}</p>
+                    </div>
+                  </div>
+                  <div className="text-left md:text-right w-full md:w-auto">
+                    <h2 className="text-xl md:text-2xl font-bold">INVOICE</h2>
                   </div>
                 </div>
-                <div className="p-3 md:p-4">
-                  <div className="space-y-2 text-xs md:text-sm">
-                    <div className="flex justify-between"><span className="font-bold">Invoice No.:</span><span>{selectedInvoice.invoiceNumber}</span></div>
-                    <div className="flex justify-between"><span className="font-bold">Invoice Date:</span><span>{new Date(selectedInvoice.invoiceDate).toLocaleDateString()}</span></div>
-                    <div className="flex justify-between"><span className="font-bold">Payment Status:</span><span className={`px-2 py-1 rounded text-xs font-bold ${selectedInvoice.paymentStatus === 'PAID' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>{selectedInvoice.paymentStatus || 'Unpaid'}</span></div>
+
+                {/* Tax Invoice Header */}
+                <div className="bg-black text-white text-center py-2 mb-4 font-bold text-sm md:text-lg">
+                  TAX INVOICE
+                </div>
+
+                {/* Bill Details */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
+                  <div className={`p-3 md:p-4 rounded ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                    <h3 className={`font-bold mb-2 md:mb-3 border-b pb-1 md:pb-2 ${isDarkMode ? 'border-gray-600' : ''}`}>BILL TO:</h3>
+                    <div className="text-xs md:text-sm space-y-1">
+                      <p><strong>Name:</strong> {selectedInvoice.customer?.name}</p>
+                      <p><strong>Phone:</strong> {selectedInvoice.customer?.phone}</p>
+                      <p><strong>Address:</strong> {selectedInvoice.customer?.address || 'N/A'}</p>
+                    </div>
+                  </div>
+                  <div className="p-3 md:p-4">
+                    <div className="space-y-2 text-xs md:text-sm">
+                      <div className="flex justify-between">
+                        <span className="font-bold">Invoice No.:</span>
+                        <span>{selectedInvoice.invoiceNumber}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-bold">Invoice Date:</span>
+                        <span>{new Date(selectedInvoice.invoiceDate).toLocaleDateString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-bold">Salesperson:</span>
+                        <span className="font-semibold text-blue-600">{selectedInvoice.salesperson || selectedInvoice.employee?.name || selectedInvoice.employeeName || 'Admin'}</span>
+                      </div>
+
+
+                      <div className="flex justify-between">
+                        <span className="font-bold">Payment Method:</span>
+                        <span className="bg-green-500 text-white px-2 py-1 rounded text-xs">Cash</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-bold">Payment Status:</span>
+                        <span className={`px-2 py-1 rounded text-xs font-bold ${(selectedInvoice.paymentStatus || 'Unpaid') === 'PAID'
+                          ? 'bg-green-100 text-green-600'
+                          : 'bg-red-100 text-red-600'
+                          }`}>{selectedInvoice.paymentStatus || 'Unpaid'}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="hidden md:block mb-6">
-                <table className="w-full border-collapse border-2 border-black">
-                  <thead>
-                    <tr className="bg-gray-100">
-                      <th className="border border-black p-2 text-sm">Sr. No.</th>
-                      <th className="border border-black p-2 text-sm">Product/Service</th>
-                      <th className="border border-black p-2 text-sm">Qty</th>
-                      <th className="border border-black p-2 text-sm">Rate</th>
-                      <th className="border border-black p-2 text-sm">Disc. (%)</th>
-                      <th className="border border-black p-2 text-sm">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedInvoice.items && selectedInvoice.items.length > 0 ? (
-                      selectedInvoice.items.map((item, index) => (
-                        <tr key={index}>
-                          <td className="border border-black p-2 text-center text-sm">{index + 1}</td>
-                          <td className="border border-black p-2 text-sm">{item.product?.name || item.itemName || 'Product'}</td>
-                          <td className="border border-black p-2 text-center text-sm">{item.quantity || 1}</td>
-                          <td className="border border-black p-2 text-center text-sm">₹{(item.rate || item.price || 0).toFixed(2)}</td>
-                          <td className="border border-black p-2 text-center text-sm">{item.discount || 0}%</td>
-                          <td className="border border-black p-2 text-center text-sm">₹{calculateRowAmount(item).toFixed(2)}</td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td className="border border-black p-2 text-center text-sm">1</td>
-                        <td className="border border-black p-2 text-sm">Service</td>
-                        <td className="border border-black p-2 text-center text-sm">1</td>
-                        <td className="border border-black p-2 text-center text-sm">₹{selectedInvoice.totalAmount.toFixed(2)}</td>
-                        <td className="border border-black p-2 text-center text-sm">0%</td>
-                        <td className="border border-black p-2 text-center text-sm">₹{selectedInvoice.totalAmount.toFixed(2)}</td>
+                {/* Products Table */}
+                <div className="mb-6 overflow-x-auto">
+                  <table className={`w-full border-collapse border-2 ${isDarkMode ? 'border-gray-500' : 'border-black'}`}>
+                    <thead>
+                      <tr className={isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}>
+                        <th className={`border p-2 text-sm ${isDarkMode ? 'border-gray-500' : 'border-black'}`}>Sr. No.</th>
+                        <th className={`border p-2 text-sm text-left ${isDarkMode ? 'border-gray-500' : 'border-black'}`}>Name of Product/Service</th>
+                        <th className={`border p-2 text-sm ${isDarkMode ? 'border-gray-500' : 'border-black'}`}>Qty</th>
+                        <th className={`border p-2 text-sm ${isDarkMode ? 'border-gray-500' : 'border-black'}`}>Rate</th>
+                        <th className={`border p-2 text-sm ${isDarkMode ? 'border-gray-500' : 'border-black'}`}>Disc. (%)</th>
+                        <th className={`border p-2 text-sm ${isDarkMode ? 'border-gray-500' : 'border-black'}`}>Total</th>
                       </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                <div className="bg-gray-50 p-3 md:p-4 rounded">
-                  <strong className="block mb-2">Total in words:</strong>
-                  <div className="font-bold text-gray-700 text-xs md:text-sm">{convertToWords(Math.round(selectedInvoice.totalAmount))}</div>
+                    </thead>
+                    <tbody>
+                      {selectedInvoice.items && selectedInvoice.items.length > 0 ? (
+                        selectedInvoice.items.map((item, index) => (
+                          <tr key={index} className={isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}>
+                            <td className={`border p-2 text-center text-sm ${isDarkMode ? 'border-gray-500' : 'border-black'}`}>{index + 1}</td>
+                            <td className={`border p-2 text-sm ${isDarkMode ? 'border-gray-500' : 'border-black'}`}>{item.product?.name || item.itemName || 'Product'}</td>
+                            <td className={`border p-2 text-center text-sm ${isDarkMode ? 'border-gray-500' : 'border-black'}`}>{item.quantity || 1}</td>
+                            <td className={`border p-2 text-center text-sm ${isDarkMode ? 'border-gray-500' : 'border-black'}`}>₹{(item.rate || item.price || 0).toFixed(2)}</td>
+                            <td className={`border p-2 text-center text-sm ${isDarkMode ? 'border-gray-500' : 'border-black'}`}>{item.discount || 0}%</td>
+                            <td className={`border p-2 text-center text-sm ${isDarkMode ? 'border-gray-500' : 'border-black'}`}>₹{calculateRowAmount(item).toFixed(2)}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td className={`border p-2 text-center text-sm ${isDarkMode ? 'border-gray-500' : 'border-black'}`}>1</td>
+                          <td className={`border p-2 text-sm ${isDarkMode ? 'border-gray-500' : 'border-black'}`}>Service</td>
+                          <td className={`border p-2 text-center text-sm ${isDarkMode ? 'border-gray-500' : 'border-black'}`}>1</td>
+                          <td className={`border p-2 text-center text-sm ${isDarkMode ? 'border-gray-500' : 'border-black'}`}>₹{selectedInvoice.totalAmount.toFixed(2)}</td>
+                          <td className={`border p-2 text-center text-sm ${isDarkMode ? 'border-gray-500' : 'border-black'}`}>0%</td>
+                          <td className={`border p-2 text-center text-sm ${isDarkMode ? 'border-gray-500' : 'border-black'}`}>₹{selectedInvoice.totalAmount.toFixed(2)}</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 </div>
-                <div>
-                  <div className="space-y-2 text-xs md:text-sm">
-                    <div className="flex justify-between py-1 border-b"><span>Taxable Amount:</span><span>₹{((selectedInvoice.subTotal || selectedInvoice.totalAmount) - (selectedInvoice.totalDiscount || 0)).toFixed(2)}</span></div>
-                    <div className="flex justify-between py-1 border-b"><span>Discount:</span><span>₹{(selectedInvoice.totalDiscount || 0).toFixed(2)}</span></div>
-                    {selectedInvoice.cgstAmount > 0 && <div className="flex justify-between py-1 border-b"><span>CGST (9%):</span><span>₹{selectedInvoice.cgstAmount.toFixed(2)}</span></div>}
-                    {selectedInvoice.sgstAmount > 0 && <div className="flex justify-between py-1 border-b"><span>SGST (9%):</span><span>₹{selectedInvoice.sgstAmount.toFixed(2)}</span></div>}
-                    <div className="flex justify-between py-2 bg-gray-100 px-3 font-bold text-sm md:text-lg border border-black md:border-2"><span>Total Amount:</span><span>₹{selectedInvoice.totalAmount.toFixed(2)}</span></div>
-                    <div className="flex justify-between py-1 border-b"><span>Paid Amount:</span><span>₹{(selectedInvoice.advanceAmount || 0).toFixed(2)}</span></div>
-                    <div className="flex justify-between py-2 bg-orange-100 px-3 font-bold text-sm md:text-lg border border-orange-300"><span>Balance Amount:</span><span>₹{selectedInvoice.balanceAmount.toFixed(2)}</span></div>
+
+                {/* Totals Section */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  <div className={`p-3 md:p-4 rounded border ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-300'}`}>
+                    <strong className="block mb-2">Total in words:</strong>
+                    <div className={`font-bold text-xs md:text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      {convertToWords(Math.round(selectedInvoice.totalAmount))}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="space-y-2 text-xs md:text-sm">
+                      <div className={`flex justify-between py-1 border-b ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+                        <span>Taxable Amount:</span>
+                        <span>₹{((selectedInvoice.subTotal || selectedInvoice.totalAmount) - (selectedInvoice.totalDiscount || 0)).toFixed(2)}</span>
+                      </div>
+                      <div className={`flex justify-between py-1 border-b ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+                        <span>Discount:</span>
+                        <span>₹{(selectedInvoice.totalDiscount || 0).toFixed(2)}</span>
+                      </div>
+                      {selectedInvoice.cgstAmount > 0 && (
+                        <div className={`flex justify-between py-1 border-b ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+                          <span>CGST (9%):</span>
+                          <span>₹{selectedInvoice.cgstAmount.toFixed(2)}</span>
+                        </div>
+                      )}
+                      {selectedInvoice.sgstAmount > 0 && (
+                        <div className={`flex justify-between py-1 border-b ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+                          <span>SGST (9%):</span>
+                          <span>₹{selectedInvoice.sgstAmount.toFixed(2)}</span>
+                        </div>
+                      )}
+                      <div className={`flex justify-between py-2 px-3 font-bold text-sm md:text-lg border-2 ${isDarkMode ? 'bg-gray-700 border-gray-500 text-white' : 'bg-gray-100 border-black'}`}>
+                        <span>Total Amount:</span>
+                        <span>₹{selectedInvoice.totalAmount.toFixed(2)}</span>
+                      </div>
+                      <div className={`flex justify-between py-1 border-b ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+                        <span>Paid Amount:</span>
+                        <span>₹{(selectedInvoice.advanceAmount || 0).toFixed(2)}</span>
+                      </div>
+                      <div className={`flex justify-between py-2 px-3 font-bold text-sm md:text-lg border ${isDarkMode ? 'bg-amber-900/40 border-amber-700 text-amber-300' : 'bg-orange-100 border-orange-300 text-orange-800'}`}>
+                        <span>Balance Amount:</span>
+                        <span>₹{selectedInvoice.balanceAmount.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Signatures */}
+                <div className="mt-8 pt-6 border-t border-black md:border-t-2">
+                  <div className="text-right relative" style={{ minHeight: '100px', paddingTop: '20px' }}>
+                    {digitalSignature && (
+                      <img src={digitalSignature} alt="Signature" className="w-32 h-16 object-contain absolute top-0 right-8" />
+                    )}
+                    <div className={`pt-2 font-bold text-xs md:text-sm inline-block min-w-[200px] border-t ${isDarkMode ? 'border-gray-700 text-gray-300' : 'border-black text-black'}`} style={{ marginTop: '60px' }}>
+                      Authorized Signature
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-black md:border-t-2">
-                <div className="text-right relative" style={{ minHeight: '100px', paddingTop: '20px' }}>
-                  {digitalSignature && <img src={digitalSignature} alt="Signature" className="w-32 h-16 object-contain absolute top-0 right-8" />}
-                  <div className="border-t border-black pt-2 font-bold text-xs md:text-sm inline-block min-w-[200px]" style={{ marginTop: '60px' }}>Authorized Signature</div>
-                </div>
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  onClick={() => setSelectedInvoice(null)}
+                  className={`px-6 py-2.5 rounded-xl font-medium transition-all active:scale-95 ${isDarkMode
+                    ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-black'
+                    }`}
+                >
+                  Close Preview
+                </button>
+                <button
+                  onClick={printInvoice}
+                  className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2.5 rounded-xl font-medium shadow-lg hover:shadow-blue-500/20 transition-all active:scale-95 flex items-center gap-2"
+                >
+                  <Printer size={18} /> Print Invoice
+                </button>
               </div>
-            </div>
-
-            <div className="flex justify-end gap-2 mt-4">
-              <button onClick={() => setSelectedInvoice(null)} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Close</button>
             </div>
           </div>
         </div>,

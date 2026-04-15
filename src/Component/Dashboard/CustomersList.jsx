@@ -97,13 +97,13 @@ const CustomersList = ({ isDarkMode, onCreateInvoice }) => {
         <div className="absolute top-1/2 right-1/4 w-8 h-8 bg-pink-200 transform rotate-45 opacity-30 animate-float"></div>
       </div>
       
-      <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 mb-6 backdrop-blur-sm bg-white/90 hover:shadow-2xl hover:shadow-purple-200/50 transition-all duration-500 transform hover:scale-[1.01] border border-gray-100 relative z-10">
+      <div className={`rounded-xl shadow-lg p-4 md:p-6 mb-6 backdrop-blur-sm transition-all duration-500 transform hover:scale-[1.01] border relative z-10 ${isDarkMode ? 'bg-gray-800/90 border-gray-700 hover:shadow-2xl hover:shadow-gray-900/50' : 'bg-white/90 border-gray-100 hover:shadow-2xl hover:shadow-purple-200/50'}`}>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div>
-            <h2 className="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-3">
+            <h2 className={`text-xl md:text-2xl font-bold flex items-center gap-3 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
               <Users className="text-blue-600" size={28} /> Customer List
             </h2>
-            <p className="text-sm text-gray-600">Manage your customer database</p>
+            <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Manage your customer database</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
 
@@ -111,7 +111,7 @@ const CustomersList = ({ isDarkMode, onCreateInvoice }) => {
               <input 
                 type="text" 
                 placeholder="Search customers..."
-                className="w-full md:w-80 pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                className={`w-full md:w-80 pl-10 pr-4 py-2 border-2 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'bg-white border-gray-200 text-gray-800'}`}
                 value={customerSearchTerm}
                 onChange={(e) => setCustomerSearchTerm(e.target.value)}
               />
@@ -121,13 +121,13 @@ const CustomersList = ({ isDarkMode, onCreateInvoice }) => {
         </div>
         
         {loading ? (
-          <div className="text-center py-12 text-gray-500">
+          <div className={`text-center py-12 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
             <Loader2 className="mx-auto h-12 w-12 animate-spin text-blue-500 mb-4" />
             <p className="text-lg font-medium">Loading customers...</p>
           </div>
         ) : filteredCustomers.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
-            <Users size={64} className="mx-auto text-gray-200 mb-4" />
+          <div className={`text-center py-12 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            <Users size={64} className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-200'}`} />
             <p className="text-lg mb-4">{customerSearchTerm ? 'No customers found matching your search.' : 'No customers found. Create your first bill to add customers!'}</p>
 
           </div>
@@ -135,15 +135,15 @@ const CustomersList = ({ isDarkMode, onCreateInvoice }) => {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
               {filteredCustomers.map((customer, index) => (
-                <div key={customer.id} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border hover:shadow-lg transition-all duration-300 transform hover:scale-[1.05] hover:shadow-purple-200/40 animate-slideInUp group hover:rotate-1" style={{animationDelay: `${index * 0.1}s`}}>
+                <div key={customer.id} className={`rounded-lg p-4 border hover:shadow-lg transition-all duration-300 transform hover:scale-[1.05] animate-slideInUp group hover:rotate-1 ${isDarkMode ? 'bg-gray-700 border-gray-600 hover:shadow-gray-900/40' : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200 hover:shadow-purple-200/40'}`} style={{animationDelay: `${index * 0.1}s`}}>
                   <div className="mb-4">
-                    <h3 className="text-lg font-bold text-gray-800 mb-2">{customer.name}</h3>
-                    <div className="space-y-1 text-sm text-gray-600">
-                      <p className="flex items-center gap-2 font-medium"><Phone className="text-green-600" size={14} /> {customer.phone}</p>
-                      <p className="flex items-center gap-2"><Building className="text-blue-600" size={14} /> {customer.gst}</p>
-                      <p className="flex items-center gap-2"><MapPin className="text-red-600" size={14} /> {customer.address}</p>
+                    <h3 className={`text-lg font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{customer.name}</h3>
+                    <div className={`space-y-1 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      <p className="flex items-center gap-2 font-medium"><Phone className="text-green-500" size={14} /> {customer.phone}</p>
+                      <p className="flex items-center gap-2"><Building className="text-blue-500" size={14} /> {customer.gst}</p>
+                      <p className="flex items-center gap-2"><MapPin className="text-red-500" size={14} /> {customer.address}</p>
                     </div>
-                    <div className="flex justify-between mt-3 text-xs text-gray-500">
+                    <div className={`flex justify-between mt-3 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       <span>Bills: {customer.totalBills}</span>
                       <span>Last: {customer.lastBillDate}</span>
                     </div>
