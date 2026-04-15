@@ -127,7 +127,7 @@ const EmployeeDashboard = ({ isDarkMode }) => {
       totalInvoices: totalInvoices,
       paidBills: paidBillsCount,
       avgSale: avgSale,
-      topCustomers: [], 
+      topCustomers: [],
       recentBills: recentInvoices,
       dailySales: manualDailySales,
       topProducts: topProducts
@@ -217,7 +217,7 @@ const EmployeeDashboard = ({ isDarkMode }) => {
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            className={`px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'}`}
           >
             <option value="today">Today</option>
             <option value="week">Last 7 Days</option>
@@ -325,11 +325,11 @@ const EmployeeDashboard = ({ isDarkMode }) => {
             <div className="pt-6 border-t border-gray-100">
               <div className="flex items-center justify-between mb-4">
                 <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2">
-                   Products Sold {dateRange === 'today' ? 'Today' : 'this Period'}
+                  Products Sold {dateRange === 'today' ? 'Today' : 'this Period'}
                 </h4>
                 <span className="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded">Top 10 Items</span>
               </div>
-              
+
               <div className="overflow-x-auto">
                 {dashboardData.topProducts.length > 0 ? (
                   <table className="w-full border-separate border-spacing-y-2">

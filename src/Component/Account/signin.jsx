@@ -41,25 +41,43 @@ const Signin = () => {
     const email = e.target.email.value.trim();
     const password = e.target.password.value.trim();
 
-    try {
-      const res = await axios.post(
-        "https://backend-billing-software-ahxt.onrender.com/api/employees/login",
-        { empId, email, password }
-      );
+    const maxRetries = 2;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const res = await axios.post(
+          "https://backend-billing-software-ahxt.onrender.com/api/employees/login",
+          { empId, email, password },
+          { timeout: 30000 }
+        );
 
-      const employeeData = res.data;
-      localStorage.setItem("employee", JSON.stringify(employeeData));
-      localStorage.setItem("isSignedIn", "true");
-      localStorage.setItem("loggedInEmployee", employeeData.name);
+        const employeeData = res.data;
+        localStorage.setItem("employee", JSON.stringify(employeeData));
+        localStorage.setItem("isSignedIn", "true");
+        localStorage.setItem("loggedInEmployee", employeeData.name);
 
-      alert("✅ Login successful");
-      window.location.href = "/employee/dashboard";
-    } catch (error) {
-      console.error("Login error:", error);
-      alert(error.response?.data?.message || "Invalid employee credentials");
-    } finally {
-      setIsLoading(false);
+        alert("✅ Login successful");
+        window.location.href = "/employee/dashboard";
+        return;
+      } catch (error) {
+        console.error(`Login attempt ${attempt} failed:`, error);
+
+        // If it's a 401/auth error, don't retry — credentials are wrong
+        if (error.response && error.response.status >= 400 && error.response.status < 500) {
+          alert(error.response?.data?.message || "Invalid employee credentials");
+          setIsLoading(false);
+          return;
+        }
+
+        // Server error or network timeout — retry (Render cold start)
+        if (attempt < maxRetries) {
+          // Wait 3 seconds before retrying
+          await new Promise(resolve => setTimeout(resolve, 3000));
+        } else {
+          alert("⚠️ Server is starting up. Please wait a moment and try again.");
+        }
+      }
     }
+    setIsLoading(false);
   };
 
   const handleAdminLogin = (e) => {
