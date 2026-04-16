@@ -199,29 +199,24 @@ const EmployeeDashboard = ({ isDarkMode }) => {
     <div className="p-4 md:p-6 space-y-6 relative overflow-hidden h-full">
       {/* Dynamic Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className={`absolute top-0 left-0 w-full h-full opacity-10 ${
-          isDarkMode ? 'bg-blue-900/20' : 'bg-blue-50/50'
-        }`}>
+        <div className={`absolute top-0 left-0 w-full h-full opacity-10 ${isDarkMode ? 'bg-blue-900/20' : 'bg-blue-50/50'
+          }`}>
           <div className="absolute top-10 left-10 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-20 right-20 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-float"></div>
         </div>
       </div>
 
       {/* Header Card */}
-      <div className={`rounded-2xl shadow-xl p-6 md:p-8 backdrop-blur-md transition-all duration-500 border relative z-10 ${
-        isDarkMode ? 'bg-gray-800/80 border-gray-700 hover:shadow-gray-900/50' : 'bg-white/90 border-gray-100'
-      }`}>
+      <div className={`rounded-2xl shadow-lg p-6 md:p-8 transition-all duration-500 border relative z-10 ${isDarkMode ? 'bg-gray-800/80 border-gray-700' : 'bg-white border-gray-100'}`}>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
           <div className="flex items-center gap-4">
-            <div className={`p-4 rounded-2xl ${isDarkMode ? 'bg-blue-900/40 text-blue-400' : 'bg-blue-50 text-blue-600'}`}>
-              <LayoutDashboard size={32} className="animate-pulse" />
-            </div>
+            <LayoutDashboard size={40} className="text-blue-600" />
             <div>
-              <h1 className={`text-2xl md:text-3xl font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                Advanced Analytics
+              <h1 className={`text-3xl font-bold tracking-tight ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Dashboard
               </h1>
-              <p className={`text-base font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                Welcome back, <span className="text-blue-500 font-bold">{loggedInEmployee}</span>
+              <p className={`text-base font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                Welcome, {loggedInEmployee}
               </p>
             </div>
           </div>
@@ -229,20 +224,16 @@ const EmployeeDashboard = ({ isDarkMode }) => {
             <select
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
-              className={`w-full sm:w-48 appearance-none px-6 py-3 border-2 rounded-xl font-bold shadow-lg focus:ring-4 transition-all cursor-pointer ${
-                isDarkMode 
-                  ? 'bg-gray-700 border-gray-600 text-white focus:ring-blue-900/30' 
-                  : 'bg-white border-blue-50 text-gray-800 focus:ring-blue-100'
-              }`}
+              className={`w-full sm:w-48 px-4 py-2 border rounded-lg text-sm font-medium focus:ring-2 transition-all cursor-pointer ${isDarkMode
+                ? 'bg-gray-700 border-gray-600 text-white focus:ring-blue-500'
+                : 'bg-white border-gray-300 text-gray-800 focus:ring-blue-500'
+                }`}
             >
               <option value="today">Today</option>
               <option value="week">Past 7 Days</option>
               <option value="month">Last 30 Days</option>
               <option value="all">Full History</option>
             </select>
-            <div className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-400'}`}>
-              ▼
-            </div>
           </div>
         </div>
       </div>
@@ -250,26 +241,18 @@ const EmployeeDashboard = ({ isDarkMode }) => {
       {/* Interactive Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
         {[
-          { label: 'Total Sales', value: `₹${dashboardData.totalSales.toLocaleString()}`, icon: IndianRupee, color: 'blue' },
-          { label: 'Total Invoices', value: dashboardData.totalInvoices, icon: FileText, color: 'green' },
-          { label: 'Paid Bills', value: dashboardData.paidBills, icon: CheckCircle2, color: 'purple' },
-          { label: 'Avg Sale', value: `₹${dashboardData.avgSale.toFixed(0)}`, icon: TrendingUp, color: 'orange' }
+          { label: 'Total Sales', value: `₹${dashboardData.totalSales.toLocaleString()}`, icon: IndianRupee, color: 'bg-blue-600' },
+          { label: 'Total Invoices', value: dashboardData.totalInvoices, icon: FileText, color: 'bg-emerald-600' },
+          { label: 'Paid Bills', value: dashboardData.paidBills, icon: CheckCircle2, color: 'bg-purple-600' },
+          { label: 'Avg Sale', value: `₹${dashboardData.avgSale.toFixed(0)}`, icon: TrendingUp, color: 'bg-orange-600' }
         ].map((stat, i) => (
-          <div key={i} className={`rounded-2xl p-6 border-2 transform hover:scale-105 transition-all duration-300 shadow-lg group ${
-            isDarkMode 
-              ? `bg-gray-800/60 border-gray-700 hover:border-blue-500/50 shadow-gray-900/40` 
-              : `bg-white border-gray-50 hover:border-blue-100 shadow-blue-100/30`
-          }`}>
-            <div className="flex items-center justify-between mb-4">
-              <div className={`p-3 rounded-xl ${isDarkMode ? `bg-gray-700 text-blue-400` : `bg-blue-50 text-blue-600`}`}>
-                <stat.icon size={26} className="group-hover:rotate-12 transition-transform" />
-              </div>
-              <div className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                {stat.label}
-              </div>
+          <div key={i} className={`rounded-2xl p-6 shadow-xl transform hover:scale-105 transition-all duration-300 relative overflow-hidden flex justify-between items-center ${stat.color}`}>
+            <div className="text-white relative z-10">
+              <p className="text-sm font-bold opacity-80 mb-1">{stat.label}</p>
+              <h3 className="text-3xl font-black">{stat.value}</h3>
             </div>
-            <div className={`text-2xl font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              {stat.value}
+            <div className="bg-white/20 p-4 rounded-2xl relative z-10 backdrop-blur-sm border border-white/10 shadow-inner">
+              <stat.icon size={28} className="text-white" />
             </div>
           </div>
         ))}

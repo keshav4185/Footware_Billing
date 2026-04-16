@@ -123,38 +123,36 @@ const DashboardOverview = ({ bills: propsBills, customers: propsCustomers, produ
       value: `₹${getTotalRevenue().toLocaleString()}`,
       change: `+${getMonthlyGrowth()}%`,
       icon: <IndianRupee size={24} />,
-      bg: isDarkMode ? 'bg-emerald-900/20' : 'bg-emerald-50',
-      iconColor: isDarkMode ? 'text-emerald-400' : 'text-emerald-600',
-      borderColor: isDarkMode ? 'border-emerald-900/50' : 'border-emerald-100'
+      bg: isDarkMode ? 'bg-blue-900/30' : 'bg-blue-100',
+      iconColor: isDarkMode ? 'text-blue-400' : 'text-blue-600',
+      borderColor: isDarkMode ? 'border-blue-500/30' : 'border-blue-200'
     },
     {
       title: 'Total Invoices',
       value: filteredBills.length,
-      change: dateRange === 'today' ? 'Today' : dateRange === 'week' ? 'Last 7 Days' : dateRange === 'month' ? 'Last 30 Days' : dateRange === 'year' ? 'Last Year' : 'All time',
+      change: dateRange === 'today' ? 'Today' : (dateRange === 'week' ? 'Last 7 Days' : 'Last 30 Days'),
       icon: <BarChart3 size={24} />,
-      bg: isDarkMode ? 'bg-blue-900/20' : 'bg-blue-50',
-      iconColor: isDarkMode ? 'text-blue-400' : 'text-blue-600',
-      borderColor: isDarkMode ? 'border-blue-900/50' : 'border-blue-100'
+      bg: isDarkMode ? 'bg-green-900/30' : 'bg-green-100',
+      iconColor: isDarkMode ? 'text-green-400' : 'text-green-600',
+      borderColor: isDarkMode ? 'border-green-500/30' : 'border-green-200'
     },
     {
       title: 'Active Customers',
       value: customers.length,
       change: 'All time',
       icon: <Users size={24} />,
-      bg: isDarkMode ? 'bg-purple-900/20' : 'bg-purple-50',
+      bg: isDarkMode ? 'bg-purple-900/30' : 'bg-purple-100',
       iconColor: isDarkMode ? 'text-purple-400' : 'text-purple-600',
-      borderColor: isDarkMode ? 'border-purple-900/50' : 'border-purple-100'
+      borderColor: isDarkMode ? 'border-purple-500/30' : 'border-purple-200'
     },
     {
       title: 'Collection Rate',
-      value: `${getTotalRevenue() > 0
-        ? ((getPaidAmount() / getTotalRevenue()) * 100).toFixed(1)
-        : 0}%`,
+      value: `${getTotalRevenue() > 0 ? ((getPaidAmount() / getTotalRevenue()) * 100).toFixed(1) : 0}%`,
       change: 'Payment efficiency',
       icon: <Activity size={24} />,
-      bg: isDarkMode ? 'bg-teal-900/20' : 'bg-teal-50',
-      iconColor: isDarkMode ? 'text-teal-400' : 'text-teal-600',
-      borderColor: isDarkMode ? 'border-teal-900/50' : 'border-teal-100'
+      bg: isDarkMode ? 'bg-orange-900/30' : 'bg-orange-100',
+      iconColor: isDarkMode ? 'text-orange-400' : 'text-orange-600',
+      borderColor: isDarkMode ? 'border-orange-500/30' : 'border-orange-200'
     }
   ];
 
@@ -237,18 +235,18 @@ const DashboardOverview = ({ bills: propsBills, customers: propsCustomers, produ
         {stats.map((s, i) => (
           <div
             key={i}
-            className={`rounded-xl shadow-lg border p-6 transform hover:scale-105 hover:shadow-xl transition-all duration-300 ${
-              isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
-            }`}
+            className={`rounded-2xl p-6 shadow-xl transform hover:scale-105 transition-all duration-300 relative overflow-hidden flex justify-between items-center ${s.title === 'Total Revenue' ? 'bg-blue-600' :
+              s.title === 'Total Invoices' ? 'bg-emerald-600' :
+                s.title === 'Active Customers' ? 'bg-purple-600' : 'bg-orange-600'
+              }`}
           >
-            <div className="flex items-start justify-between mb-4">
-              <div className={`${s.bg} p-3 rounded-lg border ${s.borderColor} flex items-center justify-center`}>
-                <span className={`${s.iconColor}`}>{s.icon}</span>
-              </div>
+            <div className="text-white relative z-10">
+              <p className="text-sm font-bold opacity-80 mb-1">{s.title}</p>
+              <h3 className="text-3xl font-black">{s.value}</h3>
             </div>
-            <h3 className={`text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{s.title}</h3>
-            <p className={`text-2xl font-bold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{s.value}</p>
-            <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>{s.change}</p>
+            <div className="bg-white/20 p-4 rounded-2xl relative z-10 backdrop-blur-sm border border-white/10 shadow-inner">
+              <span className="text-white">{s.icon}</span>
+            </div>
           </div>
         ))}
       </div>
@@ -283,9 +281,8 @@ const DashboardOverview = ({ bills: propsBills, customers: propsCustomers, produ
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
                       return (
-                        <div className={`p-2 rounded-lg shadow-xl border ${
-                          isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white border-gray-200 text-gray-800'
-                        }`}>
+                        <div className={`p-2 rounded-lg shadow-xl border ${isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white border-gray-200 text-gray-800'
+                          }`}>
                           <p className="font-bold">{payload[0].name}: {payload[0].value}</p>
                         </div>
                       );
@@ -404,13 +401,12 @@ const DashboardOverview = ({ bills: propsBills, customers: propsCustomers, produ
                       ₹{bill.grandTotal?.toLocaleString()}
                     </p>
                     <span
-                      className={`inline-block px-3 py-1 rounded-lg text-xs font-bold transition-all shadow-sm ${
-                        bill.paymentStatus === 'paid'
-                          ? isDarkMode ? 'bg-green-900/30 text-green-400 border border-green-800' : 'bg-green-100 text-green-700'
-                          : bill.paymentStatus === 'pending'
-                            ? isDarkMode ? 'bg-yellow-900/30 text-yellow-400 border border-yellow-800' : 'bg-yellow-100 text-yellow-700'
-                            : isDarkMode ? 'bg-red-900/30 text-red-400 border border-red-800' : 'bg-red-100 text-red-700'
-                      }`}
+                      className={`inline-block px-3 py-1 rounded-lg text-xs font-bold transition-all shadow-sm ${bill.paymentStatus === 'paid'
+                        ? isDarkMode ? 'bg-green-900/30 text-green-400 border border-green-800' : 'bg-green-100 text-green-700'
+                        : bill.paymentStatus === 'pending'
+                          ? isDarkMode ? 'bg-yellow-900/30 text-yellow-400 border border-yellow-800' : 'bg-yellow-100 text-yellow-700'
+                          : isDarkMode ? 'bg-red-900/30 text-red-400 border border-red-800' : 'bg-red-100 text-red-700'
+                        }`}
                     >
                       {(bill.paymentStatus || 'pending').toUpperCase()}
                     </span>
