@@ -22,10 +22,10 @@ const MobileBillingMockup = () => {
                 {/* Bill Items */}
                 <div className="space-y-4">
                     {[
-                        { id: "INV-451143", name: "Keshav Pralhad", date: "07/04/2026", amount: "5310.00" },
+                        { id: "INV-451143", name: "Pranjal Rohankar", date: "07/04/2026", amount: "5310.00" },
                         { id: "INV-079381", name: "Keshav Pralhad Golande", date: "01/04/2026", amount: "177.00" },
                         { id: "INV-693152", name: "Keshav Pralhad Golande", date: "31/03/2026", amount: "112.10" },
-                        { id: "INV-574063", name: "Keshav Pralhad Golande", date: "31/03/2026", amount: "112.10" }
+                        { id: "INV-574063", name: "Pranjal Rohankar", date: "31/03/2026", amount: "112.10" }
                     ].map((bill, idx) => (
                         <div key={idx} className="border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow bg-gray-50/30">
                             <div className="flex justify-between items-start mb-3">

@@ -123,11 +123,11 @@ const Navbar = () => {
                                             </div>
                                         )}
                                     </div>
-                                    <a href="/Account">   <Button outline className="try hover:bg-indigo-400 transform hover:scale-105 transition-all duration-300 hover:shadow-lg">Start Billing</Button> </a>
+                                    <Link to="/Account">   <Button outline className="try hover:bg-indigo-400 transform hover:scale-105 transition-all duration-300 hover:shadow-lg">Start Billing</Button> </Link>
                                 </>
                             ) : (
                                 <>
-                                    <a href="/Account">  <Button outline className="w-full hover:bg-indigo-400 transform hover:scale-105 transition-all duration-300 hover:shadow-lg" >Start-Now</Button></a> 
+                                    <Link to="/Account">  <Button outline className="w-full hover:bg-indigo-400 transform hover:scale-105 transition-all duration-300 hover:shadow-lg" >Start-Now</Button></Link> 
                                 </>
                             )}
                         </div>
@@ -176,12 +176,12 @@ const Navbar = () => {
                                     </div>
                                     <span className="font-medium text-gray-700 group-hover:text-purple-600">{userName}</span>
                                 </Link>
-                                <a href="/Account">  <Button outline className="w-full try transform hover:scale-105 transition-all duration-300 hover:shadow-lg">Start Billing</Button></a>
+                                <Link to="/Account">  <Button outline className="w-full try transform hover:scale-105 transition-all duration-300 hover:shadow-lg">Start Billing</Button></Link>
                             </>
                         ) : (
                             <>
-                                <a href="/Account">  <Button outline className="w-full transform hover:scale-105 transition-all duration-300 hover:shadow-lg" >Sign in</Button></a> 
-                                <a href="/Account">  <Button outline className="w-full try transform hover:scale-105 transition-all duration-300 hover:shadow-lg">Start Billing</Button></a>
+                                <Link to="/Account">  <Button outline className="w-full transform hover:scale-105 transition-all duration-300 hover:shadow-lg" >Sign in</Button></Link> 
+                                <Link to="/Account">  <Button outline className="w-full try transform hover:scale-105 transition-all duration-300 hover:shadow-lg">Start Billing</Button></Link>
                             </>
                         )}
                     </div>

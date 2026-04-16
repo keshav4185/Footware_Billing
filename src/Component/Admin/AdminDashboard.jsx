@@ -11,6 +11,7 @@ import EmployeesManagement from './EmployeesManagement';
 import Reports from './Reports';
 import Profile from './Profile';
 import Settings from './Settings';
+import InboxManagement from './InboxManagement';
 
 const AdminDashboard = () => {
   const [activeSection, setActiveSection] = useState('overview');
@@ -42,6 +43,8 @@ const AdminDashboard = () => {
     switch(activeSection) {
       case 'overview':
         return <DashboardOverview bills={bills} customers={customers} products={products} isDarkMode={isDarkMode} />;
+      case 'inbox':
+        return <InboxManagement isDarkMode={isDarkMode} />;
       case 'create-invoice':
         return <CreateBill isDarkMode={isDarkMode} />;
       case 'customers':

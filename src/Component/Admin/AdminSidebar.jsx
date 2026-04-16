@@ -5,12 +5,14 @@ import {
   FileText, 
   UserRoundCheck, 
   BarChart3, 
-  UserCircle 
+  UserCircle,
+  MessageSquare
 } from 'lucide-react';
 
 const AdminSidebar = ({ activeSection, setActiveSection, isSidebarOpen, setIsSidebarOpen, isDarkMode }) => {
   const menuItems = [
     { id: 'overview', icon: LayoutDashboard, label: 'Dashboard', color: 'text-blue-600' },
+    { id: 'inbox', icon: MessageSquare, label: 'Inbox', color: 'text-pink-600' },
     { id: 'customers', icon: Users, label: 'Customers', color: 'text-green-600' },
     { id: 'invoices', icon: FileText, label: 'Invoice List', color: 'text-orange-600' },
     { id: 'employees', icon: UserRoundCheck, label: 'Employees', color: 'text-indigo-600' },
