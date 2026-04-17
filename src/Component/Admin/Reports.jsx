@@ -54,7 +54,7 @@ const Reports = ({ isDarkMode }) => {
     >
       <h3 className="text-lg font-bold opacity-90">{title}</h3>
       <p className="text-2xl font-extrabold mt-2">
-        <CountUp end={Number(value)} duration={1.5} separator="," prefix={value.toString().includes("₹") ? "₹" : ""}/>
+        <CountUp end={Number(value)} duration={1.5} separator="," prefix={value.toString().includes("₹") ? "₹" : ""} />
       </p>
     </div>
   );
@@ -173,8 +173,8 @@ const Reports = ({ isDarkMode }) => {
                 <YAxis tick={{ fill: isDarkMode ? '#9ca3af' : '#4b5563' }} />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
-                <Bar dataKey="paid" fill="#4ade80" radius={[5,5,0,0]} />
-                <Bar dataKey="unpaid" fill="#f87171" radius={[5,5,0,0]} />
+                <Bar dataKey="paid" fill="#4ade80" radius={[5, 5, 0, 0]} />
+                <Bar dataKey="unpaid" fill="#f87171" radius={[5, 5, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : <p className={`text-center py-10 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>No data available for selected period.</p>}
@@ -263,7 +263,7 @@ const Reports = ({ isDarkMode }) => {
       // Find all items in all bills that match this product
       let soldQty = 0;
       let revenue = 0;
-      
+
       filteredBills.forEach(bill => {
         const items = bill.items || bill.invoiceItems || [];
         items.forEach(item => {
@@ -287,7 +287,7 @@ const Reports = ({ isDarkMode }) => {
     // 2. Data for Charts
     const sortedByRevenue = [...productStats].sort((a, b) => b.revenue - a.revenue).slice(0, 10);
     const top5Revenue = sortedByRevenue.slice(0, 5);
-    
+
     // 3. Colors for Pie Chart
     const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
@@ -329,7 +329,7 @@ const Reports = ({ isDarkMode }) => {
                   <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke={isDarkMode ? '#374151' : '#e5e7eb'} />
                   <XAxis type="number" hide />
                   <YAxis dataKey="name" type="category" width={100} tick={{ fontSize: 11, fill: isDarkMode ? '#9ca3af' : '#4b5563' }} />
-                  <Tooltip 
+                  <Tooltip
                     cursor={{ fill: isDarkMode ? '#1f2937' : '#f3f4f6' }}
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
@@ -375,8 +375,8 @@ const Reports = ({ isDarkMode }) => {
                     ))}
                   </Pie>
                   <Tooltip content={<CustomTooltip />} />
-                  <Legend 
-                    verticalAlign="bottom" 
+                  <Legend
+                    verticalAlign="bottom"
                     height={36}
                     formatter={(value) => <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>{value}</span>}
                   />
@@ -390,7 +390,7 @@ const Reports = ({ isDarkMode }) => {
 
         {/* Action Bar */}
         <div className={`flex justify-end gap-3 pt-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}>
-          <button 
+          <button
             onClick={() => exportToExcel(productStats, `product_performance_report.xlsx`)}
             className="flex items-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-xl hover:bg-blue-700 transition font-medium shadow-md active:scale-95"
           >
@@ -421,13 +421,12 @@ const Reports = ({ isDarkMode }) => {
             <button
               key={id}
               onClick={() => setActiveReport(id)}
-              className={`px-3 py-2 rounded-lg text-sm transition-all font-medium ${
-                activeReport === id
+              className={`px-3 py-2 rounded-lg text-sm transition-all font-medium ${activeReport === id
                   ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/20"
-                  : isDarkMode 
-                    ? "bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600" 
+                  : isDarkMode
+                    ? "bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
+                }`}
             >
               {id.charAt(0).toUpperCase() + id.slice(1)}
             </button>

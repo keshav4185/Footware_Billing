@@ -129,9 +129,8 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       return false;
     }
 
-    // Check if name contains numbers
-    if (/\d/.test(customerFormData.name)) {
-      alert('❌ Validation Error: Customer name cannot contain numbers!');
+    if (/[^a-zA-Z\s]/.test(customerFormData.name)) {
+      alert('❌ Validation Error: Customer name cannot contain numbers or special characters!');
       return false;
     }
 
@@ -1127,11 +1126,10 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
               <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>Phone Number *</label>
               <input
                 type="tel"
-                className={`w-full p-3 border-2 rounded-lg focus:ring-4 transition-all duration-300 hover:shadow-md ${
-                  isDarkMode 
-                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400 focus:ring-blue-900/30 hover:border-blue-500' 
+                className={`w-full p-3 border-2 rounded-lg focus:ring-4 transition-all duration-300 hover:shadow-md ${isDarkMode
+                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400 focus:ring-blue-900/30 hover:border-blue-500'
                     : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500 focus:ring-blue-100 hover:border-blue-300'
-                }`}
+                  }`}
                 placeholder="Enter phone number (numbers only)"
                 maxLength="10"
                 value={customerFormData.phone}
@@ -1142,11 +1140,10 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
             <div className="animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
               <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>Invoice Address *</label>
               <textarea
-                className={`w-full p-3 border-2 rounded-lg focus:ring-4 transition-all duration-300 resize-none hover:shadow-md ${
-                  isDarkMode 
-                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400 focus:ring-blue-900/30 hover:border-blue-500' 
+                className={`w-full p-3 border-2 rounded-lg focus:ring-4 transition-all duration-300 resize-none hover:shadow-md ${isDarkMode
+                    ? 'border-gray-600 bg-gray-700 text-white focus:border-blue-400 focus:ring-blue-900/30 hover:border-blue-500'
                     : 'border-gray-200 bg-white text-gray-900 focus:border-blue-500 focus:ring-blue-100 hover:border-blue-300'
-                }`}
+                  }`}
                 rows="3"
                 placeholder="Enter complete address"
                 value={customerFormData.address}
@@ -1285,20 +1282,18 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
         {/* Mobile-Optimized Product List */}
         <div className="space-y-3 md:hidden" id="mobile-products">
           {products.map((product) => (
-            <div key={product.id} className={`rounded-lg p-4 border-2 border-dashed transform hover:scale-[1.02] transition-all duration-300 animate-slideInUp ${
-              isDarkMode 
-                ? 'bg-gray-700/50 border-gray-600 hover:border-blue-500 hover:shadow-blue-900/20' 
+            <div key={product.id} className={`rounded-lg p-4 border-2 border-dashed transform hover:scale-[1.02] transition-all duration-300 animate-slideInUp ${isDarkMode
+                ? 'bg-gray-700/50 border-gray-600 hover:border-blue-500 hover:shadow-blue-900/20'
                 : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-300 hover:border-blue-400 hover:shadow-lg'
-            }`}>
+              }`}>
               <div className="grid grid-cols-2 gap-3 mb-3">
                 <div>
                   <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Product Name</label>
                   <input
                     type="text"
-                    className={`w-full p-2 border rounded text-sm transition-all duration-300 hover:shadow-md outline-none ${
-                        isDarkMode 
-                          ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-900/30' 
-                          : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-100'
+                    className={`w-full p-2 border rounded text-sm transition-all duration-300 hover:shadow-md outline-none ${isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-900/30'
+                        : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-100'
                       }`}
                     placeholder="Product name"
                     value={product.name}
@@ -1309,10 +1304,9 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
                   <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Quantity</label>
                   <input
                     type="number"
-                    className={`w-full p-2 border rounded text-sm text-center transition-all duration-300 hover:shadow-md outline-none ${
-                        isDarkMode 
-                          ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-900/30' 
-                          : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-100'
+                    className={`w-full p-2 border rounded text-sm text-center transition-all duration-300 hover:shadow-md outline-none ${isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-900/30'
+                        : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-100'
                       }`}
                     value={product.qty}
                     min="1"
@@ -1325,10 +1319,9 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
                   <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Price (₹)</label>
                   <input
                     type="number"
-                    className={`w-full p-2 border rounded text-sm text-center transition-all duration-300 hover:shadow-md outline-none ${
-                        isDarkMode 
-                          ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-900/30' 
-                          : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-100'
+                    className={`w-full p-2 border rounded text-sm text-center transition-all duration-300 hover:shadow-md outline-none ${isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-900/30'
+                        : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-100'
                       }`}
                     value={product.price}
                     min="0"
@@ -1342,10 +1335,9 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
                   <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Disc %</label>
                   <input
                     type="number"
-                    className={`w-full p-2 border rounded text-sm text-center transition-all duration-300 hover:shadow-md outline-none ${
-                        isDarkMode 
-                          ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-900/30' 
-                          : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-100'
+                    className={`w-full p-2 border rounded text-sm text-center transition-all duration-300 hover:shadow-md outline-none ${isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-900/30'
+                        : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-100'
                       }`}
                     value={product.discount}
                     min="0"
@@ -1553,28 +1545,25 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
             <span className={`font-semibold ${isDarkMode ? 'text-gray-100' : 'text-gray-800'
               }`}>₹ {calculateTotals().sgstAmount.toFixed(2)}</span>
           </div>
-          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 rounded-lg px-4 border-2 transition-all duration-300 ${
-            isDarkMode 
-              ? 'bg-blue-900/20 border-blue-900/50 text-blue-300' 
+          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 rounded-lg px-4 border-2 transition-all duration-300 ${isDarkMode
+              ? 'bg-blue-900/20 border-blue-900/50 text-blue-300'
               : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 text-blue-800'
-          }`}>
+            }`}>
             <span className="text-base sm:text-lg font-bold mb-1 sm:mb-0">Total Amount:</span>
             <span className="text-lg sm:text-xl font-bold">₹ {calculateTotals().grandTotal.toFixed(2)}</span>
           </div>
-          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 rounded-lg px-4 border-2 mt-2 transition-all duration-300 ${
-            isDarkMode 
-              ? 'bg-green-900/20 border-green-900/50 text-green-300' 
+          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 rounded-lg px-4 border-2 mt-2 transition-all duration-300 ${isDarkMode
+              ? 'bg-green-900/20 border-green-900/50 text-green-300'
               : 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 text-green-800'
-          }`}>
+            }`}>
             <span className="text-base sm:text-lg font-bold mb-1 sm:mb-0">Paid Amount:</span>
             <div className="flex items-center gap-2">
               <input
                 type="number"
-                className={`w-24 p-2 border-2 rounded-lg text-base font-bold text-center outline-none transition-all ${
-                  isDarkMode 
-                    ? 'bg-gray-700 border-green-800 text-green-400 focus:border-green-500 focus:ring-2 focus:ring-green-900/30' 
+                className={`w-24 p-2 border-2 rounded-lg text-base font-bold text-center outline-none transition-all ${isDarkMode
+                    ? 'bg-gray-700 border-green-800 text-green-400 focus:border-green-500 focus:ring-2 focus:ring-green-900/30'
                     : 'bg-white border-green-300 text-green-800 focus:border-green-500 focus:ring-2 focus:ring-green-200'
-                }`}
+                  }`}
                 value={advance}
                 min="0"
                 step="0.01"
@@ -1595,19 +1584,17 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
               <span className="text-lg sm:text-xl font-bold">₹</span>
             </div>
           </div>
-          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 rounded-lg px-4 border-2 mt-2 transition-all duration-300 ${
-            isDarkMode 
-              ? 'bg-orange-900/20 border-orange-900/50 text-orange-300' 
+          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 rounded-lg px-4 border-2 mt-2 transition-all duration-300 ${isDarkMode
+              ? 'bg-orange-900/20 border-orange-900/50 text-orange-300'
               : 'bg-gradient-to-r from-orange-50 to-red-50 border-orange-200 text-orange-800'
-          }`}>
+            }`}>
             <span className="text-base sm:text-lg font-bold mb-1 sm:mb-0">Balance Amount:</span>
             <span className="text-lg sm:text-xl font-bold">₹ {calculateTotals().balanceAmount.toFixed(2)}</span>
           </div>
-          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 py-2 rounded-lg px-4 border mt-2 transition-all duration-300 ${
-            isDarkMode 
-              ? 'bg-gray-700/50 border-gray-600' 
+          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 py-2 rounded-lg px-4 border mt-2 transition-all duration-300 ${isDarkMode
+              ? 'bg-gray-700/50 border-gray-600'
               : 'bg-gradient-to-r from-gray-50 to-gray-100 border-gray-200'
-          }`}>
+            }`}>
             <span className={`px-3 py-1 rounded-lg font-bold text-sm shadow-sm ${calculateTotals().balanceAmount === 0
               ? 'bg-green-600 text-white'
               : calculateTotals().balanceAmount === calculateTotals().grandTotal

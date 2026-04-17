@@ -11,6 +11,32 @@ import {
 } from 'lucide-react';
 import { invoiceAPI } from '../../services/api';
 
+const EmployeeStatCard = ({ stat, isDarkMode }) => {
+  const [isHovered, setIsHovered] = React.useState(false);
+  
+  return (
+    <div
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`rounded-2xl p-5 sm:p-6 transform hover:scale-[1.03] transition-all duration-300 relative overflow-hidden flex justify-between items-center cursor-pointer border shadow-sm
+        ${!isDarkMode && !isHovered 
+          ? 'bg-white text-gray-800 border-gray-200 hover:shadow-md' 
+          : `${stat.color} text-white border-transparent shadow-lg`}
+      `}
+    >
+      <div className={`relative z-10 ${(!isDarkMode && !isHovered) ? 'text-gray-900' : 'text-white'}`}>
+        <p className={`text-sm font-bold mb-1 transition-colors ${!isDarkMode && !isHovered ? 'text-gray-500' : 'opacity-90'}`}>{stat.label}</p>
+        <h3 className="text-3xl font-black">{stat.value}</h3>
+      </div>
+      <div className={`p-3 sm:p-4 rounded-2xl relative z-10 transition-colors duration-300
+        ${!isDarkMode && !isHovered ? 'bg-gray-100' : 'bg-white/20 backdrop-blur-sm border border-white/10 shadow-inner'}
+      `}>
+        <stat.icon size={28} className={`transition-colors ${!isDarkMode && !isHovered ? stat.iconColor : 'text-white'}`} />
+      </div>
+    </div>
+  );
+};
+
 const EmployeeDashboard = ({ isDarkMode }) => {
   const [dateRange, setDateRange] = React.useState('today');
   const [bills, setBills] = React.useState([]);
@@ -241,20 +267,12 @@ const EmployeeDashboard = ({ isDarkMode }) => {
       {/* Interactive Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
         {[
-          { label: 'Total Sales', value: `₹${dashboardData.totalSales.toLocaleString()}`, icon: IndianRupee, color: 'bg-blue-600' },
-          { label: 'Total Invoices', value: dashboardData.totalInvoices, icon: FileText, color: 'bg-emerald-600' },
-          { label: 'Paid Bills', value: dashboardData.paidBills, icon: CheckCircle2, color: 'bg-purple-600' },
-          { label: 'Avg Sale', value: `₹${dashboardData.avgSale.toFixed(0)}`, icon: TrendingUp, color: 'bg-orange-600' }
+          { label: 'Total Sales', value: `₹${dashboardData.totalSales.toLocaleString()}`, icon: IndianRupee, color: 'bg-blue-600', iconColor: 'text-blue-500' },
+          { label: 'Total Invoices', value: dashboardData.totalInvoices, icon: FileText, color: 'bg-emerald-600', iconColor: 'text-emerald-500' },
+          { label: 'Paid Bills', value: dashboardData.paidBills, icon: CheckCircle2, color: 'bg-purple-600', iconColor: 'text-purple-500' },
+          { label: 'Avg Sale', value: `₹${dashboardData.avgSale.toFixed(0)}`, icon: TrendingUp, color: 'bg-orange-600', iconColor: 'text-orange-500' }
         ].map((stat, i) => (
-          <div key={i} className={`rounded-2xl p-6 shadow-xl transform hover:scale-105 transition-all duration-300 relative overflow-hidden flex justify-between items-center ${stat.color}`}>
-            <div className="text-white relative z-10">
-              <p className="text-sm font-bold opacity-80 mb-1">{stat.label}</p>
-              <h3 className="text-3xl font-black">{stat.value}</h3>
-            </div>
-            <div className="bg-white/20 p-4 rounded-2xl relative z-10 backdrop-blur-sm border border-white/10 shadow-inner">
-              <stat.icon size={28} className="text-white" />
-            </div>
-          </div>
+          <EmployeeStatCard key={i} stat={stat} isDarkMode={isDarkMode} />
         ))}
       </div>
 

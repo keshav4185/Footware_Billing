@@ -46,16 +46,30 @@ const CustomersList = ({ isDarkMode, onCreateInvoice }) => {
         customersArray = data.customers;
       }
       
-      const mappedCustomers = customersArray.map(customer => ({
-        id: customer.id,
-        name: customer.name || 'N/A',
-        phone: customer.phone || 'N/A',
-        gst: customer.gst || 'N/A',
-        address: customer.address || 'N/A',
-        totalBills: customer.totalBills || 0,
-        lastBillDate: customer.lastBillDate || 'Never'
-      }));
+      // Use a Map to deduplicate by phone and filter out invalid entries
+      const uniqueMap = new Map();
+      customersArray.forEach(customer => {
+        const phone = (customer.phone || '').trim();
+        const name = (customer.name || '').trim();
+        
+        // Skip records that are empty or just dashes
+        if (!phone || phone === '-' || !name || name === '-') return;
+        
+        // Keep the first entry, or prefer an entry that has more info (like GST)
+        if (!uniqueMap.has(phone) || (customer.gst && customer.gst !== 'N/A' && !uniqueMap.get(phone).gst)) {
+          uniqueMap.set(phone, {
+            id: customer.id,
+            name: name,
+            phone: phone,
+            gst: customer.gst || 'N/A',
+            address: customer.address || 'N/A',
+            totalBills: customer.totalBills || 0,
+            lastBillDate: customer.lastBillDate || 'Never'
+          });
+        }
+      });
       
+      const mappedCustomers = Array.from(uniqueMap.values());
       setCustomers(mappedCustomers);
     } catch (error) {
       console.error('Error fetching customers:', error);

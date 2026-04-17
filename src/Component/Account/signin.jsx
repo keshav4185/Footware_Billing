@@ -12,7 +12,7 @@ import {
   LogIn,
   LayoutGrid
 } from 'lucide-react';
-import empLogImage from '../../assets/Emp_Log_optimized.jpg'; // Using the optimized 224KB image
+import empLogImage from '../../assets/Emp_Log_optimized.jpg';
 import adminLogImage from '../../assets/Admin_Log.jpg';
 
 const Signin = () => {
@@ -41,43 +41,25 @@ const Signin = () => {
     const email = e.target.email.value.trim();
     const password = e.target.password.value.trim();
 
-    const maxRetries = 2;
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        const res = await axios.post(
-          "https://backend-billing-software-ahxt.onrender.com/api/employees/login",
-          { empId, email, password },
-          { timeout: 30000 }
-        );
+    try {
+      const res = await axios.post(
+        "https://backend-billing-software-ahxt.onrender.com/api/employees/login",
+        { empId, email, password }
+      );
 
-        const employeeData = res.data;
-        localStorage.setItem("employee", JSON.stringify(employeeData));
-        localStorage.setItem("isSignedIn", "true");
-        localStorage.setItem("loggedInEmployee", employeeData.name);
+      const employeeData = res.data;
+      localStorage.setItem("employee", JSON.stringify(employeeData));
+      localStorage.setItem("isSignedIn", "true");
+      localStorage.setItem("loggedInEmployee", employeeData.name);
 
-        alert("✅ Login successful");
-        window.location.href = "/employee/dashboard";
-        return;
-      } catch (error) {
-        console.error(`Login attempt ${attempt} failed:`, error);
-
-        // If it's a 401/auth error, don't retry — credentials are wrong
-        if (error.response && error.response.status >= 400 && error.response.status < 500) {
-          alert(error.response?.data?.message || "Invalid employee credentials");
-          setIsLoading(false);
-          return;
-        }
-
-        // Server error or network timeout — retry (Render cold start)
-        if (attempt < maxRetries) {
-          // Wait 3 seconds before retrying
-          await new Promise(resolve => setTimeout(resolve, 3000));
-        } else {
-          alert("⚠️ Server is starting up. Please wait a moment and try again.");
-        }
-      }
+      alert("✅ Login successful");
+      window.location.href = "/employee/dashboard";
+    } catch (error) {
+      console.error("Login error:", error);
+      alert(error.response?.data?.message || "Invalid employee credentials");
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleAdminLogin = (e) => {
@@ -118,12 +100,12 @@ const Signin = () => {
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-0 lg:p-8 relative overflow-hidden font-inter">
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-8 lg:p-8 relative overflow-hidden font-inter">
 
-      <div className="relative z-10 w-full max-w-[1100px] h-full lg:h-[700px] flex flex-col lg:flex-row bg-white/5 backdrop-blur-2xl rounded-none lg:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10">
+      <div className="relative z-10 w-full max-w-[1100px] h-auto min-h-[600px] lg:h-[700px] flex flex-col lg:flex-row bg-white/5 backdrop-blur-2xl rounded-[2rem] lg:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10">
 
-        {/* Left Side: Dynamic Illustration & Branding */}
-        <div className="w-full lg:w-[55%] relative group overflow-hidden border-b lg:border-b-0 lg:border-r border-white/10">
+        {/* Left Side: Dynamic Illustration & Branding (Hidden on Mobile) */}
+        <div className="hidden lg:block lg:w-[55%] relative group overflow-hidden border-r border-white/10">
 
           {/* Image Container with Cross-Fade */}
           <div className="absolute inset-0 transition-all duration-1000 will-change-transform">
@@ -142,9 +124,9 @@ const Signin = () => {
         </div>
 
         {/* Right Side: Optimized Direct Access Forms */}
-        <div className="w-full lg:w-[45%] flex flex-col p-8 lg:p-12 relative bg-black/40 backdrop-blur-2xl overflow-y-auto transform-gpu">
+        <div className="w-full lg:w-[45%] flex flex-col justify-center p-6 sm:p-10 lg:p-12 relative bg-black/40 backdrop-blur-2xl overflow-y-auto transform-gpu min-h-[600px] lg:min-h-0">
 
-          <div className="flex-1 flex flex-col justify-center animate-fadeIn will-change-opacity">
+          <div className="w-full flex flex-col animate-fadeIn will-change-opacity mx-auto max-w-sm lg:max-w-none">
 
             <RoleSwitcher />
 

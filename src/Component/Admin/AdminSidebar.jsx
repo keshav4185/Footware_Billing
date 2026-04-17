@@ -11,13 +11,13 @@ import {
 
 const AdminSidebar = ({ activeSection, setActiveSection, isSidebarOpen, setIsSidebarOpen, isDarkMode }) => {
   const menuItems = [
-    { id: 'overview', icon: LayoutDashboard, label: 'Dashboard', color: 'text-blue-600' },
-    { id: 'inbox', icon: MessageSquare, label: 'Inbox', color: 'text-pink-600' },
-    { id: 'customers', icon: Users, label: 'Customers', color: 'text-green-600' },
-    { id: 'invoices', icon: FileText, label: 'Invoice List', color: 'text-orange-600' },
-    { id: 'employees', icon: UserRoundCheck, label: 'Employees', color: 'text-indigo-600' },
-    { id: 'reports', icon: BarChart3, label: 'Reports', color: 'text-teal-600' },
-    { id: 'profile', icon: UserCircle, label: 'Profile', color: 'text-indigo-600' },
+    { id: 'overview', icon: LayoutDashboard, label: 'Dashboard', color: isDarkMode ? 'text-blue-400' : 'text-blue-600' },
+    { id: 'inbox', icon: MessageSquare, label: 'Inbox', color: isDarkMode ? 'text-pink-400' : 'text-pink-600' },
+    { id: 'customers', icon: Users, label: 'Customers', color: isDarkMode ? 'text-green-400' : 'text-green-600' },
+    { id: 'invoices', icon: FileText, label: 'Invoice List', color: isDarkMode ? 'text-orange-400' : 'text-orange-600' },
+    { id: 'employees', icon: UserRoundCheck, label: 'Employees', color: isDarkMode ? 'text-indigo-400' : 'text-indigo-600' },
+    { id: 'reports', icon: BarChart3, label: 'Reports', color: isDarkMode ? 'text-teal-400' : 'text-teal-600' },
+    { id: 'profile', icon: UserCircle, label: 'Profile', color: isDarkMode ? 'text-indigo-400' : 'text-indigo-600' },
   ];
 
   return (

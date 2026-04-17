@@ -23,7 +23,7 @@ const AdminHeader = ({ isSidebarOpen, setIsSidebarOpen, isDarkMode, setIsDarkMod
   const nightGradient = 'from-indigo-900 via-purple-900 to-blue-900';
 
   return (
-    <header className={`bg-gradient-to-r ${!isDarkMode ? dayGradient : nightGradient} shadow-xl sticky top-0 z-10 transition-all duration-1000 ${isTransitioning ? 'animate-pulse' : ''}`}>
+    <header className={`${!isDarkMode ? 'bg-[#ba69c8]' : 'bg-[#6b2f7a]'} shadow-xl sticky top-0 z-10 transition-all duration-1000 ${isTransitioning ? 'animate-pulse' : ''}`}>
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           

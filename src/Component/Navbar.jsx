@@ -176,12 +176,12 @@ const Navbar = () => {
                                     </div>
                                     <span className="font-medium text-gray-700 group-hover:text-purple-600">{userName}</span>
                                 </Link>
-                                <Link to="/Account">  <Button outline className="w-full try transform hover:scale-105 transition-all duration-300 hover:shadow-lg">Start Billing</Button></Link>
+                                <Link to="/Account" className="block w-full">  <Button outline className="w-full try transform hover:scale-105 transition-all duration-300 hover:shadow-lg">Start Billing</Button></Link>
                             </>
                         ) : (
                             <>
-                                <Link to="/Account">  <Button outline className="w-full transform hover:scale-105 transition-all duration-300 hover:shadow-lg" >Sign in</Button></Link> 
-                                <Link to="/Account">  <Button outline className="w-full try transform hover:scale-105 transition-all duration-300 hover:shadow-lg">Start Billing</Button></Link>
+                                <Link to="/Account" className="block w-full">  <Button outline className="w-full transform hover:scale-105 transition-all duration-300 hover:shadow-lg" >Sign in</Button></Link> 
+                                <Link to="/Account" className="block w-full mt-2">  <Button outline className="w-full try transform hover:scale-105 transition-all duration-300 hover:shadow-lg">Start Billing</Button></Link>
                             </>
                         )}
                     </div>

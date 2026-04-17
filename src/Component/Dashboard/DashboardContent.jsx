@@ -46,8 +46,8 @@ const DashboardContent = ({ activeSection, sidebarOpen, setSidebarOpen, setActiv
 
   const getThemeClasses = () => {
     return isDarkMode
-      ? 'bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 text-white shadow-inner'
-      : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 text-gray-800';
+      ? 'bg-gray-900 text-white shadow-inner'
+      : 'bg-gray-50 text-gray-800';
   };
 
   const handleLogout = () => {
@@ -162,18 +162,17 @@ const DashboardContent = ({ activeSection, sidebarOpen, setSidebarOpen, setActiv
       </div>
 
       {/* Mobile Header with Theme */}
-      <header className={`flex justify-between items-center p-4 shadow-sm md:hidden relative z-10 ${isDarkMode ? 'bg-gray-800 border-b border-gray-700' : 'bg-white border-b border-gray-200'
+      <header className={`flex justify-between items-center p-4 shadow-sm md:hidden relative z-10 ${!isDarkMode ? 'bg-[#ba69c8] border-b border-[#a85db5]' : 'bg-[#6b2f7a] border-b border-[#5a2769]'
         }`}>
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className={`p-2 rounded-lg transition-all duration-300 hover:scale-110 flex items-center justify-center ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
-            }`}
+          className={`p-2 rounded-lg transition-all duration-300 hover:scale-110 flex items-center justify-center bg-white/20 hover:bg-white/30 text-white`}
         >
           {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
-        <div className="flex items-center gap-2">
-          {React.createElement(getGreeting().icon, { className: "animate-pulse", size: 24 })}
-          <h1 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>SMART SALES Billing Pro</h1>
+        <div className="flex items-center gap-2 text-white">
+          {React.createElement(getGreeting().icon, { className: "animate-pulse text-white", size: 24 })}
+          <h1 className={`text-lg font-bold text-white`}>SMART SALES Billing Pro</h1>
         </div>
         <button
           className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-3 py-1.5 rounded-lg text-sm flex items-center gap-2 transition-all duration-300 hover:scale-105 shadow-lg"

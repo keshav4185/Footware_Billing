@@ -35,7 +35,24 @@ const CustomersManagement = ({ customers, setCustomers, isDarkMode }) => {
       const res = await axios.get(
         'https://backend-billing-software-ahxt.onrender.com/api/billing/customers'
       );
-      setCustomers(res.data || []);
+      const allCustomers = res.data || [];
+      
+      // Deduplicate by phone and filter out invalid entries
+      const uniqueMap = new Map();
+      allCustomers.forEach(customer => {
+        const phone = (customer.phone || '').trim();
+        const name = (customer.name || '').trim();
+        
+        // Skip records that are empty or just dashes
+        if (!phone || phone === '-' || !name || name === '-') return;
+        
+        // Prefer entries with more information (GST)
+        if (!uniqueMap.has(phone) || (customer.gst && !uniqueMap.get(phone).gst)) {
+          uniqueMap.set(phone, customer);
+        }
+      });
+      
+      setCustomers(Array.from(uniqueMap.values()));
     } catch (error) {
       console.error('Error fetching customers:', error);
     }
@@ -49,11 +66,44 @@ const CustomersManagement = ({ customers, setCustomers, isDarkMode }) => {
     customer.phone?.includes(searchTerm)
   );
 
+  const validateForm = () => {
+    if (/[^a-zA-Z\s]/.test(formData.name)) {
+      alert("❌ Customer name cannot contain numbers or special characters!");
+      return false;
+    }
+    if (formData.name.trim().length < 2) {
+      alert("❌ Customer name must be at least 2 characters!");
+      return false;
+    }
+    if (!/^[6-9]\d{9}$/.test(formData.phone)) {
+      alert("❌ Please enter a valid 10-digit Indian mobile number!");
+      return false;
+    }
+    if (formData.gst && !/^[0-9A-Z]{15}$/.test(formData.gst.toUpperCase())) {
+      alert("❌ GST number must be exactly 15 alphanumeric characters!");
+      return false;
+    }
+
+    // Check for duplicate phone number
+    const isDuplicate = customers.some(c => c.phone === formData.phone && c.id !== editingCustomer?.id);
+    if (isDuplicate) {
+      alert("❌ A customer with this phone number already exists! Please search and use the existing customer.");
+      return false;
+    }
+
+    if (formData.address.trim().length < 5) {
+      alert("❌ Please enter a detailed address!");
+      return false;
+    }
+    return true;
+  };
+
   // ==========================
   // ADD CUSTOMER
   // ==========================
   const handleAddCustomer = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
     try {
       const res = await axios.post(
         'https://backend-billing-software-ahxt.onrender.com/api/billing/customer',
@@ -86,6 +136,7 @@ const CustomersManagement = ({ customers, setCustomers, isDarkMode }) => {
   // ==========================
   const handleUpdateCustomer = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
     try {
       const res = await axios.put(
         `https://backend-billing-software-ahxt.onrender.com/api/billing/customer/${editingCustomer.id}`,
@@ -260,46 +311,53 @@ const CustomersManagement = ({ customers, setCustomers, isDarkMode }) => {
               >
                 <div className="space-y-1">
                   <label className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>Full Name</label>
-                  <input
-                    placeholder="Enter customer name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className={`w-full p-3 border-2 rounded-xl outline-none transition-all ${
-                      isDarkMode 
-                        ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' 
-                        : 'bg-white border-gray-100 text-gray-900 focus:border-blue-500'
-                    }`}
-                    required
-                  />
+                    <input
+                      placeholder="Enter customer name"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      pattern="^[a-zA-Z\s]+$"
+                      title="Name can only contain letters and spaces. No special characters allowed."
+                      className={`w-full p-3 border-2 rounded-xl outline-none transition-all ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' 
+                          : 'bg-white border-gray-100 text-gray-900 focus:border-blue-500'
+                      }`}
+                      required
+                    />
                 </div>
 
                 <div className="space-y-1">
                   <label className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>Phone Number</label>
-                  <input
-                    placeholder="Enter phone number"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className={`w-full p-3 border-2 rounded-xl outline-none transition-all ${
-                      isDarkMode 
-                        ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' 
-                        : 'bg-white border-gray-100 text-gray-900 focus:border-blue-500'
-                    }`}
-                    required
-                  />
+                    <input
+                      placeholder="Enter phone number"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      pattern="^[6-9]\d{9}$"
+                      title="Please enter a valid 10-digit Indian mobile number."
+                      className={`w-full p-3 border-2 rounded-xl outline-none transition-all ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' 
+                          : 'bg-white border-gray-100 text-gray-900 focus:border-blue-500'
+                      }`}
+                      required
+                    />
                 </div>
 
                 <div className="space-y-1">
                   <label className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>GST Number (Optional)</label>
-                  <input
-                    placeholder="Enter GST number"
-                    value={formData.gst}
-                    onChange={(e) => setFormData({ ...formData, gst: e.target.value })}
-                    className={`w-full p-3 border-2 rounded-xl outline-none transition-all ${
-                      isDarkMode 
-                        ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' 
-                        : 'bg-white border-gray-100 text-gray-900 focus:border-blue-500'
-                    }`}
-                  />
+                    <input
+                      placeholder="Enter GST number"
+                      value={formData.gst}
+                      onChange={(e) => setFormData({ ...formData, gst: e.target.value.toUpperCase() })}
+                      pattern="^[0-9A-Z]{15}$"
+                      title="GST number must be exactly 15 alphanumeric characters."
+                      className={`w-full p-3 border-2 rounded-xl outline-none transition-all ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' 
+                          : 'bg-white border-gray-100 text-gray-900 focus:border-blue-500'
+                      }`}
+                    />
                 </div>
 
                 <div className="space-y-1">

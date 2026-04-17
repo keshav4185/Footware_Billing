@@ -25,6 +25,38 @@ import {
   Activity
 } from 'lucide-react';
 
+const StatCard = ({ s, isDarkMode }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  
+  const activeBg = 
+    s.title === 'Total Revenue' ? 'bg-blue-600' :
+    s.title === 'Total Invoices' ? 'bg-emerald-600' :
+    s.title === 'Active Customers' ? 'bg-purple-600' : 'bg-orange-600';
+  
+  return (
+    <div
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`rounded-2xl p-5 sm:p-6 transform hover:scale-[1.03] transition-all duration-300 relative overflow-hidden flex justify-between items-center cursor-pointer border shadow-sm
+        ${!isDarkMode && !isHovered 
+          ? 'bg-white text-gray-800 border-gray-200 hover:shadow-md' 
+          : `${activeBg} text-white border-transparent shadow-lg`}
+      `}
+    >
+      <div className={`relative z-10 ${(!isDarkMode && !isHovered) ? 'text-gray-900' : 'text-white'}`}>
+        <p className={`text-sm font-bold mb-1 transition-colors ${!isDarkMode && !isHovered ? 'text-gray-500' : 'opacity-90'}`}>{s.title}</p>
+        <h3 className="text-3xl font-black">{s.value}</h3>
+        <p className={`text-xs mt-2 font-bold transition-colors ${!isDarkMode && !isHovered ? s.iconColor : 'text-white/80'}`}>{s.change}</p>
+      </div>
+      <div className={`p-3 sm:p-4 rounded-2xl relative z-10 transition-colors duration-300
+        ${!isDarkMode && !isHovered ? s.bg : 'bg-white/20 backdrop-blur-sm border border-white/10 shadow-inner'}
+      `}>
+        <span className={`transition-colors duration-300 ${!isDarkMode && !isHovered ? s.iconColor : 'text-white'}`}>{s.icon}</span>
+      </div>
+    </div>
+  );
+};
+
 const DashboardOverview = ({ bills: propsBills, customers: propsCustomers, products: propsProducts, isDarkMode }) => {
   const [bills, setBills] = useState(propsBills || []);
   const [customers, setCustomers] = useState(propsCustomers || []);
@@ -233,21 +265,7 @@ const DashboardOverview = ({ bills: propsBills, customers: propsCustomers, produ
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s, i) => (
-          <div
-            key={i}
-            className={`rounded-2xl p-6 shadow-xl transform hover:scale-105 transition-all duration-300 relative overflow-hidden flex justify-between items-center ${s.title === 'Total Revenue' ? 'bg-blue-600' :
-              s.title === 'Total Invoices' ? 'bg-emerald-600' :
-                s.title === 'Active Customers' ? 'bg-purple-600' : 'bg-orange-600'
-              }`}
-          >
-            <div className="text-white relative z-10">
-              <p className="text-sm font-bold opacity-80 mb-1">{s.title}</p>
-              <h3 className="text-3xl font-black">{s.value}</h3>
-            </div>
-            <div className="bg-white/20 p-4 rounded-2xl relative z-10 backdrop-blur-sm border border-white/10 shadow-inner">
-              <span className="text-white">{s.icon}</span>
-            </div>
-          </div>
+          <StatCard key={i} s={s} isDarkMode={isDarkMode} />
         ))}
       </div>
 
