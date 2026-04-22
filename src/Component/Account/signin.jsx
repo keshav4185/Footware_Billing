@@ -92,11 +92,11 @@ const Signin = () => {
   );
 
   return (
-    <div className="w-full flex items-center justify-center p-6 relative overflow-hidden font-inter">
-      <div className="w-full max-w-[950px] h-[620px] flex flex-col lg:flex-row bg-white/5 backdrop-blur-2xl rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10">
+    <div className="w-full min-h-screen flex items-center justify-center p-4 sm:p-6 relative overflow-hidden font-inter">
+      <div className="w-full max-w-[950px] h-auto lg:h-[620px] flex flex-col lg:flex-row bg-white/5 backdrop-blur-2xl rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10">
 
-        {/* Left Side: Dynamic Illustration & Branding (Hidden on Mobile) */}
-        <div className="hidden lg:block lg:w-[55%] relative group overflow-hidden border-r border-white/10">
+        {/* Visual Illustration Section: Now responsive across all devices */}
+        <div className="w-full h-48 sm:h-60 lg:h-full lg:w-[55%] relative group overflow-hidden border-b lg:border-b-0 lg:border-r border-white/10 shrink-0">
 
           {/* Image Container with Cross-Fade */}
           <div className="absolute inset-0 transition-all duration-1000 will-change-transform">
@@ -114,8 +114,8 @@ const Signin = () => {
 
         </div>
 
-        {/* Right Side: Optimized Direct Access Forms */}
-        <div className="w-full lg:w-[45%] flex flex-col justify-center p-6 sm:p-8 lg:p-10 relative bg-black/40 backdrop-blur-2xl overflow-y-auto transform-gpu min-h-0">
+        {/* Form Container: Adjusts padding and alignment based on screen size */}
+        <div className="w-full lg:w-[45%] flex flex-col justify-center p-6 sm:p-8 lg:p-10 relative bg-black/40 backdrop-blur-2xl overflow-y-auto transform-gpu flex-1">
 
           <div className="w-full flex flex-col animate-fadeIn will-change-opacity mx-auto max-w-sm lg:max-w-none">
 
