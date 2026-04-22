@@ -28,7 +28,20 @@ const Reports = ({ isDarkMode }) => {
           axios.get("https://backend-billing-software-ahxt.onrender.com/api/billing/products"),
         ]);
         setBills(billsRes.data);
-        setCustomers(customersRes.data);
+        
+        // Deduplicate and filter customers to match Dashboard/Management logic
+        const rawCustomers = customersRes.data || [];
+        const uniqueMap = new Map();
+        rawCustomers.forEach(customer => {
+          const phone = (customer.phone || '').trim();
+          const name = (customer.name || '').trim();
+          if (!phone || phone === '-' || !name || name === '-') return;
+          if (!uniqueMap.has(phone) || (customer.gst && !uniqueMap.get(phone).gst)) {
+            uniqueMap.set(phone, customer);
+          }
+        });
+        setCustomers(Array.from(uniqueMap.values()));
+        
         setProducts(productsRes.data);
         setLoading(false);
       } catch (err) {

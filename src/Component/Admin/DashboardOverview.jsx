@@ -81,7 +81,19 @@ const DashboardOverview = ({ bills: propsBills, customers: propsCustomers, produ
       }));
 
       setBills(mappedBills);
-      setCustomers(customerRes.data);
+      // Deduplicate and filter customers to match CustomersManagement logic
+      const rawCustomers = customerRes.data || [];
+      const uniqueMap = new Map();
+      rawCustomers.forEach(customer => {
+        const phone = (customer.phone || '').trim();
+        const name = (customer.name || '').trim();
+        if (!phone || phone === '-' || !name || name === '-') return;
+        if (!uniqueMap.has(phone) || (customer.gst && !uniqueMap.get(phone).gst)) {
+          uniqueMap.set(phone, customer);
+        }
+      });
+      
+      setCustomers(Array.from(uniqueMap.values()));
       setProducts(productRes.data);
     } catch (error) {
       console.error('Dashboard API Error:', error);
