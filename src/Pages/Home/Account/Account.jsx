@@ -2,24 +2,11 @@ import React, { useEffect, useState } from 'react';
 import Signin from '../../../Component/Account/signin';
 
 function Account() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) * 100,
-        y: (e.clientY / window.innerHeight) * 100
-      });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-[calc(100vh-80px)] overflow-hidden flex flex-col perspective-1000">
       {/* Animated Background */}
       <div 
-        className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 ease-out"
+        className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 ease-out transform-gpu"
         style={{
           backgroundImage: `url('data:image/svg+xml,${encodeURIComponent(`
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
@@ -45,15 +32,15 @@ function Account() {
             </svg>
           `)}')
           `,
-          transform: `translate(${mousePosition.x * -0.02}px, ${mousePosition.y * -0.02}px) scale(1.1)`
+          transform: `translate(calc(var(--m-x) * -0.02px), calc(var(--m-y) * -0.02px)) scale(1.1)`
         }}
       />
       
       {/* Parallax Layer 1 */}
       <div 
-        className="absolute inset-0 opacity-10 transition-transform duration-800 ease-out"
+        className="absolute inset-0 opacity-10 transition-transform duration-800 ease-out transform-gpu"
         style={{
-          transform: `translate(${mousePosition.x * 0.03}px, ${mousePosition.y * 0.03}px)`
+          transform: `translate(calc(var(--m-x) * 0.03px), calc(var(--m-y) * 0.03px))`
         }}
       >
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-white rounded-full mix-blend-overlay filter blur-3xl animate-pulse"/>
@@ -62,9 +49,9 @@ function Account() {
       
       {/* Parallax Layer 2 */}
       <div 
-        className="absolute inset-0 opacity-15 transition-transform duration-600 ease-out"
+        className="absolute inset-0 opacity-15 transition-transform duration-600 ease-out transform-gpu"
         style={{
-          transform: `translate(${mousePosition.x * 0.05}px, ${mousePosition.y * 0.05}px)`
+          transform: `translate(calc(var(--m-x) * 0.05px), calc(var(--m-y) * 0.05px))`
         }}
       >
         <div className="absolute top-1/2 left-1/3 w-72 h-72 bg-indigo-300 rounded-full mix-blend-overlay filter blur-2xl animate-pulse" style={{animationDelay: '1s'}}/>
@@ -72,9 +59,9 @@ function Account() {
       
       {/* Floating Elements */}
       <div 
-        className="absolute inset-0 overflow-hidden pointer-events-none transition-transform duration-500 ease-out"
+        className="absolute inset-0 overflow-hidden pointer-events-none transition-transform duration-500 ease-out transform-gpu"
         style={{
-          transform: `translate(${mousePosition.x * 0.08}px, ${mousePosition.y * 0.08}px)`
+          transform: `translate(calc(var(--m-x) * 0.08px), calc(var(--m-y) * 0.08px))`
         }}
       >
         <div className="absolute top-1/4 left-1/5 w-6 h-6 bg-white rounded opacity-20 animate-bounce"/>
@@ -84,7 +71,7 @@ function Account() {
       </div>
       
       {/* Content */}
-      <div className="relative z-10">
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center">
         <Signin/>
       </div>
     </div>

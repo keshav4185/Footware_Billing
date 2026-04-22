@@ -15,9 +15,9 @@ const AdminSidebar = ({ activeSection, setActiveSection, isSidebarOpen, setIsSid
     { id: 'inbox', icon: MessageSquare, label: 'Inbox', color: isDarkMode ? 'text-pink-400' : 'text-pink-600' },
     { id: 'customers', icon: Users, label: 'Customers', color: isDarkMode ? 'text-green-400' : 'text-green-600' },
     { id: 'invoices', icon: FileText, label: 'Invoice List', color: isDarkMode ? 'text-orange-400' : 'text-orange-600' },
-    { id: 'employees', icon: UserRoundCheck, label: 'Employees', color: isDarkMode ? 'text-indigo-400' : 'text-indigo-600' },
+    { id: 'employees', icon: UserRoundCheck, label: 'Employees', color: isDarkMode ? 'text-[#B564C3]' : 'text-[#3D0448]' },
     { id: 'reports', icon: BarChart3, label: 'Reports', color: isDarkMode ? 'text-teal-400' : 'text-teal-600' },
-    { id: 'profile', icon: UserCircle, label: 'Profile', color: isDarkMode ? 'text-indigo-400' : 'text-indigo-600' },
+    { id: 'profile', icon: UserCircle, label: 'Profile', color: isDarkMode ? 'text-[#B564C3]' : 'text-[#3D0448]' },
   ];
 
   return (
@@ -38,7 +38,7 @@ const AdminSidebar = ({ activeSection, setActiveSection, isSidebarOpen, setIsSid
         {/* Logo */}
         <div className={`p-4 lg:p-6 border-b flex-shrink-0 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
           <div className="flex items-center space-x-2 lg:space-x-3">
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white w-8 h-8 lg:w-10 lg:h-10 rounded-lg flex items-center justify-center font-bold text-sm lg:text-base">
+            <div className="bg-gradient-to-r from-[#3D0448] to-[#B564C3] text-white w-8 h-8 lg:w-10 lg:h-10 rounded-lg flex items-center justify-center font-bold text-sm lg:text-base">
               A
             </div>
             <div>
@@ -60,14 +60,14 @@ const AdminSidebar = ({ activeSection, setActiveSection, isSidebarOpen, setIsSid
               className={`w-full flex items-center space-x-2 lg:space-x-3 px-3 lg:px-4 py-2 lg:py-3 rounded-lg transition-all duration-200 text-sm lg:text-base ${
                 activeSection === item.id
                   ? isDarkMode
-                    ? 'bg-gradient-to-r from-blue-900/60 to-purple-900/60 border-l-4 border-blue-400 text-blue-300'
-                    : 'bg-gradient-to-r from-blue-50 to-purple-50 border-l-4 border-blue-500 text-blue-700'
+                    ? 'bg-gradient-to-r from-[#3D0448]/60 to-[#B564C3]/60 border-l-4 border-[#B564C3] text-white'
+                    : 'bg-gradient-to-r from-[#3D0448]/10 to-[#B564C3]/10 border-l-4 border-[#3D0448] text-[#3D0448]'
                   : isDarkMode
                     ? 'text-gray-400 hover:bg-gray-700 hover:text-white'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
               }`}
             >
-              <span className={`flex items-center justify-center ${activeSection === item.id ? 'text-blue-600' : item.color}`}>
+              <span className={`flex items-center justify-center ${activeSection === item.id ? (isDarkMode ? 'text-white' : 'text-[#3D0448]') : item.color}`}>
                 <item.icon size={20} />
               </span>
               <span className="font-medium truncate">{item.label}</span>

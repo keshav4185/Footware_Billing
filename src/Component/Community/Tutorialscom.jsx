@@ -23,7 +23,7 @@ import backgroundVideo from '../../assets/Home/video.webm';
 const TutorialSection = ({ title, subtitle, children }) => (
     <div className="mb-20 animate-fadeInUp">
         <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-gray-800 via-indigo-600 to-purple-600 bg-clip-text text-transparent mb-4">
+            <h2 className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-gray-800 via-[#3D0448] to-[#B564C3] bg-clip-text text-transparent mb-4">
                 {title}
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">{subtitle}</p>
@@ -45,7 +45,7 @@ const FeatureCard = ({ icon: Icon, title, description, color }) => (
 const PaymentMockup = () => (
     <div className="w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden mx-auto">
         <div className="p-5 border-b border-gray-50 bg-gray-50/50 flex items-center gap-3">
-            <div className="p-2 bg-indigo-100 rounded-lg text-indigo-600">
+            <div className="p-2 bg-[#3D0448]/10 rounded-lg text-[#3D0448]">
                 <Calculator size={20} />
             </div>
             <h3 className="text-lg font-bold text-gray-800">Bill Summary Preview</h3>
@@ -65,7 +65,7 @@ const PaymentMockup = () => (
                     <span className="text-gray-900 font-bold">₹ 133.65</span>
                 </div>
             </div>
-            <div className="bg-indigo-600 rounded-2xl p-6 flex justify-between items-center text-white shadow-lg shadow-indigo-200">
+            <div className="bg-blue-600 rounded-2xl p-6 flex justify-between items-center text-white shadow-lg shadow-blue-200">
                 <span className="font-bold uppercase tracking-wider text-sm">Total Amount:</span>
                 <span className="font-extrabold text-2xl">₹ 1,752.30</span>
             </div>
@@ -73,7 +73,7 @@ const PaymentMockup = () => (
                 <button className="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-green-700 transition-colors">
                     <Printer size={18} /> Print Invoice
                 </button>
-                <button className="flex-1 bg-indigo-500 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-indigo-600 transition-colors">
+                <button className="flex-1 bg-blue-500 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-600 transition-colors">
                     <Send size={18} /> WhatsApp Share
                 </button>
             </div>
@@ -91,8 +91,8 @@ const MobileBillingMockup = () => {
                 {/* Header Context */}
                 <div className="mb-6">
                     <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 bg-blue-50 rounded-lg">
-                            <FileText className="text-blue-600" size={20} />
+                        <div className="p-2 bg-[#3D0448]/10 rounded-lg">
+                            <FileText className="text-[#3D0448]" size={20} />
                         </div>
                         <h3 className="text-lg font-black text-gray-900 tracking-tight text-left">My Billings</h3>
                     </div>
@@ -110,7 +110,7 @@ const MobileBillingMockup = () => {
                         <div key={idx} className="border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow bg-gray-50/30">
                             <div className="flex justify-between items-start mb-3">
                                 <div className="space-y-1 text-left">
-                                    <p className="text-blue-600 font-black text-xs tracking-tight">{bill.id}</p>
+                                    <p className="text-[#3D0448] font-black text-xs tracking-tight">{bill.id}</p>
                                     <p className="font-bold text-gray-800 text-xs truncate max-w-[120px]">{bill.name}</p>
                                     <p className="text-[10px] text-gray-500 font-black">{bill.date}</p>
                                 </div>
@@ -125,13 +125,13 @@ const MobileBillingMockup = () => {
                                 </div>
                             </div>
                             <div className="flex gap-2 pt-2 border-t border-gray-100">
-                                <button className="flex-1 bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition-all active:scale-95 flex items-center justify-center">
+                                <button className="flex-1 bg-blue-500 text-white p-2 rounded-lg transition-all active:scale-95 flex items-center justify-center">
                                     <Eye size={14} />
                                 </button>
-                                <button className="flex-1 bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition-all active:scale-95 flex items-center justify-center">
+                                <button className="flex-1 bg-green-500 text-white p-2 rounded-lg transition-all active:scale-95 flex items-center justify-center">
                                     <Printer size={14} />
                                 </button>
-                                <button className="flex-1 bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition-all active:scale-95 flex items-center justify-center">
+                                <button className="flex-1 bg-red-500 text-white p-2 rounded-lg transition-all active:scale-95 flex items-center justify-center">
                                     <Trash2 size={14} />
                                 </button>
                             </div>
@@ -153,20 +153,20 @@ const Tutorialscom = () => {
             {/* Hero Section */}
             <div className="relative bg-white pt-16 pb-32 overflow-hidden border-b border-gray-100">
                 <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
-                    <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-sm font-bold mb-6 animate-fadeIn">
+                    <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#3D0448]/10 text-[#3D0448] text-sm font-bold mb-6 animate-fadeIn">
                         <BookOpen size={16} />
                         <span>Smart Learning Center</span>
                     </div>
                     <h1 className="text-4xl md:text-6xl font-black text-gray-900 mb-6 tracking-tight">
-                        Master Your <span className="text-indigo-600">Billing Workflow</span>
+                        Master Your <span className="text-[#3D0448]">Billing Workflow</span>
                     </h1>
                     <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-12 leading-relaxed">
-                        Follow our step-by-step guides and demonstration video to get the most out of Smart Group's professional billing tools.
+                        Follow our step-by-step guides and demonstration video to get the most out of Smart Sales's professional billing tools.
                     </p>
 
                     {/* Featured Video Player */}
                     <div className="relative max-w-5xl mx-auto group">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-[2rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+                        <div className="absolute -inset-1 bg-gradient-to-r from-[#3D0448] to-[#B564C3] rounded-[2rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
                         <div className="relative bg-black rounded-[1.8rem] overflow-hidden shadow-2xl">
                             <video
                                 className="w-full aspect-video object-cover"
@@ -225,9 +225,9 @@ const Tutorialscom = () => {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                         <div>
-                            <span className="text-indigo-600 font-bold uppercase tracking-widest text-sm block mb-4">Step 2: Practical Workflow</span>
+                            <span className="text-[#B564C3] font-bold uppercase tracking-widest text-sm block mb-4">Step 2: Practical Workflow</span>
                             <h2 className="text-4xl font-black text-gray-900 mb-8 leading-tight">
-                                Generate Your First <br /><span className="text-indigo-600">Professional Bill</span>
+                                Generate Your First <br /><span className="text-[#3D0448]">Professional Bill</span>
                             </h2>
                             <div className="space-y-6">
                                 {[
@@ -236,7 +236,7 @@ const Tutorialscom = () => {
                                     { title: "Finalize & Share", text: "Preview the tax breakdown and generate the bill. Shared via WhatsApp or Print." }
                                 ].map((step, i) => (
                                     <div key={i} className="flex gap-4">
-                                        <div className="shrink-0 w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
+                                        <div className="shrink-0 w-8 h-8 rounded-full bg-[#3D0448]/10 text-[#3D0448] flex items-center justify-center font-bold">
                                             {i + 1}
                                         </div>
                                         <div>
@@ -267,25 +267,25 @@ const Tutorialscom = () => {
                             <div className="relative">
                                 <MobileBillingMockup />
                                 <div className="absolute -top-6 -left-6 bg-white p-4 rounded-2xl shadow-lg border border-gray-100 flex items-center gap-3 animate-bounce-slow">
-                                    <Globe className="text-indigo-500" />
+                                    <Globe className="text-[#B564C3]" />
                                     <span className="text-sm font-bold text-gray-800">Cloud Sync Active</span>
                                 </div>
                             </div>
                         </div>
 
                         <div className="order-1 lg:order-2">
-                            <span className="text-indigo-600 font-bold uppercase tracking-widest text-sm block mb-4">Step 3: Access Anywhere</span>
+                            <span className="text-[#B564C3] font-bold uppercase tracking-widest text-sm block mb-4">Step 3: Access Anywhere</span>
                             <h2 className="text-4xl font-black text-gray-900 mb-8 leading-tight">
-                                Access your bills <br /><span className="text-indigo-600">anywhere</span>
+                                Access your bills <br /><span className="text-[#3D0448]">anywhere</span>
                             </h2>
                             <p className="text-gray-600 mb-10 leading-relaxed text-lg">
                                 Use any device to create invoices, track payments, and manage your footwear business billing. Works on mobile, tablet, and desktop.
                             </p>
                             <Link to="/dashboard" className="flex justify-center lg:justify-start">
-                                <div className="flex items-center bg-indigo-600 text-white px-8 py-4 rounded-2xl shadow-xl gap-4 hover:scale-105 transition-transform cursor-pointer">
+                                <div className="flex items-center bg-[#3D0448] text-white px-8 py-4 rounded-2xl shadow-xl gap-4 hover:scale-105 transition-all cursor-pointer">
                                     <Globe size={28} />
                                     <div className="text-left">
-                                        <p className="text-xs text-indigo-100 uppercase font-bold tracking-wider">Available on</p>
+                                        <p className="text-xs text-[#B564C3]/50 uppercase font-bold tracking-wider">Available on</p>
                                         <p className="font-bold text-lg">Web Browser</p>
                                     </div>
                                 </div>
@@ -295,13 +295,13 @@ const Tutorialscom = () => {
                 </div>
 
                 {/* Call to Action */}
-                <div className="mt-32 text-center bg-gradient-to-br from-indigo-600 to-purple-700 rounded-[3rem] py-16 px-6 shadow-2xl shadow-indigo-200">
+                <div className="mt-32 text-center bg-gradient-to-br from-[#3D0448] to-[#B564C3] rounded-[3rem] py-16 px-6 shadow-2xl shadow-[#3D0448]/20">
                     <h2 className="text-3xl md:text-5xl font-black text-white mb-6">Start Your Journey Today</h2>
                     <p className="text-indigo-100 text-lg mb-10 max-w-xl mx-auto">
-                        Join thousands of businesses already using Smart Group to streamline their billing operations.
+                        Join thousands of businesses already using Smart Sales to streamline their billing operations.
                     </p>
                     <Link to="/dashboard">
-                        <button className="bg-white text-indigo-600 px-10 py-4 rounded-2xl font-black text-lg hover:scale-105 transition-transform shadow-xl flex items-center gap-2 mx-auto">
+                        <button className="bg-white text-[#3D0448] px-10 py-4 rounded-2xl font-black text-lg hover:scale-105 transition-transform shadow-xl flex items-center gap-2 mx-auto">
                             Launch Dashboard <ArrowRight size={20} />
                         </button>
                     </Link>

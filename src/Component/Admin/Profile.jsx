@@ -62,7 +62,7 @@ const Profile = ({ isDarkMode }) => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div>
             <h2 className={`text-xl md:text-2xl font-bold flex items-center gap-3 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-              <MdPerson size={24} className={isDarkMode ? 'text-blue-400' : 'text-gray-700'} /> Admin Profile
+              <MdPerson size={24} className={isDarkMode ? 'text-[#B564C3]' : 'text-[#3D0448]'} /> Admin Profile
             </h2>
             <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Manage your account information</p>
           </div>
@@ -71,7 +71,7 @@ const Profile = ({ isDarkMode }) => {
               setIsEditing(!isEditing);
               setOldAuth({ oldUser: '', oldPass: '' });
             }}
-            className={`${isEditing ? 'bg-gray-500 hover:bg-gray-600' : 'bg-blue-600 hover:bg-blue-700'} text-white px-6 py-3 rounded-lg transition-all flex items-center gap-2 font-bold shadow-md active:scale-95 text-lg`}
+            className={`${isEditing ? 'bg-gray-500 hover:bg-gray-600' : 'bg-[#3D0448] hover:bg-[#3D0448]/90'} text-white px-6 py-3 rounded-lg transition-all flex items-center gap-2 font-bold shadow-md active:scale-95 text-lg`}
           >
             {isEditing ? 'Cancel' : <><MdEdit size={24} /> Edit Profile</>}
           </button>
@@ -125,11 +125,11 @@ const Profile = ({ isDarkMode }) => {
                 value={profileData.name}
                 onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
                 disabled={!isEditing}
-                className={`w-full p-3 border-2 rounded-lg transition-all outline-none ${
-                    isDarkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500 disabled:bg-gray-800 disabled:text-gray-500' 
-                      : 'bg-white border-gray-200 text-gray-900 focus:border-blue-500 disabled:bg-gray-50'
-                  }`}
+                    className={`w-full p-3 border-2 rounded-lg transition-all outline-none ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white focus:border-[#B564C3] disabled:bg-gray-800 disabled:text-gray-500' 
+                          : 'bg-white border-gray-200 text-gray-900 focus:border-[#3D0448] disabled:bg-gray-50'
+                      }`}
               />
             </div>
 
@@ -143,11 +143,11 @@ const Profile = ({ isDarkMode }) => {
                 value={profileData.username}
                 onChange={(e) => setProfileData({ ...profileData, username: e.target.value })}
                 disabled={!isEditing}
-                className={`w-full p-3 border-2 rounded-lg transition-all outline-none ${
-                    isDarkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500 disabled:bg-gray-800 disabled:text-gray-500' 
-                      : 'bg-white border-gray-200 text-gray-900 focus:border-blue-500 disabled:bg-gray-50'
-                  }`}
+                    className={`w-full p-3 border-2 rounded-lg transition-all outline-none ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white focus:border-[#B564C3] disabled:bg-gray-800 disabled:text-gray-500' 
+                          : 'bg-white border-gray-200 text-gray-900 focus:border-[#3D0448] disabled:bg-gray-50'
+                      }`}
               />
             </div>
             <div>
@@ -162,8 +162,8 @@ const Profile = ({ isDarkMode }) => {
                   disabled={!isEditing}
                   className={`w-full p-3 border-2 rounded-lg transition-all outline-none pr-10 ${
                     isDarkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500 disabled:bg-gray-800 disabled:text-gray-500' 
-                      : 'bg-white border-gray-200 text-gray-900 focus:border-blue-500 disabled:bg-gray-50'
+                      ? 'bg-gray-700 border-gray-600 text-white focus:border-[#B564C3] disabled:bg-gray-800 disabled:text-gray-500' 
+                      : 'bg-white border-gray-200 text-gray-900 focus:border-[#3D0448] disabled:bg-gray-50'
                   }`}
                 />
                 <button
@@ -186,11 +186,11 @@ const Profile = ({ isDarkMode }) => {
                 value={profileData.email}
                 onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
                 disabled={!isEditing}
-                className={`w-full p-3 border-2 rounded-lg transition-all outline-none ${
-                    isDarkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500 disabled:bg-gray-800 disabled:text-gray-500' 
-                      : 'bg-white border-gray-200 text-gray-900 focus:border-blue-500 disabled:bg-gray-50'
-                  }`}
+                    className={`w-full p-3 border-2 rounded-lg transition-all outline-none ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white focus:border-[#B564C3] disabled:bg-gray-800 disabled:text-gray-500' 
+                          : 'bg-white border-gray-200 text-gray-900 focus:border-[#3D0448] disabled:bg-gray-50'
+                      }`}
               />
             </div>
             <div>
@@ -211,17 +211,17 @@ const Profile = ({ isDarkMode }) => {
                 value={profileData.joinDate}
                 onChange={(e) => setProfileData({ ...profileData, joinDate: e.target.value })}
                 disabled={!isEditing}
-                className={`w-full p-3 border-2 rounded-lg transition-all outline-none ${
-                    isDarkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500 disabled:bg-gray-800 disabled:text-gray-500' 
-                      : 'bg-white border-gray-200 text-gray-900 focus:border-blue-500 disabled:bg-gray-50'
-                  }`}
+                    className={`w-full p-3 border-2 rounded-lg transition-all outline-none ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white focus:border-[#B564C3] disabled:bg-gray-800 disabled:text-gray-500' 
+                          : 'bg-white border-gray-200 text-gray-900 focus:border-[#3D0448] disabled:bg-gray-50'
+                      }`}
               />
             </div>
             <div className={`p-6 rounded-lg text-center transition-colors ${
               isDarkMode ? 'bg-gray-700/50' : 'bg-gradient-to-r from-blue-50 to-purple-50'
             }`}>
-              <div className="bg-gradient-to-br from-purple-600 to-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center font-bold text-xl mx-auto mb-2 shadow-lg">
+              <div className="bg-gradient-to-br from-[#3D0448] to-[#B564C3] text-white w-16 h-16 rounded-full flex items-center justify-center font-bold text-xl mx-auto mb-2 shadow-lg">
                 {profileData.name.charAt(0)}
               </div>
               <h3 className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{profileData.name}</h3>
@@ -234,7 +234,7 @@ const Profile = ({ isDarkMode }) => {
           <div className="flex gap-3 mt-8">
             <button
               onClick={handleSave}
-              className="flex-1 bg-green-600 text-white py-4 rounded-lg font-bold hover:bg-green-700 flex items-center justify-center gap-3 transition-all shadow-lg active:scale-95 text-lg"
+              className="flex-1 bg-gradient-to-r from-[#3D0448] to-[#B564C3] text-white py-4 rounded-lg font-bold hover:opacity-90 flex items-center justify-center gap-3 transition-all shadow-lg active:scale-95 text-lg"
             >
               <Save size={24} /> Update Profile
             </button>

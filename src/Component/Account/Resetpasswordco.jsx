@@ -2,17 +2,9 @@
 import React, { useEffect, useState } from 'react';
 
 const Resetpasswordco = () => {
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [particles, setParticles] = useState([]);
 
     useEffect(() => {
-        const handleMouseMove = (e) => {
-            setMousePosition({
-                x: (e.clientX / window.innerWidth) * 100,
-                y: (e.clientY / window.innerHeight) * 100
-            });
-        };
-        
         // Generate floating particles
         const generateParticles = () => {
             const newParticles = [];
@@ -28,16 +20,14 @@ const Resetpasswordco = () => {
             setParticles(newParticles);
         };
         
-        window.addEventListener('mousemove', handleMouseMove);
         generateParticles();
-        return () => window.removeEventListener('mousemove', handleMouseMove);
     }, []);
 
     return (
         <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-4">
             {/* Background Image with Parallax */}
             <div 
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 ease-out"
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 ease-out transform-gpu"
                 style={{
                     backgroundImage: `url('data:image/svg+xml,${encodeURIComponent(`
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
@@ -63,15 +53,15 @@ const Resetpasswordco = () => {
                         </svg>
                     `)}')
                     `,
-                    transform: `translate(${mousePosition.x * -0.025}px, ${mousePosition.y * -0.025}px) scale(1.1)`
+                    transform: `translate(calc(var(--m-x) * -0.025px), calc(var(--m-y) * -0.025px)) scale(1.1)`
                 }}
             ></div>
             
             {/* Parallax Layer 1 - Reset Elements */}
             <div 
-                className="absolute inset-0 opacity-12 transition-transform duration-800 ease-out"
+                className="absolute inset-0 opacity-12 transition-transform duration-800 ease-out transform-gpu"
                 style={{
-                    transform: `translate(${mousePosition.x * 0.035}px, ${mousePosition.y * 0.035}px)`
+                    transform: `translate(calc(var(--m-x) * 0.035px), calc(var(--m-y) * 0.035px))`
                 }}
             >
                 <div className="absolute top-1/4 left-1/4 w-60 h-60 bg-white rounded-full mix-blend-overlay filter blur-3xl"></div>
@@ -80,9 +70,9 @@ const Resetpasswordco = () => {
             
             {/* Parallax Layer 2 - Accent Elements */}
             <div 
-                className="absolute inset-0 opacity-18 transition-transform duration-600 ease-out"
+                className="absolute inset-0 opacity-18 transition-transform duration-600 ease-out transform-gpu"
                 style={{
-                    transform: `translate(${mousePosition.x * 0.055}px, ${mousePosition.y * 0.055}px)`
+                    transform: `translate(calc(var(--m-x) * 0.055px), calc(var(--m-y) * 0.055px))`
                 }}
             >
                 <div className="absolute top-1/2 left-1/3 w-70 h-70 bg-blue-300 rounded-full mix-blend-overlay filter blur-2xl"></div>
@@ -100,7 +90,7 @@ const Resetpasswordco = () => {
                             width: `${particle.size}px`,
                             height: `${particle.size}px`,
                             animationDelay: `${particle.delay}s`,
-                            transform: `translate(${mousePosition.x * 0.06}px, ${mousePosition.y * 0.06}px)`,
+                            transform: `translate(calc(var(--m-x) * 0.06px), calc(var(--m-y) * 0.06px))`,
                             transition: 'transform 0.7s ease-out'
                         }}
                     />
@@ -109,9 +99,9 @@ const Resetpasswordco = () => {
             
             {/* Floating UI Elements */}
             <div 
-                className="absolute inset-0 overflow-hidden pointer-events-none transition-transform duration-500 ease-out"
+                className="absolute inset-0 overflow-hidden pointer-events-none transition-transform duration-500 ease-out transform-gpu"
                 style={{
-                    transform: `translate(${mousePosition.x * 0.09}px, ${mousePosition.y * 0.09}px)`
+                    transform: `translate(calc(var(--m-x) * 0.09px), calc(var(--m-y) * 0.09px))`
                 }}
             >
                 <div className="absolute top-1/4 left-1/5 w-5 h-5 bg-white rounded opacity-25 float-animation"></div>
@@ -122,9 +112,9 @@ const Resetpasswordco = () => {
             
             {/* The White Card/Modal Container with Parallax */}
             <div 
-                className="relative z-10 w-full max-w-md bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl p-8 border border-white/20 transition-all duration-300 ease-out hover:shadow-purple-500/20 hover:shadow-3xl hover:scale-105"
+                className="relative z-10 w-full max-w-md bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl p-8 border border-white/20 transition-all duration-300 ease-out hover:shadow-purple-500/20 hover:shadow-3xl transform-gpu"
                 style={{
-                    transform: `translate(${mousePosition.x * 0.015}px, ${mousePosition.y * 0.015}px)`,
+                    transform: `translate(calc(var(--m-x) * 0.015px), calc(var(--m-y) * 0.015px))`,
                     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1)'
                 }}
             >

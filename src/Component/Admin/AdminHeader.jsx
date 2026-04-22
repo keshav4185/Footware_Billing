@@ -23,7 +23,7 @@ const AdminHeader = ({ isSidebarOpen, setIsSidebarOpen, isDarkMode, setIsDarkMod
   const nightGradient = 'from-indigo-900 via-purple-900 to-blue-900';
 
   return (
-    <header className={`${!isDarkMode ? 'bg-[#ba69c8]' : 'bg-[#6b2f7a]'} shadow-xl sticky top-0 z-10 transition-all duration-1000 ${isTransitioning ? 'animate-pulse' : ''}`}>
+    <header className={`${!isDarkMode ? 'bg-[#3D0448]' : 'bg-[#1A0220]'} shadow-xl sticky top-0 z-10 transition-all duration-1000 ${isTransitioning ? 'animate-pulse' : ''}`}>
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           
@@ -47,7 +47,7 @@ const AdminHeader = ({ isSidebarOpen, setIsSidebarOpen, isDarkMode, setIsDarkMod
               title={isDarkMode ? "Switch to Day Mode" : "Switch to Night Mode"}
             >
               <span className={`transition-all duration-500 ${isTransitioning ? 'rotate-180 opacity-0' : ''}`}>
-                {!isDarkMode ? <Sun size={20} className="text-gray-800" /> : <Moon size={20} className="text-white" />}
+                {!isDarkMode ? <Sun size={20} className="text-white" /> : <Moon size={20} className="text-white" />}
               </span>
             </button>
             <span className="hidden sm:inline text-sm font-bold text-white tracking-wide uppercase">
@@ -57,7 +57,7 @@ const AdminHeader = ({ isSidebarOpen, setIsSidebarOpen, isDarkMode, setIsDarkMod
 
           {/* User Profile - Top Right */}
           <div className="relative group">
-            <div className={`bg-white/20 backdrop-blur-sm text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg border-2 border-white/30 shadow-lg cursor-pointer hover:bg-white/30 transition-all duration-300 ${isTransitioning ? 'animate-bounce' : ''}`}>
+            <div className={`bg-gradient-to-br from-[#B564C3] to-[#3D0448] text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg border-2 border-white/30 shadow-lg cursor-pointer hover:scale-105 transition-all duration-300 ${isTransitioning ? 'animate-bounce' : ''}`}>
               K
             </div>
             

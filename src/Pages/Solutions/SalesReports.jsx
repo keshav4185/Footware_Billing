@@ -1,10 +1,10 @@
 import React from 'react';
-import { 
-    BarChart3, 
-    PieChart, 
-    TrendingUp, 
-    DownloadCloud, 
-    CheckCircle2, 
+import {
+    BarChart3,
+    PieChart,
+    TrendingUp,
+    DownloadCloud,
+    CheckCircle2,
     ArrowRight,
     Calendar,
     ArrowUpRight
@@ -45,35 +45,35 @@ const SalesReports = () => {
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <div className="text-left">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-widest mb-6">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3D0448]/10 text-[#3D0448] text-[10px] font-black uppercase tracking-widest mb-6">
                                 <BarChart3 size={12} />
                                 <span>Real-time Analytics</span>
                             </div>
                             <h1 className="text-5xl md:text-7xl font-black text-gray-900 mb-8 leading-tight">
-                                Turn Data Into <span className="text-blue-600">Decision Power</span>
+                                Turn Data Into <span className="text-[#3D0448]">Decision Power</span>
                             </h1>
                             <p className="text-xl text-gray-500 mb-10 leading-relaxed max-w-xl">
                                 Advanced sales reports and analytics designed to help footwear store owners grow their business with confidence.
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4">
-                                <Link to="/Signin" className="bg-blue-600 text-white px-10 py-5 rounded-2xl font-black text-lg hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 flex items-center justify-center gap-2">
+                                <Link to="/Signin" className="bg-[#3D0448] text-white px-10 py-5 rounded-2xl font-black text-lg hover:bg-[#3D0448] transition-all shadow-xl shadow-blue-100 flex items-center justify-center gap-2">
                                     View Live Reports <ArrowRight size={20} />
                                 </Link>
                             </div>
                         </div>
-                        
+
                         {/* Interactive Analytics Mockup */}
                         <div className="relative group">
                             <div className="bg-white border border-gray-100 p-10 rounded-[3rem] shadow-2xl relative z-10">
                                 <div className="flex justify-between items-center mb-10">
                                     <div className="font-black text-gray-900">Revenue Overview</div>
                                     <div className="flex items-center gap-2 text-xs font-bold text-gray-400 bg-gray-50 px-4 py-2 rounded-xl">
-                                        <Calendar size={14}/> This Month
+                                        <Calendar size={14} /> This Month
                                     </div>
                                 </div>
                                 <div className="flex items-end justify-between h-48 gap-4 px-4 overflow-hidden rounded-2xl bg-gray-50/50 p-6">
                                     {[60, 40, 85, 50, 95, 70, 80].map((h, i) => (
-                                        <div key={i} className="flex-1 bg-blue-500 rounded-t-lg transition-all duration-1000 group-hover:bg-indigo-600 origin-bottom" style={{height: `${h}%`, transitionDelay: `${i * 100}ms`}}></div>
+                                        <div key={i} className="flex-1 bg-[#3D0448] rounded-t-lg transition-all duration-1000 group-hover:bg-indigo-600 origin-bottom" style={{ height: `${h}%`, transitionDelay: `${i * 100}ms` }}></div>
                                     ))}
                                 </div>
                                 <div className="mt-8 flex justify-between items-center">
@@ -82,7 +82,7 @@ const SalesReports = () => {
                                         <div className="text-2xl font-black text-gray-900">₹4,85,240</div>
                                     </div>
                                     <div className="bg-green-50 text-green-600 px-3 py-1.5 rounded-xl font-black text-[10px] flex items-center gap-1">
-                                        <ArrowUpRight size={14}/> +12.5%
+                                        <ArrowUpRight size={14} /> +12.5%
                                     </div>
                                 </div>
                             </div>
@@ -124,21 +124,21 @@ const SalesReports = () => {
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="grid lg:grid-cols-2 gap-20 items-center">
                         <div className="order-2 lg:order-1 relative">
-                            <img 
-                                src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1000" 
-                                alt="Analytics dashboard" 
+                            <img
+                                src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1000"
+                                alt="Analytics dashboard"
                                 className="rounded-[3rem] shadow-2xl"
                             />
                         </div>
                         <div className="order-1 lg:order-2">
-                            <h2 className="text-4xl font-black text-gray-900 mb-8 leading-tight">Tax Reporting <br/><span className="text-blue-600">Made Instant</span></h2>
+                            <h2 className="text-4xl font-black text-gray-900 mb-8 leading-tight">Tax Reporting <br /><span className="text-[#3D0448]">Made Instant</span></h2>
                             <p className="text-lg text-gray-500 mb-10 leading-relaxed">
                                 No more manual spreadsheets. Our system automatically aggregates your CGST and SGST data, providing you with a complete tax liability summary whenever you need it.
                             </p>
                             <div className="space-y-4">
                                 {['Automated GST summaries', 'Detailed purchase & sales history', 'Exportable Excel reports'].map((text, i) => (
                                     <div key={i} className="flex gap-4 items-center font-bold text-gray-800">
-                                        <div className="text-blue-600"><CheckCircle2 size={24}/></div>
+                                        <div className="text-[#3D0448]"><CheckCircle2 size={24} /></div>
                                         {text}
                                     </div>
                                 ))}
@@ -149,10 +149,10 @@ const SalesReports = () => {
             </section>
 
             {/* Final CTA */}
-            <section className="py-24 bg-blue-600 text-center relative overflow-hidden mx-6 rounded-[3rem] mb-24 shadow-2xl shadow-blue-200">
+            <section className="py-24 bg-[#3D0448] text-center relative overflow-hidden mx-6 rounded-[3rem] mb-24 shadow-2xl shadow-[#3D0448]/20">
                 <div className="relative z-10 px-6 text-white">
-                    <h2 className="text-3xl md:text-5xl font-black mb-8">Better Data. <br/>Better Decisions.</h2>
-                    <Link to="/Signin" className="bg-white text-blue-600 px-12 py-5 rounded-2xl font-black text-lg hover:scale-105 transition-transform shadow-2xl inline-block">
+                    <h2 className="text-3xl md:text-5xl font-black mb-8">Better Data. <br />Better Decisions.</h2>
+                    <Link to="/Signin" className="bg-white text-[#3D0448] px-12 py-5 rounded-2xl font-black text-lg hover:scale-105 transition-transform shadow-2xl inline-block">
                         Build Your Reports
                     </Link>
                 </div>

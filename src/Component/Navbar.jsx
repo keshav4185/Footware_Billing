@@ -71,8 +71,8 @@ const Navbar = () => {
                     
                     {/* Logo and Desktop Navigation */}
                     <div className="flex items-center space-x-12 group"> 
-                        <Link to="/" className="flex items-center space-x-2 transform hover:scale-105 transition-all duration-300">
-                           <img src={Logo} alt="Logo" className='h-14 w-14 sm:h-16 sm:w-16 md:h-20 md:w-20 lg:h-24 lg:w-24 object-contain -my-4 hover:rotate-12 transition-transform duration-500 group-hover:animate-pulse'/>
+                        <Link to="/" className="flex items-center space-x-2">
+                           <img src={Logo} alt="Logo" className='h-14 w-14 sm:h-16 sm:w-16 md:h-20 md:w-20 lg:h-24 lg:w-24 object-contain -my-4'/>
                         </Link>
 
                         {/* Desktop Menu */}

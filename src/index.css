@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+:root {
+  --m-x: 50;
+  --m-y: 50;
+  --brand-purple: #B564C3;
+  --brand-indigo: #3D0448;
+  --brand-slate: #4A4B4D;
+  --primary-gradient: linear-gradient(135deg, var(--brand-indigo) 0%, var(--brand-purple) 100%);
+}
+
+
 /* Enhanced Custom Animations for Modern UI Effects */
 
 /* Floating animations with different variations */
@@ -29,25 +39,28 @@
   50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.6); }
 }
 
-/* Slide in animations */
+/* ==========================================================================
+   Master Scroll-Reveal Animation System (Conflict-Free)
+   ========================================================================== */
+
 @keyframes slideInLeft {
-  0% { transform: translateX(-100px); opacity: 0; }
-  100% { transform: translateX(0); opacity: 1; }
+  0% { transform: translate3d(-80px, 0, 0) scale(0.95); opacity: 0; }
+  100% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
 }
 
 @keyframes slideInRight {
-  0% { transform: translateX(100px); opacity: 0; }
-  100% { transform: translateX(0); opacity: 1; }
+  0% { transform: translate3d(80px, 0, 0) scale(0.95); opacity: 0; }
+  100% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
 }
 
-@keyframes slideInUp {
-  0% { transform: translateY(50px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
+@keyframes fadeInUp {
+  0% { transform: translate3d(0, 40px, 0) scale(0.98); opacity: 0; }
+  100% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
 }
 
-@keyframes slideInDown {
-  0% { transform: translateY(-50px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
+@keyframes fadeInDown {
+  0% { transform: translate3d(0, -40px, 0) scale(0.98); opacity: 0; }
+  100% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
 }
 
 @keyframes fadeIn {
@@ -55,74 +68,79 @@
   100% { opacity: 1; }
 }
 
-@keyframes fadeInUp {
-  0% { transform: translateY(30px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
+/* Base Utility Classes */
+.reveal-slideInLeft {
+  opacity: 0;
+  animation: slideInLeft 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
 }
 
-/* Rotation animations */
-@keyframes spin-slow {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.reveal-slideInRight {
+  opacity: 0;
+  animation: slideInRight 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
 }
 
-/* Scale animations */
-@keyframes scale-in {
-  0% { transform: scale(0.8); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+.reveal-fadeInUp {
+  opacity: 0;
+  animation: fadeInUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
 }
 
-/* Utility classes for animations */
-.animate-float {
-  animation: float 6s ease-in-out infinite;
+.reveal-fadeInDown {
+  opacity: 0;
+  animation: fadeInDown 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
 }
 
-.animate-float-delayed {
-  animation: float-delayed 8s ease-in-out infinite;
+.reveal-fadeIn {
+  opacity: 0;
+  animation: fadeIn 1.2s ease-out forwards;
+  will-change: opacity;
 }
 
-.animate-bounce-slow {
-  animation: bounce-slow 3s ease-in-out infinite;
-}
-
-.animate-pulse-slow {
-  animation: pulse-slow 4s ease-in-out infinite;
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-.animate-slideInLeft {
-  animation: slideInLeft 0.6s ease-out forwards;
-}
-
-.animate-slideInRight {
-  animation: slideInRight 0.6s ease-out forwards;
-}
-
-.animate-slideInUp {
-  animation: slideInUp 0.6s ease-out forwards;
-}
-
-.animate-slideInDown {
-  animation: slideInDown 0.6s ease-out forwards;
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.8s ease-out forwards;
-}
-
-.animate-fadeInUp {
-  animation: fadeInUp 0.8s ease-out forwards;
-}
+.slide-in-left-debug { transform: translateX(-80px); opacity: 0.5; }
 
 .animate-spin-slow {
   animation: spin-slow 8s linear infinite;
 }
 
-.animate-scale-in {
-  animation: scale-in 0.5s ease-out forwards;
+.reveal-scale-in {
+  animation: scale-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  will-change: transform, opacity;
+}
+
+/* 3D Transform Utilities */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.perspective-2000 {
+  perspective: 2000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.transform-gpu {
+  transform: translate3d(0, 0, 0);
+}
+
+/* 3D Tilt Animations */
+@keyframes tilt-gentle {
+  0%, 100% { transform: perspective(1000px) rotateX(0deg) rotateY(0deg); }
+  25% { transform: perspective(1000px) rotateX(2deg) rotateY(2deg); }
+  50% { transform: perspective(1000px) rotateX(-2deg) rotateY(5deg); }
+  75% { transform: perspective(1000px) rotateX(5deg) rotateY(-2deg); }
+}
+
+.animate-tilt-gentle {
+  animation: tilt-gentle 10s ease-in-out infinite;
 }
 
 /* Glassmorphism effects */
@@ -140,14 +158,14 @@
 
 /* Gradient effects */
 .gradient-text {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--brand-indigo) 0%, var(--brand-purple) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .gradient-border {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, var(--brand-purple), var(--brand-indigo));
   padding: 2px;
   border-radius: 12px;
 }
@@ -193,7 +211,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: var(--primary-gradient);
   border-radius: 10px;
 }
 
@@ -275,18 +293,6 @@
   }
 }
 
-/* Cursor trail effect */
-.cursor-trail {
-  position: fixed;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 9999;
-  transition: transform 0.1s ease-out;
-}
-
 /* Global app styles */
 .app-container {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
@@ -296,7 +302,7 @@
 .btn-modern {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--primary-gradient);
   border: none;
   border-radius: 12px;
   color: white;

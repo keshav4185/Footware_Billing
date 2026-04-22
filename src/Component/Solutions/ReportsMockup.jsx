@@ -165,7 +165,7 @@ const ReportsMockup = () => {
           <div>
             <div className="flex items-center gap-3 mb-2">
               <h2 className="text-3xl font-black text-gray-900 tracking-tight">Live Dashboard Preview</h2>
-              {loading && <Loader2 className="animate-spin text-blue-600" size={24} />}
+              {loading && <Loader2 className="animate-spin text-[#3D0448]" size={24} />}
             </div>
             <p className="text-gray-500 font-medium">Real-time data synchronization directly from your admin backend.</p>
           </div>
@@ -177,7 +177,7 @@ const ReportsMockup = () => {
                 onClick={() => setDateRange(range)}
                 className={`px-6 py-2 rounded-xl text-sm font-black transition-all uppercase tracking-widest ${
                   dateRange === range 
-                  ? 'bg-white text-blue-600 shadow-lg shadow-blue-50' 
+                  ? 'bg-white text-[#B564C3] shadow-lg shadow-[#B564C3]/10' 
                   : 'text-gray-400 hover:text-gray-600'
                 }`}
               >
@@ -207,7 +207,7 @@ const ReportsMockup = () => {
           {/* Payment Distribution */}
           <div className="bg-white rounded-[2.5rem] border border-gray-100 p-8 shadow-sm">
             <div className="flex items-center gap-3 mb-10">
-              <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-600">
+              <div className="p-3 bg-[#B564C3]/10 rounded-2xl text-[#B564C3]">
                 <PieChartIcon size={24} />
               </div>
               <div>
@@ -243,7 +243,7 @@ const ReportsMockup = () => {
           {/* Revenue Trend */}
           <div className="bg-white rounded-[2.5rem] border border-gray-100 p-8 shadow-sm">
             <div className="flex items-center gap-3 mb-10">
-              <div className="p-3 bg-blue-50 rounded-2xl text-blue-600">
+              <div className="p-3 bg-[#3D0448]/10 rounded-2xl text-[#3D0448]">
                 <TrendingUp size={24} />
               </div>
               <div>
@@ -271,12 +271,12 @@ const ReportsMockup = () => {
                   <Tooltip 
                     contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="revenue" 
-                    stroke="#2563EB" 
-                    strokeWidth={4} 
-                    dot={{ r: 6, fill: '#2563EB', strokeWidth: 0 }} 
+                    <Line 
+                      type="monotone" 
+                      dataKey="revenue" 
+                      stroke="#3D0448" 
+                      strokeWidth={4} 
+                      dot={{ r: 6, fill: '#3D0448', strokeWidth: 0 }} 
                     activeDot={{ r: 8, strokeWidth: 0 }}
                   />
                 </LineChart>
@@ -289,7 +289,7 @@ const ReportsMockup = () => {
         <div className="mt-12 pt-8 text-center border-t border-gray-50">
           <Link 
             to="/Signin" 
-            className="inline-flex items-center gap-3 px-8 py-4 bg-gray-900 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-blue-600 transition-all shadow-2xl group"
+            className="inline-flex items-center gap-3 px-8 py-4 bg-gray-900 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-[#3D0448] transition-all shadow-2xl group"
           >
             Access Full Dashboard <ChevronRight className="group-hover:translate-x-1 transition-transform" />
           </Link>

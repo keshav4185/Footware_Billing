@@ -16,21 +16,13 @@ import empLogImage from '../../assets/Emp_Log_optimized.jpg';
 import adminLogImage from '../../assets/Admin_Log.jpg';
 
 const Signin = () => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [showPassword, setShowPassword] = useState(false);
   const [loginType, setLoginType] = useState('user');
   const [isLoading, setIsLoading] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) * 100,
-        y: (e.clientY / window.innerHeight) * 100
-      });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    // Other initialization if needed
   }, []);
 
   const handleUserLogin = async (e) => {
@@ -100,9 +92,8 @@ const Signin = () => {
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-8 lg:p-8 relative overflow-hidden font-inter">
-
-      <div className="relative z-10 w-full max-w-[1100px] h-auto min-h-[600px] lg:h-[700px] flex flex-col lg:flex-row bg-white/5 backdrop-blur-2xl rounded-[2rem] lg:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10">
+    <div className="w-full flex items-center justify-center p-6 relative overflow-hidden font-inter">
+      <div className="w-full max-w-[950px] h-[620px] flex flex-col lg:flex-row bg-white/5 backdrop-blur-2xl rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10">
 
         {/* Left Side: Dynamic Illustration & Branding (Hidden on Mobile) */}
         <div className="hidden lg:block lg:w-[55%] relative group overflow-hidden border-r border-white/10">
@@ -124,7 +115,7 @@ const Signin = () => {
         </div>
 
         {/* Right Side: Optimized Direct Access Forms */}
-        <div className="w-full lg:w-[45%] flex flex-col justify-center p-6 sm:p-10 lg:p-12 relative bg-black/40 backdrop-blur-2xl overflow-y-auto transform-gpu min-h-[600px] lg:min-h-0">
+        <div className="w-full lg:w-[45%] flex flex-col justify-center p-6 sm:p-8 lg:p-10 relative bg-black/40 backdrop-blur-2xl overflow-y-auto transform-gpu min-h-0">
 
           <div className="w-full flex flex-col animate-fadeIn will-change-opacity mx-auto max-w-sm lg:max-w-none">
 
@@ -144,7 +135,7 @@ const Signin = () => {
             >
               {loginType === 'user' && (
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-white/40 uppercase tracking-widest ml-1">Employee ID</label>
+                  <label className="text-xs font-semibold text-white uppercase tracking-wider ml-1">Employee ID</label>
                   <div className="relative group">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/20 group-focus-within:text-purple-500 transition-colors">
                       <LayoutGrid size={18} />
@@ -161,7 +152,7 @@ const Signin = () => {
               )}
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-white/40 uppercase tracking-widest ml-1">
+                <label className="text-xs font-semibold text-white uppercase tracking-wider ml-1">
                   {loginType === 'user' ? 'Email ID' : 'Username'}
                 </label>
                 <div className="relative group">
@@ -180,7 +171,7 @@ const Signin = () => {
 
               <div className="space-y-2">
                 <div className="flex justify-between items-center px-1">
-                  <label className="text-[10px] font-black text-white/40 uppercase tracking-widest">Password</label>
+                  <label className="text-xs font-semibold text-white uppercase tracking-wider px-1">Password</label>
                 </div>
                 <div className="relative group">
                   <div className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/20 group-focus-within:text-${loginType === 'user' ? 'purple' : 'blue'}-500 transition-colors`}>

@@ -45,18 +45,18 @@ const BillingSystem = () => {
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <div className="text-left">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest mb-6">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3D0448]/10 text-[#3D0448] text-[10px] font-black uppercase tracking-widest mb-6">
                                 <CheckCircle2 size={12} />
                                 <span>Premium Billing Solution</span>
                             </div>
                             <h1 className="text-5xl md:text-7xl font-black text-gray-900 mb-8 leading-tight">
-                                Professional <span className="text-indigo-600">Billing</span> Made Simple
+                                Professional <span className="text-[#3D0448]">Billing</span> Made Simple
                             </h1>
                             <p className="text-xl text-gray-500 mb-10 leading-relaxed max-w-xl">
                                 Create GST-compliant invoices, share them via WhatsApp, and manage payments in seconds. Specifically designed for speed and accuracy in footwear retail.
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4">
-                                <Link to="/Signin" className="bg-indigo-600 text-white px-10 py-5 rounded-2xl font-black text-lg hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-2">
+                                <Link to="/Signin" className="bg-[#3D0448] text-white px-10 py-5 rounded-2xl font-black text-lg hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-2">
                                     Get Started Free <ArrowRight size={20} />
                                 </Link>
                                 <button className="bg-white text-gray-700 border border-gray-200 px-10 py-5 rounded-2xl font-black text-lg hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
@@ -87,7 +87,7 @@ const BillingSystem = () => {
                                                     <span className="text-gray-600">Tax (18%)</span>
                                                     <span className="font-bold">₹261</span>
                                                 </div>
-                                                <div className="pt-2 border-t flex justify-between font-black text-indigo-600">
+                                                <div className="pt-2 border-t flex justify-between font-black text-indigo-600 ">
                                                     <span>TOTAL</span>
                                                     <span>₹1,711</span>
                                                 </div>
@@ -95,7 +95,7 @@ const BillingSystem = () => {
                                         </div>
                                         <div className="flex gap-2">
                                             <div className="h-10 bg-green-500 rounded-xl flex-1 flex items-center justify-center text-white"><Send size={16} /></div>
-                                            <div className="h-10 bg-indigo-600 rounded-xl flex-1 flex items-center justify-center text-white"><Printer size={16} /></div>
+                                            <div className="h-10 bg-indigo-600  rounded-xl flex-1 flex items-center justify-center text-white"><Printer size={16} /></div>
                                         </div>
                                     </div>
                                 </div>
@@ -130,24 +130,24 @@ const BillingSystem = () => {
                             />
                         </div>
                         <div className="order-1 lg:order-2">
-                            <h2 className="text-4xl font-black text-gray-900 mb-8 leading-tight">GST Compliance Without <span className="text-indigo-600">The Headache</span></h2>
+                            <h2 className="text-4xl font-black text-gray-900 mb-8 leading-tight">GST Compliance Without <span className="text-[#3D0448]">The Headache</span></h2>
                             <div className="space-y-6">
                                 <div className="flex gap-4">
-                                    <div className="mt-1 text-indigo-600"><CheckCircle2 size={24} /></div>
+                                    <div className="mt-1 text-[#3D0448]"><CheckCircle2 size={24} /></div>
                                     <div>
                                         <h4 className="font-bold text-lg mb-1">HSN Code Management</h4>
                                         <p className="text-gray-500">Pre-configured HSN codes for different footwear categories to ensure accurate tax filing.</p>
                                     </div>
                                 </div>
                                 <div className="flex gap-4">
-                                    <div className="mt-1 text-indigo-600"><CheckCircle2 size={24} /></div>
+                                    <div className="mt-1 text-[#3D0448]"><CheckCircle2 size={24} /></div>
                                     <div>
                                         <h4 className="font-bold text-lg mb-1">State-Wise Tax Rules</h4>
                                         <p className="text-gray-500">Automatic switching between IGST and CGST/SGST based on customer location.</p>
                                     </div>
                                 </div>
                                 <div className="flex gap-4">
-                                    <div className="mt-1 text-indigo-600"><CheckCircle2 size={24} /></div>
+                                    <div className="mt-1 text-[#3D0448]"><CheckCircle2 size={24} /></div>
                                     <div>
                                         <h4 className="font-bold text-lg mb-1">Downloadable Tax Reports</h4>
                                         <p className="text-gray-500">Export your monthly billing data in tax-ready formats for your accountant.</p>

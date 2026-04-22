@@ -4,8 +4,8 @@ import Logo from '../../assets/logo.jpg';
 
 const BrandAssets = () => {
     const colors = [
-        { name: 'Primary Indigo', hex: '#4F46E5', rgb: 'rgb(79, 70, 229)', class: 'bg-indigo-600' },
-        { name: 'Deep Purple', hex: '#7E22CE', rgb: 'rgb(126, 34, 206)', class: 'bg-purple-700' },
+        { name: 'Brand Indigo', hex: '#3D0448', rgb: 'rgb(61, 4, 72)', class: 'bg-[#3D0448]' },
+        { name: 'Brand Purple', hex: '#B564C3', rgb: 'rgb(181, 100, 195)', class: 'bg-[#B564C3]' },
         { name: 'Dark Slate', hex: '#111827', rgb: 'rgb(17, 24, 39)', class: 'bg-gray-900' },
         { name: 'Subtle Gray', hex: '#F9FAFB', rgb: 'rgb(249, 250, 251)', class: 'bg-gray-50 border border-gray-200' },
     ];
@@ -26,14 +26,14 @@ const BrandAssets = () => {
             {/* Header Section */}
             <div className="bg-gray-50 pt-32 pb-20 px-6 border-b border-gray-100">
                 <div className="max-w-7xl mx-auto text-center">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-[10px] font-black uppercase tracking-widest mb-6">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#3D0448]/10 text-[#3D0448] rounded-full text-[10px] font-black uppercase tracking-widest mb-6">
                         <Layers size={14} /> Official Resources
                     </div>
                     <h1 className="text-4xl md:text-6xl font-black text-gray-900 mb-6 tracking-tight">
-                        Smart Group <span className="text-indigo-600">Brand Assets</span>
+                        Smart Sales <span className="text-[#3D0448]">Brand Assets</span>
                     </h1>
                     <p className="text-gray-500 text-lg max-w-2xl mx-auto font-medium">
-                        Everything you need to represent the Smart Group brand correctly. Download our official logos, color palettes, and typography guidelines for your projects.
+                        Everything you need to represent the Smart Sales brand correctly. Download our official logos, color palettes, and typography guidelines for your projects.
                     </p>
                 </div>
             </div>
@@ -46,13 +46,13 @@ const BrandAssets = () => {
                         <div className="sticky top-24 space-y-2">
                             <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 px-4">Contents</h3>
                             <a href="#logo" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 text-gray-700 font-bold transition-colors">
-                                <ImageIcon size={18} className="text-indigo-600" /> Logo & Usage
+                                <ImageIcon size={18} className="text-[#3D0448]" /> Logo & Usage
                             </a>
                             <a href="#colors" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 text-gray-700 font-bold transition-colors">
-                                <Palette size={18} className="text-purple-600" /> Color Palette
+                                <Palette size={18} className="text-[#B564C3]" /> Color Palette
                             </a>
                             <a href="#typography" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 text-gray-700 font-bold transition-colors">
-                                <Type size={18} className="text-blue-600" /> Typography
+                                <Type size={18} className="text-[#3D0448]" /> Typography
                             </a>
                         </div>
                     </div>
@@ -63,7 +63,7 @@ const BrandAssets = () => {
                         {/* Logo Section */}
                         <section id="logo" className="scroll-mt-24">
                             <div className="flex items-center gap-3 mb-8">
-                                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                                <div className="p-2 bg-[#3D0448]/10 text-[#3D0448] rounded-lg">
                                     <ImageIcon size={24} />
                                 </div>
                                 <h2 className="text-3xl font-black text-gray-900 tracking-tight">Our Logo</h2>
@@ -71,8 +71,8 @@ const BrandAssets = () => {
                             
                             <div className="bg-gray-50 rounded-[2rem] p-8 md:p-12 border border-gray-100 flex flex-col items-center justify-center mb-8 relative group overflow-hidden">
                                 <div className="absolute inset-0 bg-grid-gray-200/50 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]"></div>
-                                <div className="relative z-10 p-6 bg-white rounded-2xl shadow-xl transform group-hover:scale-105 transition-transform duration-500">
-                                    <img src={Logo} alt="Smart Group Logo" className="w-32 h-32 object-contain" />
+                                <div className="relative z-10 p-6 bg-white rounded-2xl shadow-xl">
+                                    <img src={Logo} alt="Smart Sales Logo" className="w-32 h-32 object-contain" />
                                 </div>
                                 <div className="relative z-10 mt-8 text-center">
                                     <h3 className="text-xl font-bold text-gray-900 mb-2">Primary Master Logo</h3>
@@ -81,7 +81,7 @@ const BrandAssets = () => {
                             </div>
 
                             <div className="flex flex-col sm:flex-row gap-4">
-                                <button onClick={handleDownload} className="flex-1 bg-indigo-600 text-white px-6 py-4 rounded-xl font-black uppercase tracking-widest text-sm hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-100 flex items-center justify-center gap-3">
+                                <button onClick={handleDownload} className="flex-1 bg-[#3D0448] text-white px-6 py-4 rounded-xl font-black uppercase tracking-widest text-sm hover:opacity-90 transition-opacity shadow-lg shadow-[#3D0448]/20 flex items-center justify-center gap-3">
                                     <Download size={18} /> Download Logo (JPG)
                                 </button>
                                 <div className="flex-1 px-6 py-4 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center gap-3 text-sm font-bold text-gray-500 uppercase tracking-widest">
@@ -93,7 +93,7 @@ const BrandAssets = () => {
                         {/* Colors Section */}
                         <section id="colors" className="scroll-mt-24">
                             <div className="flex items-center gap-3 mb-8">
-                                <div className="p-2 bg-purple-50 text-purple-600 rounded-lg">
+                                <div className="p-2 bg-[#B564C3]/10 text-[#B564C3] rounded-lg">
                                     <Palette size={24} />
                                 </div>
                                 <h2 className="text-3xl font-black text-gray-900 tracking-tight">Color Palette</h2>
@@ -127,7 +127,7 @@ const BrandAssets = () => {
                         {/* Typography Section */}
                         <section id="typography" className="scroll-mt-24">
                             <div className="flex items-center gap-3 mb-8">
-                                <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                                <div className="p-2 bg-[#3D0448]/10 text-[#3D0448] rounded-lg">
                                     <Type size={24} />
                                 </div>
                                 <h2 className="text-3xl font-black text-gray-900 tracking-tight">Typography</h2>
@@ -143,14 +143,14 @@ const BrandAssets = () => {
                                     <div className="pb-8 border-b border-gray-200">
                                         <div className="flex items-end gap-6 mb-2">
                                             <span className="text-4xl font-black text-gray-900">Aa</span>
-                                            <span className="text-sm font-bold text-indigo-600 uppercase tracking-widest">Black (900)</span>
+                                            <span className="text-sm font-bold text-[#3D0448] uppercase tracking-widest">Black (900)</span>
                                         </div>
                                         <p className="text-gray-900 font-black text-xl md:text-2xl tracking-tighter">The quick brown fox jumps over the lazy dog.</p>
                                     </div>
                                     <div className="pb-8 border-b border-gray-200">
                                         <div className="flex items-end gap-6 mb-2">
                                             <span className="text-4xl font-bold text-gray-900">Aa</span>
-                                            <span className="text-sm font-bold text-purple-600 uppercase tracking-widest">Bold (700)</span>
+                                            <span className="text-sm font-bold text-[#B564C3] uppercase tracking-widest">Bold (700)</span>
                                         </div>
                                         <p className="text-gray-900 font-bold text-xl md:text-2xl tracking-tight">The quick brown fox jumps over the lazy dog.</p>
                                     </div>

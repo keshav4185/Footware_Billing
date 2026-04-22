@@ -46,11 +46,11 @@ const Footer = () => {
                     {/* Brand Column */}
                     <div className="space-y-4">
                         <Link to="/" className="flex items-center space-x-3 group">
-                            <div className="p-2 bg-gray-50 rounded-xl shadow-sm group-hover:scale-110 transition-transform duration-300">
-                                <img src={Logo} alt="Smart Group" className="h-10 w-10 object-contain" />
+                            <div className="p-2 bg-gray-50 rounded-xl shadow-sm">
+                                <img src={Logo} alt="Smart Sales" className="h-10 w-10 object-contain" />
                             </div>
-                            <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-700 bg-clip-text text-transparent">
-                                Smart Group
+                            <span className="text-2xl font-bold bg-gradient-to-r from-[#3D0448] to-[#B564C3] bg-clip-text text-transparent">
+                                Smart Sales
                             </span>
                         </Link>
                         <p className="text-gray-500 leading-relaxed text-sm">
@@ -65,14 +65,14 @@ const Footer = () => {
                     <div className="lg:pl-10">
                         <h4 className="text-gray-900 font-bold mb-6 flex items-center">
                             Explore
-                            <span className="ml-2 w-8 h-1 bg-indigo-500 rounded-full inline-block"></span>
+                            <span className="ml-2 w-8 h-1 bg-[#3D0448] rounded-full inline-block"></span>
                         </h4>
                         <ul className="space-y-4">
                             {quickLinks.map((link, index) => (
                                 <li key={index}>
                                     <Link
                                         to={link.path}
-                                        className="text-gray-500 hover:text-indigo-600 flex items-center group transition-colors duration-300"
+                                        className="text-gray-500 hover:text-[#3D0448] flex items-center group transition-colors duration-300"
                                     >
                                         <ChevronRight size={14} className="mr-2 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
                                         {link.name}
@@ -86,16 +86,17 @@ const Footer = () => {
                     <div>
                         <h4 className="text-gray-900 font-bold mb-4 flex items-center">
                             Solutions
-                            <span className="ml-2 w-8 h-1 bg-purple-500 rounded-full inline-block"></span>
+                            <span className="ml-2 w-8 h-1 bg-[#B564C3] rounded-full inline-block"></span>
                         </h4>
                         <ul className="space-y-3">
                             {products.map((item, index) => (
                                 <li key={index}>
                                     <Link
                                         to={item.path}
-                                        className="text-gray-500 hover:text-purple-600 flex items-center group transition-colors duration-300"
+                                        className="text-gray-500 hover:text-[#B564C3] flex items-center group transition-colors duration-300"
                                     >
-                                        <span className="mr-3 p-1.5 bg-gray-50 rounded-lg group-hover:bg-purple-50 group-hover:text-purple-600 transition-colors duration-300">
+                                        <ChevronRight size={14} className="mr-2 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
+                                        <span className="mr-3 p-1.5 bg-gray-50 rounded-lg group-hover:bg-[#B564C3]/10 group-hover:text-[#B564C3] transition-colors duration-300">
                                             {item.icon}
                                         </span>
                                         {item.name}
@@ -109,14 +110,14 @@ const Footer = () => {
                     <div>
                         <h4 className="text-gray-900 font-bold mb-4 flex items-center">
                             About Us
-                            <span className="ml-2 w-8 h-1 bg-pink-500 rounded-full inline-block"></span>
+                            <span className="ml-2 w-8 h-1 bg-[#B564C3] rounded-full inline-block"></span>
                         </h4>
                         <ul className="space-y-4">
                             {support.map((link, index) => (
                                 <li key={index}>
                                     <Link
                                         to={link.path}
-                                        className="text-gray-500 hover:text-pink-600 flex items-center group transition-colors duration-300"
+                                        className="text-gray-500 hover:text-[#B564C3] flex items-center group transition-colors duration-300"
                                     >
                                         <ChevronRight size={14} className="mr-2 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
                                         {link.name}
@@ -130,12 +131,12 @@ const Footer = () => {
                 {/* Bottom Bar */}
                 <div className="pt-6 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-sm italic">
                     <p className="text-gray-400">
-                        &copy; {currentYear} <span className="font-semibold text-indigo-600">Smart Group</span>. All rights reserved.
+                        &copy; {currentYear} <span className="font-semibold text-[#3D0448]">Smart Sales</span>. All rights reserved.
                     </p>
                     <div className="flex items-center space-x-1 text-gray-400">
                         <span>Developed with by</span>
-                        <span className="font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent hover:scale-105 transition-transform cursor-default">
-                            Smart Group
+                        <span className="font-bold bg-gradient-to-r from-[#B564C3] to-[#3D0448] bg-clip-text text-transparent hover:scale-105 transition-transform cursor-default">
+                            Smart Sales
                         </span>
                     </div>
                 </div>

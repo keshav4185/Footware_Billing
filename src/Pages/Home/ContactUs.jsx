@@ -95,13 +95,13 @@ const ContactUs = () => {
                     
                     {/* Left Column: Hero Text */}
                     <div className="lg:col-span-5 text-white">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full text-xs font-black uppercase tracking-widest mb-8 text-indigo-400 backdrop-blur-md">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full text-xs font-black uppercase tracking-widest mb-8 text-[#B564C3] backdrop-blur-md">
                             <MessageCircle size={14} /> Contact Support
                         </div>
                         
                         <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tighter leading-[1.1]">
                             Let's start a <br/>
-                            <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">conversation.</span>
+                            <span className="bg-gradient-to-r from-[#3D0448] via-[#B564C3] to-[#3D0448] bg-clip-text text-transparent">conversation.</span>
                         </h1>
                         
                         <p className="text-gray-400 text-lg md:text-xl font-medium mb-12 max-w-lg leading-relaxed">
@@ -149,7 +149,7 @@ const ContactUs = () => {
                                             onChange={handleChange}
                                             type="text" 
                                             required
-                                            className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white/10 transition-all font-medium text-white placeholder:text-gray-600 focus:border-indigo-500 shadow-inner"
+                                            className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl focus:outline-none focus:ring-1 focus:ring-[#B564C3] focus:bg-white/10 transition-all font-medium text-white placeholder:text-gray-600 focus:border-[#B564C3] shadow-inner"
                                             placeholder="John"
                                         />
                                     </div>
@@ -161,7 +161,7 @@ const ContactUs = () => {
                                             onChange={handleChange}
                                             type="text" 
                                             required
-                                            className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white/10 transition-all font-medium text-white placeholder:text-gray-600 focus:border-indigo-500 shadow-inner"
+                                            className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl focus:outline-none focus:ring-1 focus:ring-[#B564C3] focus:bg-white/10 transition-all font-medium text-white placeholder:text-gray-600 focus:border-[#B564C3] shadow-inner"
                                             placeholder="Doe"
                                         />
                                     </div>
@@ -192,7 +192,7 @@ const ContactUs = () => {
                                                 onChange={handleChange}
                                                 className="peer sr-only" 
                                             />
-                                            <div className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-center text-sm font-bold text-gray-400 peer-checked:bg-indigo-500/20 peer-checked:border-indigo-500/50 peer-checked:text-indigo-300 transition-all">Sales</div>
+                                            <div className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-center text-sm font-bold text-gray-400 peer-checked:bg-[#3D0448]/20 peer-checked:border-[#3D0448]/50 peer-checked:text-[#B564C3] transition-all">Sales</div>
                                         </label>
                                         <label className="cursor-pointer">
                                             <input 
@@ -203,7 +203,7 @@ const ContactUs = () => {
                                                 onChange={handleChange}
                                                 className="peer sr-only" 
                                             />
-                                            <div className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-center text-sm font-bold text-gray-400 peer-checked:bg-purple-500/20 peer-checked:border-purple-500/50 peer-checked:text-purple-300 transition-all">Support</div>
+                                            <div className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-center text-sm font-bold text-gray-400 peer-checked:bg-[#B564C3]/20 peer-checked:border-[#B564C3]/50 peer-checked:text-[#B564C3] transition-all">Support</div>
                                         </label>
                                     </div>
                                 </div>
@@ -227,7 +227,7 @@ const ContactUs = () => {
                                     className="w-full py-5 bg-white text-black rounded-2xl font-black uppercase tracking-[0.2em] text-sm hover:scale-[1.02] hover:bg-gray-100 transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed mt-4 shadow-[0_0_40px_rgba(255,255,255,0.2)]"
                                 >
                                     {isLoading ? (
-                                        <Loader2 size={24} className="animate-spin text-indigo-600" />
+                                        <Loader2 size={24} className="animate-spin text-[#B564C3]" />
                                     ) : (
                                         <>Deploy Message <ArrowRight size={20} /></>
                                     )}

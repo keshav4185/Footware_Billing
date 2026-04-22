@@ -236,7 +236,7 @@ const DashboardOverview = ({ bills: propsBills, customers: propsCustomers, produ
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className={`text-2xl sm:text-3xl font-bold flex items-center gap-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              <LayoutDashboard size={32} className="text-blue-600" /> Dashboard Overview
+              <LayoutDashboard size={32} className="text-[#3D0448]" /> Dashboard Overview
             </h1>
             <p className={`mt-1 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               Welcome back! Here's your business summary.
@@ -275,7 +275,7 @@ const DashboardOverview = ({ bills: propsBills, customers: propsCustomers, produ
         <div className={`rounded-xl shadow-lg border p-6 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
           <div className="mb-4">
             <h3 className={`text-lg font-bold flex items-center gap-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              <PieChartIcon size={22} className="text-indigo-500" /> Payment Status Distribution
+              <PieChartIcon size={22} className="text-[#B564C3]" /> Payment Status Distribution
             </h3>
             <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Invoice payment breakdown</p>
           </div>
@@ -326,7 +326,7 @@ const DashboardOverview = ({ bills: propsBills, customers: propsCustomers, produ
         <div className={`rounded-xl shadow-lg border p-6 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
           <div className="mb-4">
             <h3 className={`text-lg font-bold flex items-center gap-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              <TrendingUp size={22} className="text-blue-500" /> Revenue Trend (Last 7 Days)
+              <TrendingUp size={22} className="text-[#3D0448]" /> Revenue Trend (Last 7 Days)
             </h3>
             <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Daily revenue performance</p>
           </div>
@@ -367,10 +367,10 @@ const DashboardOverview = ({ bills: propsBills, customers: propsCustomers, produ
                 <Line
                   type="monotone"
                   dataKey="revenue"
-                  stroke="#3B82F6"
+                  stroke="#3D0448"
                   strokeWidth={3}
-                  dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, stroke: '#3B82F6', strokeWidth: 2 }}
+                  dot={{ fill: '#3D0448', strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, stroke: '#3D0448', strokeWidth: 2 }}
                 />
                 <Line
                   type="monotone"
@@ -389,9 +389,9 @@ const DashboardOverview = ({ bills: propsBills, customers: propsCustomers, produ
 
       {/* Recent Invoices */}
       <div className={`rounded-xl shadow-lg border overflow-hidden ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
-        <div className={`px-6 py-4 border-b ${isDarkMode ? 'border-gray-700 bg-gradient-to-r from-blue-900/40 to-indigo-900/40' : 'border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50'}`}>
+        <div className={`px-6 py-4 border-b ${isDarkMode ? 'border-gray-700 bg-gradient-to-r from-[#3D0448]/40 to-[#B564C3]/40' : 'border-gray-200 bg-gradient-to-r from-[#3D0448]/5 to-[#B564C3]/5'}`}>
           <h3 className={`text-lg font-bold flex items-center gap-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-            <ClipboardList size={22} className="text-indigo-600" /> Recent Invoices
+            <ClipboardList size={22} className="text-[#B564C3]" /> Recent Invoices
           </h3>
         </div>
 

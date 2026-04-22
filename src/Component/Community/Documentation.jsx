@@ -6,13 +6,13 @@ function Documentation() {
             {/* Header mimicking Homesection6 title structure */}
             <section className="py-24 bg-white">
                 <div className="max-w-7xl mx-auto px-6 text-center">
-                    <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-[0.2em] mb-8 shadow-sm">
+                    <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#3D0448]/10 text-[#3D0448] text-[10px] font-black uppercase tracking-[0.2em] mb-8 shadow-sm">
                         <FileText size={12} />
                         <span>Resource Center</span>
                     </div>
                     
                     <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 tracking-tight leading-tight">
-                        Bill Management <br/><span className="text-indigo-600">Dashboard</span>
+                        Bill Management <br/><span className="text-[#3D0448]">Dashboard</span>
                     </h2>
 
                     <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-16 leading-relaxed">
@@ -27,7 +27,7 @@ function Documentation() {
                         <p className="text-gray-500 mb-8 leading-relaxed">
                             Need more help exploring the dashboard? Our interactive tutorials cover everything from GST compliance to payment tracking.
                         </p>
-                        <Link to="/tutorial" className="inline-flex items-center gap-2 bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black text-lg hover:scale-105 transition-transform shadow-lg shadow-indigo-200">
+                        <Link to="/tutorial" className="inline-flex items-center gap-2 bg-[#3D0448] text-white px-8 py-4 rounded-2xl font-black text-lg hover:opacity-90 transition-opacity shadow-lg shadow-[#3D0448]/20">
                             Watch Tutorials <ArrowRight size={20} />
                         </Link>
                     </div>
