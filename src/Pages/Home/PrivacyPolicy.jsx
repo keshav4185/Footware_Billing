@@ -39,7 +39,7 @@ const PrivacyPolicy = () => {
             {/* Content Cards */}
             <div className="max-w-4xl mx-auto px-6 relative z-10 space-y-12">
                 <div className="text-center text-xl font-medium text-gray-600 mb-16 max-w-3xl mx-auto leading-relaxed">
-                    At Smart Sales, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our billing software and related services.
+                    At Smart Billing, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our billing software and related services.
                 </div>
 
                 {/* Section 1 */}

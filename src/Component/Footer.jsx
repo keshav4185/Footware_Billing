@@ -47,10 +47,10 @@ const Footer = () => {
                     <div className="space-y-4">
                         <Link to="/" className="flex items-center space-x-3 group">
                             <div className="p-2 bg-gray-50 rounded-xl shadow-sm">
-                                <img src={Logo} alt="Smart Sales" className="h-10 w-10 object-contain" />
+                                <img src={Logo} alt="Smart Billing" className="h-10 w-10 object-contain" />
                             </div>
                             <span className="text-2xl font-bold bg-gradient-to-r from-[#3D0448] to-[#B564C3] bg-clip-text text-transparent">
-                                Smart Sales
+                                Smart Billing
                             </span>
                         </Link>
                         <p className="text-gray-500 leading-relaxed text-sm">
@@ -131,12 +131,12 @@ const Footer = () => {
                 {/* Bottom Bar */}
                 <div className="pt-6 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-sm italic">
                     <p className="text-gray-400">
-                        &copy; {currentYear} <span className="font-semibold text-[#3D0448]">Smart Sales</span>. All rights reserved.
+                        &copy; {currentYear} <span className="font-semibold text-[#3D0448]">Smart Billing</span>. All rights reserved.
                     </p>
                     <div className="flex items-center space-x-1 text-gray-400">
                         <span>Developed with by</span>
                         <span className="font-bold bg-gradient-to-r from-[#B564C3] to-[#3D0448] bg-clip-text text-transparent hover:scale-105 transition-transform cursor-default">
-                            Smart Sales
+                            Smart Billing
                         </span>
                     </div>
                 </div>

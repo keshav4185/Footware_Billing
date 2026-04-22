@@ -172,7 +172,7 @@ const DashboardContent = ({ activeSection, sidebarOpen, setSidebarOpen, setActiv
         </button>
         <div className="flex items-center gap-2 text-white">
           {React.createElement(getGreeting().icon, { className: "animate-pulse text-white", size: 24 })}
-          <h1 className={`text-lg font-bold text-white`}>SMART SALES Billing Pro</h1>
+          <h1 className={`text-lg font-bold text-white`}>SMART BILLING Billing Pro</h1>
         </div>
         <button
           className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-3 py-1.5 rounded-lg text-sm flex items-center gap-2 transition-all duration-300 hover:scale-105 shadow-lg"

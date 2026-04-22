@@ -38,7 +38,7 @@ const AboutUs = () => {
     ];
 
     const milestones = [
-        { year: "2020", event: "Smart Sales founded with a vision to simplify retail billing." },
+        { year: "2020", event: "Smart Billing founded with a vision to simplify retail billing." },
         { year: "2021", event: "Reached 1,000+ active businesses across the region." },
         { year: "2022", event: "Launched advanced analytics and AI-driven reporting." },
         { year: "2023", event: "Voted #1 most user-friendly billing software in the industry." },
@@ -65,7 +65,7 @@ const AboutUs = () => {
                         <span className="bg-gradient-to-r from-[#3D0448] to-[#B564C3] bg-clip-text text-transparent italic">Through Innovation.</span>
                     </h1>
                     <p className="max-w-2xl mx-auto text-gray-500 text-lg md:text-xl font-medium leading-relaxed mb-12 animate-fadeIn" style={{ animationDelay: '0.2s' }}>
-                        Smart Sales is more than just software. We are a team of visionaries dedicated to building the tools that modern businesses need to thrive in a digital-first world.
+                        Smart Billing is more than just software. We are a team of visionaries dedicated to building the tools that modern businesses need to thrive in a digital-first world.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fadeIn" style={{ animationDelay: '0.4s' }}>
                         <Link to="/Signin" className="bg-gray-900 text-white px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-2xl flex items-center gap-2 group">
@@ -86,7 +86,7 @@ const AboutUs = () => {
                         <div className="relative bg-white p-12 rounded-[2.5rem] shadow-xl border border-gray-100">
                             <h2 className="text-3xl font-black text-gray-900 mb-6 tracking-tight">One Vision. <br />Infinite Possibilities.</h2>
                             <p className="text-gray-500 leading-relaxed font-medium mb-8">
-                                Smart Sales unique value proposition is to be at the same time very easy to use and fully integrated. We believe that technology should work for people, not the other way around. Our suite of business apps covers everything from accounting to complex sales analytics.
+                                Smart Billing unique value proposition is to be at the same time very easy to use and fully integrated. We believe that technology should work for people, not the other way around. Our suite of business apps covers everything from accounting to complex sales analytics.
                             </p>
                             <div className="space-y-4">
                                 {['Zero Configuration Start', 'Enterprise Grade Security', 'Real-time Dashboards'].map((item, idx) => (
@@ -127,7 +127,7 @@ const AboutUs = () => {
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-5xl font-black text-gray-900 mb-4 tracking-tight">Our Core Values</h2>
-                        <p className="text-gray-500 font-medium">The pillars that sustain every decision we make at Smart Sales.</p>
+                        <p className="text-gray-500 font-medium">The pillars that sustain every decision we make at Smart Billing.</p>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {values.map((v, i) => (

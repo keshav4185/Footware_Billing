@@ -162,7 +162,7 @@ const InvoiceList = ({ bills, setBills, isDarkMode }) => {
             <div class="logo-section">
               <div class="logo-box">${companyLogo ? `<img src="${companyLogo}" alt="Logo" style="width:100%;height:100%;object-fit:contain;">` : 'YOUR<br>LOGO'}</div>
               <div class="company-info">
-                <div class="company-name">${bill.company?.name || 'Smart Sales'}</div>
+                <div class="company-name">${bill.company?.name || 'Smart Billing'}</div>
                 <div class="company-details">${bill.company?.address || '123 Business Street'}<br>Phone: ${bill.company?.phone || '+91 98765 43210'}</div>
               </div>
             </div>
@@ -429,7 +429,7 @@ const InvoiceList = ({ bills, setBills, isDarkMode }) => {
                       )}
                     </div>
                     <div className="flex-1">
-                      <h1 className="text-lg md:text-xl font-bold">{selectedInvoice.company?.name || 'Smart Sales'}</h1>
+                      <h1 className="text-lg md:text-xl font-bold">{selectedInvoice.company?.name || 'Smart Billing'}</h1>
                       <p className={`text-xs md:text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                         {selectedInvoice.company?.address || '123 Business Street, City'}<br />
                         Phone: {selectedInvoice.company?.phone || '+91 98765 43210'}<br />

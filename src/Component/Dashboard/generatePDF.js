@@ -7,7 +7,7 @@ export const generatePDF = async (customerData, products, totals, convertToWords
     // Company Header
     pdf.setFontSize(20);
     pdf.setFont('helvetica', 'bold');
-    pdf.text('SMART SALES', 105, 20, { align: 'center' });
+    pdf.text('SMART BILLING', 105, 20, { align: 'center' });
     
     pdf.setFontSize(12);
     pdf.setFont('helvetica', 'normal');

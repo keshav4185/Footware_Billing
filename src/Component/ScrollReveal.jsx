@@ -49,7 +49,7 @@ const ScrollReveal = ({
         observer.unobserve(currentRef);
       }
     };
-  }, [threshold]);
+  }, [threshold, repeat, animation]);
 
   return (
     <div

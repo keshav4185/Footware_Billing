@@ -125,13 +125,13 @@ const MobileBillingMockup = () => {
                                 </div>
                             </div>
                             <div className="flex gap-2 pt-2 border-t border-gray-100">
-                                <button className="flex-1 bg-blue-500 text-white p-2 rounded-lg transition-all active:scale-95 flex items-center justify-center">
+                                <button className="flex-1 bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition-all active:scale-95 flex items-center justify-center">
                                     <Eye size={14} />
                                 </button>
-                                <button className="flex-1 bg-green-500 text-white p-2 rounded-lg transition-all active:scale-95 flex items-center justify-center">
+                                <button className="flex-1 bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition-all active:scale-95 flex items-center justify-center">
                                     <Printer size={14} />
                                 </button>
-                                <button className="flex-1 bg-red-500 text-white p-2 rounded-lg transition-all active:scale-95 flex items-center justify-center">
+                                <button className="flex-1 bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition-all active:scale-95 flex items-center justify-center">
                                     <Trash2 size={14} />
                                 </button>
                             </div>
@@ -161,7 +161,7 @@ const Tutorialscom = () => {
                         Master Your <span className="text-[#3D0448]">Billing Workflow</span>
                     </h1>
                     <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-12 leading-relaxed">
-                        Follow our step-by-step guides and demonstration video to get the most out of Smart Sales's professional billing tools.
+                        Follow our step-by-step guides and demonstration video to get the most out of Smart Billing's professional billing tools.
                     </p>
 
                     {/* Featured Video Player */}
@@ -298,7 +298,7 @@ const Tutorialscom = () => {
                 <div className="mt-32 text-center bg-gradient-to-br from-[#3D0448] to-[#B564C3] rounded-[3rem] py-16 px-6 shadow-2xl shadow-[#3D0448]/20">
                     <h2 className="text-3xl md:text-5xl font-black text-white mb-6">Start Your Journey Today</h2>
                     <p className="text-indigo-100 text-lg mb-10 max-w-xl mx-auto">
-                        Join thousands of businesses already using Smart Sales to streamline their billing operations.
+                        Join thousands of businesses already using Smart Billing to streamline their billing operations.
                     </p>
                     <Link to="/dashboard">
                         <button className="bg-white text-[#3D0448] px-10 py-4 rounded-2xl font-black text-lg hover:scale-105 transition-transform shadow-xl flex items-center gap-2 mx-auto">

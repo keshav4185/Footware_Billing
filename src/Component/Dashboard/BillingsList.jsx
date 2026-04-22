@@ -313,7 +313,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
             <div class="logo-section">
               <div class="logo-box">${companyLogo ? `<img src="${companyLogo}" alt="Logo" style="width:100%;height:100%;object-fit:contain;">` : 'YOUR<br>LOGO'}</div>
               <div class="company-info">
-                <div class="company-name">${billData.company?.name || 'Smart Sales'}</div>
+                <div class="company-name">${billData.company?.name || 'Smart Billing'}</div>
                 <div class="company-details">${billData.company?.address || '123 Business Street, City - 400001'}<br>Phone: ${billData.company?.phone || '+91 98765 43210'}<br>GST: ${billData.company?.gst || '27XXXXX1234X1ZX'}</div>
                 <div class="brand-line">${billData.company?.brands || 'RELAXO adidas Bata Paragon FILA campus'}</div>
               </div>
@@ -866,7 +866,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                       )}
                     </div>
                     <div className="flex-1">
-                      <h1 className="text-lg md:text-xl font-bold">{selectedBill.company?.name || 'Smart Sales'}</h1>
+                      <h1 className="text-lg md:text-xl font-bold">{selectedBill.company?.name || 'Smart Billing'}</h1>
                       <p className={`text-xs md:text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                         {selectedBill.company?.address || '123 Business Street, City - 400001'}<br />
                         Phone: {selectedBill.company?.phone || '+91 98765 43210'}<br />

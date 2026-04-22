@@ -57,7 +57,7 @@ const DashboardSidebar = ({ activeSection, setActiveSection, sidebarOpen, setSid
               <LayoutDashboard size={24} />
             </div>
             <div className="flex flex-col">
-              <span className={`tracking-tight ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>SMART SALES</span>
+              <span className={`tracking-tight ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>SMART BILLING</span>
               <span className={`text-[10px] font-medium tracking-widest uppercase ${isDarkMode ? 'text-blue-400' : 'text-blue-600'
                 }`}>Billing Pro</span>
             </div>

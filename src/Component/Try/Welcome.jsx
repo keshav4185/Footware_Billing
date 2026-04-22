@@ -74,7 +74,7 @@ const Welcome = () => {
 
         <div className="mt-8">
           <h1 className="text-[3.8rem] font-bold bg-gradient-to-r from-[#4A4B4D] via-[#B564C3] to-[#3D0448] bg-clip-text text-transparent leading-[1.05] mb-6 tracking-tighter text-center ">
-            Welcome to <br />Smart Sales
+            Welcome to <br />Smart Billing
           </h1>
           <div className="space-y-4">
             <p className="text-gray-500 text-lg font-medium tracking-wide">

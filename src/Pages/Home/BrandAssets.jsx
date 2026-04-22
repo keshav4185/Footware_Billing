@@ -30,10 +30,10 @@ const BrandAssets = () => {
                         <Layers size={14} /> Official Resources
                     </div>
                     <h1 className="text-4xl md:text-6xl font-black text-gray-900 mb-6 tracking-tight">
-                        Smart Sales <span className="text-[#3D0448]">Brand Assets</span>
+                        Smart Billing <span className="text-[#3D0448]">Brand Assets</span>
                     </h1>
                     <p className="text-gray-500 text-lg max-w-2xl mx-auto font-medium">
-                        Everything you need to represent the Smart Sales brand correctly. Download our official logos, color palettes, and typography guidelines for your projects.
+                        Everything you need to represent the Smart Billing brand correctly. Download our official logos, color palettes, and typography guidelines for your projects.
                     </p>
                 </div>
             </div>
@@ -72,7 +72,7 @@ const BrandAssets = () => {
                             <div className="bg-gray-50 rounded-[2rem] p-8 md:p-12 border border-gray-100 flex flex-col items-center justify-center mb-8 relative group overflow-hidden">
                                 <div className="absolute inset-0 bg-grid-gray-200/50 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]"></div>
                                 <div className="relative z-10 p-6 bg-white rounded-2xl shadow-xl">
-                                    <img src={Logo} alt="Smart Sales Logo" className="w-32 h-32 object-contain" />
+                                    <img src={Logo} alt="Smart Billing Logo" className="w-32 h-32 object-contain" />
                                 </div>
                                 <div className="relative z-10 mt-8 text-center">
                                     <h3 className="text-xl font-bold text-gray-900 mb-2">Primary Master Logo</h3>

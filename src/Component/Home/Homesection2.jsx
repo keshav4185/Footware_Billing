@@ -144,7 +144,7 @@ const Homesection2 = () => {
                     {features.map((feature, index) => (
                         <ScrollReveal 
                             key={index} 
-                            animation={index === 0 ? "slideInLeft" : index === 1 ? "slideInUp" : "slideInRight"} 
+                            animation={index === 0 ? "slideInLeft" : index === 1 ? "fadeInUp" : "slideInRight"} 
                             delay={index * 150}
                             className="h-full"
                         >
