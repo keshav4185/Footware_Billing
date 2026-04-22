@@ -47,7 +47,7 @@ const MobileBillingMockup = () => {
                                 </div>
                             </div>
                             <div className="flex gap-2 pt-2 border-t border-gray-100">
-                                <button className="flex-1 bg-[#3D0448] text-white p-2 rounded-lg hover:opacity-90 transition-all active:scale-95 flex items-center justify-center">
+                                <button className="flex-1 bg-blue-600 text-white p-2 rounded-lg hover:opacity-90 transition-all active:scale-95 flex items-center justify-center">
                                     <Eye size={14} />
                                 </button>
                                 <button className="flex-1 bg-emerald-500 text-white p-2 rounded-lg hover:bg-emerald-600 transition-all active:scale-95 flex items-center justify-center">
