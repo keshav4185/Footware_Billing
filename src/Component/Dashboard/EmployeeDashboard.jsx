@@ -97,19 +97,25 @@ const EmployeeDashboard = ({ isDarkMode }) => {
     totalSales = invoicesData.reduce((sum, inv) => sum + (inv.totalAmount || inv.grandTotal || 0), 0);
     totalInvoices = invoicesData.length;
     paidBillsCount = invoicesData.filter(invoice => {
-      const status = (invoice.paymentStatus || '').toUpperCase();
-      return status === 'PAID';
+      const isPaid = invoice.balanceAmount === 0 || (invoice.paymentStatus || '').toUpperCase() === 'PAID';
+      return isPaid;
     }).length;
 
     // Recent Bills should be from ALL invoices, unfiltered
-    const recentInvoices = allInvoices.slice(-5).reverse().map(invoice => ({
-      id: invoice.id,
-      invoiceNo: invoice.invoiceNumber || invoice.id,
-      customerName: invoice.customer?.name || (invoice.customer ? invoice.customer.name : 'Walk-in Customer'),
-      date: invoice.invoiceDate || invoice.date,
-      amount: invoice.totalAmount || invoice.grandTotal,
-      paymentStatus: (invoice.paymentStatus || '').toUpperCase() === 'PAID' ? 'Paid' : 'Unpaid'
-    }));
+    const recentInvoices = allInvoices.slice(-5).reverse().map(invoice => {
+      const isPaid = invoice.balanceAmount === 0 || (invoice.paymentStatus || '').toUpperCase() === 'PAID';
+      const isPartial = !isPaid && ((invoice.advanceAmount || 0) > 0 || (invoice.balanceAmount > 0 && invoice.balanceAmount < (invoice.totalAmount || invoice.grandTotal)));
+      const displayStatus = isPaid ? 'PAID' : isPartial ? 'BALANCED' : 'UNPAID';
+
+      return {
+        id: invoice.id,
+        invoiceNo: invoice.invoiceNumber || invoice.id,
+        customerName: invoice.customer?.name || (invoice.customer ? invoice.customer.name : 'Walk-in Customer'),
+        date: invoice.invoiceDate || invoice.date,
+        amount: invoice.totalAmount || invoice.grandTotal,
+        paymentStatus: displayStatus
+      };
+    });
 
     // Calculate average sale
     const avgSale = totalInvoices > 0 ? totalSales / totalInvoices : 0;
@@ -383,11 +389,14 @@ const EmployeeDashboard = ({ isDarkMode }) => {
                   <td className={`p-3 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{bill.date || 'N/A'}</td>
                   <td className={`p-3 text-sm font-semibold ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>₹{(bill.amount || 0).toFixed(2)}</td>
                   <td className="p-3">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${bill.paymentStatus === 'Paid'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      bill.paymentStatus === 'PAID'
+                        ? 'bg-green-100 text-green-800'
+                        : bill.paymentStatus === 'BALANCED'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-red-100 text-red-800'
                       }`}>
-                      {bill.paymentStatus || 'Unpaid'}
+                      {bill.paymentStatus || 'UNPAID'}
                     </span>
                   </td>
                 </tr>

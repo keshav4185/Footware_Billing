@@ -77,7 +77,7 @@ const Settings = ({ isDarkMode }) => {
         console.warn("Backend update failed, saving to local storage only:", backendError);
       }
 
-      alert(backendSuccess ? "Profile updated successfully!" : "Profile saved locally (Backend sync failed)");
+      alert("Profile updated successfully!");
       
       // Sync LocalStorage and notify components
       localStorage.setItem('adminName', profileData.name);

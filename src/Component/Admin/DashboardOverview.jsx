@@ -72,13 +72,22 @@ const DashboardOverview = ({ bills: propsBills, customers: propsCustomers, produ
         axios.get('https://backend-billing-software-ahxt.onrender.com/api/billing/products'),
       ]);
 
-      const mappedBills = invoiceRes.data.map(inv => ({
-        id: inv.id,
-        grandTotal: inv.totalAmount,
-        date: inv.invoiceDate,
-        paymentStatus: inv.paymentStatus?.toLowerCase(),
-        customerName: inv.customer?.name || 'Unknown Customer',
-      }));
+      const mappedBills = invoiceRes.data.map(inv => {
+        const isPaid = inv.balanceAmount === 0 || (inv.paymentStatus || '').toLowerCase() === 'paid';
+        const isPartial = !isPaid && ((inv.advanceAmount || 0) > 0 || (inv.balanceAmount > 0 && inv.balanceAmount < inv.totalAmount));
+        const displayStatus = isPaid ? 'PAID' : isPartial ? 'BALANCED' : 'UNPAID';
+
+        return {
+          id: inv.id,
+          grandTotal: inv.totalAmount,
+          advanceAmount: inv.advanceAmount || 0,
+          balanceAmount: inv.balanceAmount,
+          date: inv.invoiceDate,
+          paymentStatus: inv.paymentStatus?.toLowerCase(),
+          displayStatus: displayStatus,
+          customerName: inv.customer?.name || 'Unknown Customer',
+        };
+      });
 
       setBills(mappedBills);
       // Deduplicate and filter customers to match CustomersManagement logic
@@ -141,9 +150,14 @@ const DashboardOverview = ({ bills: propsBills, customers: propsCustomers, produ
     filteredBills.reduce((total, bill) => total + (bill.grandTotal || 0), 0);
 
   const getPaidAmount = () =>
-    filteredBills
-      .filter(bill => bill.paymentStatus === 'paid')
-      .reduce((total, bill) => total + (bill.grandTotal || 0), 0);
+    filteredBills.reduce((total, bill) => {
+      if (bill.displayStatus === 'PAID') return total + (bill.grandTotal || 0);
+      if (bill.displayStatus === 'BALANCED') {
+        const paidPortion = (bill.grandTotal || 0) - (bill.balanceAmount || bill.grandTotal);
+        return total + Math.max(paidPortion, bill.advanceAmount || 0);
+      }
+      return total;
+    }, 0);
 
   const getMonthlyGrowth = () => {
     const currentMonth = new Date().getMonth();
@@ -206,12 +220,17 @@ const DashboardOverview = ({ bills: propsBills, customers: propsCustomers, produ
   const pieChartData = [
     {
       name: 'Paid',
-      value: filteredBills.filter(b => b.paymentStatus === 'paid' || b.paymentStatus === 'PAID').length,
+      value: filteredBills.filter(b => b.displayStatus === 'PAID').length,
       color: '#10B981'
     },
     {
+      name: 'Balanced',
+      value: filteredBills.filter(b => b.displayStatus === 'BALANCED').length,
+      color: '#F59E0B'
+    },
+    {
       name: 'Unpaid',
-      value: filteredBills.filter(b => b.paymentStatus === 'unpaid' || b.paymentStatus === 'UNPAID' || !b.paymentStatus || b.paymentStatus === 'pending').length,
+      value: filteredBills.filter(b => b.displayStatus === 'UNPAID').length,
       color: '#EF4444'
     }
   ].filter(item => item.value > 0);
@@ -431,14 +450,15 @@ const DashboardOverview = ({ bills: propsBills, customers: propsCustomers, produ
                       ₹{bill.grandTotal?.toLocaleString()}
                     </p>
                     <span
-                      className={`inline-block px-3 py-1 rounded-lg text-xs font-bold transition-all shadow-sm ${bill.paymentStatus === 'paid'
-                        ? isDarkMode ? 'bg-green-900/30 text-green-400 border border-green-800' : 'bg-green-100 text-green-700'
-                        : bill.paymentStatus === 'pending'
-                          ? isDarkMode ? 'bg-yellow-900/30 text-yellow-400 border border-yellow-800' : 'bg-yellow-100 text-yellow-700'
-                          : isDarkMode ? 'bg-red-900/30 text-red-400 border border-red-800' : 'bg-red-100 text-red-700'
+                      className={`inline-block px-3 py-1 rounded-lg text-xs font-bold transition-all shadow-sm ${
+                        bill.displayStatus === 'PAID'
+                          ? isDarkMode ? 'bg-green-900/30 text-green-400 border border-green-800' : 'bg-green-100 text-green-700'
+                          : bill.displayStatus === 'BALANCED'
+                            ? isDarkMode ? 'bg-yellow-900/30 text-yellow-400 border border-yellow-800' : 'bg-yellow-100 text-yellow-700'
+                            : isDarkMode ? 'bg-red-900/30 text-red-400 border border-red-800' : 'bg-red-100 text-red-700'
                         }`}
                     >
-                      {(bill.paymentStatus || 'pending').toUpperCase()}
+                      {bill.displayStatus}
                     </span>
                   </div>
                 </div>
