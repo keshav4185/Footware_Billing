@@ -41,6 +41,8 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   const [advance, setAdvance] = React.useState(0);
   const [balance, setBalance] = React.useState(0);
   const [paymentStatus, setPaymentStatus] = React.useState('Unpaid');
+  const [roundOffAmount, setRoundOffAmount] = React.useState(0);
+  const [isManualRoundOff, setIsManualRoundOff] = React.useState(false);
   const [showCompanyWatermark, setShowCompanyWatermark] = React.useState(false);
   const [loggedInEmployee, setLoggedInEmployee] = React.useState('');
 
@@ -787,11 +789,35 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
     const taxableAmount = subtotal - totalDiscount;
     const cgstAmount = cgstEnabled ? taxableAmount * cgstRate / 100 : 0;
     const sgstAmount = sgstEnabled ? taxableAmount * sgstRate / 100 : 0;
-    const grandTotal = taxableAmount + cgstAmount + sgstAmount;
+    const rawTotal = taxableAmount + cgstAmount + sgstAmount;
+    
+    const roundOff = parseFloat(roundOffAmount) || 0;
+    const grandTotal = rawTotal + roundOff;
+    
     const balanceAmount = grandTotal - advance;
 
-    return { subtotal, totalDiscount, taxableAmount, cgstAmount, sgstAmount, grandTotal, balanceAmount };
+    return { subtotal, totalDiscount, taxableAmount, cgstAmount, sgstAmount, rawTotal, roundOff, grandTotal, balanceAmount };
   };
+
+  React.useEffect(() => {
+    if (!isManualRoundOff) {
+      let subtotal = 0, totalDiscount = 0;
+      products.forEach(p => {
+        const itemSubtotal = p.qty * p.price;
+        const itemDiscount = itemSubtotal * p.discount / 100;
+        subtotal += itemSubtotal;
+        totalDiscount += itemDiscount;
+      });
+      const taxableAmount = subtotal - totalDiscount;
+      const cgstAmount = cgstEnabled ? taxableAmount * cgstRate / 100 : 0;
+      const sgstAmount = sgstEnabled ? taxableAmount * sgstRate / 100 : 0;
+      const rawTotal = taxableAmount + cgstAmount + sgstAmount;
+      
+      const rounded = Math.round(rawTotal);
+      const diff = rounded - rawTotal;
+      setRoundOffAmount(diff.toFixed(2));
+    }
+  }, [products, cgstEnabled, sgstEnabled, cgstRate, sgstRate, isManualRoundOff]);
 
   React.useEffect(() => {
     // Get logged in employee data from localStorage
@@ -1056,7 +1082,9 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
               <div class="amount-row"><span>Discount:</span><span>₹${totals.totalDiscount.toFixed(2)}</span></div>
               ${cgstEnabled ? `<div class="amount-row"><span>CGST (${cgstRate}%):</span><span>₹${totals.cgstAmount.toFixed(2)}</span></div>` : ''}
               ${sgstEnabled ? `<div class="amount-row"><span>SGST (${sgstRate}%):</span><span>₹${totals.sgstAmount.toFixed(2)}</span></div>` : ''}
-              <div class="amount-row total-amount"><span>Total Amount:</span><span>₹${totals.grandTotal.toFixed(2)} ${paymentStatus === 'Paid' ? '✅' : '❌'}</span></div>
+              <div class="amount-row"><span>Total Amount:</span><span>₹${totals.rawTotal.toFixed(2)}</span></div>
+              ${totals.roundOff !== 0 ? `<div class="amount-row"><span>Round Off:</span><span>₹${totals.roundOff > 0 ? '+' : ''}${totals.roundOff.toFixed(2)}</span></div>` : ''}
+              <div class="amount-row total-amount"><span>Grand Total:</span><span>₹${totals.grandTotal.toFixed(2)} ${paymentStatus === 'Paid' ? '✅' : '❌'}</span></div>
               <div class="amount-row"><span>Paid Amount:</span><span>₹${advance.toFixed(2)}</span></div>
               <div class="amount-row" style="background: #fef3cd; border-top: 2px solid #f59e0b;"><span style="color: #92400e; font-weight: bold;">Balance Amount:</span><span style="color: #92400e; font-weight: bold;">₹${totals.balanceAmount.toFixed(2)}</span></div>
             </div>
@@ -1555,11 +1583,40 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
             <span className={`font-semibold ${isDarkMode ? 'text-gray-100' : 'text-gray-800'
               }`}>₹ {calculateTotals().sgstAmount.toFixed(2)}</span>
           </div>
+
+          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 border-b ${isDarkMode ? 'border-gray-600' : 'border-gray-100'}`}>
+            <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Round Off:</span>
+            <div className="flex items-center gap-2">
+              <span className={`font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>₹</span>
+              <input
+                type="number"
+                className={`w-20 p-1 border rounded text-right text-sm font-semibold ${isDarkMode
+                  ? 'border-gray-600 bg-gray-700 text-white'
+                  : 'border-gray-300 bg-white text-gray-900'
+                  }`}
+                value={roundOffAmount}
+                step="0.01"
+                onChange={(e) => {
+                  setIsManualRoundOff(true);
+                  setRoundOffAmount(e.target.value);
+                }}
+                onFocus={(e) => { if (e.target.value == '0' || e.target.value == '0.00') e.target.select(); }}
+              />
+            </div>
+          </div>
+          
+
+
+          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 px-4`}>
+            <span className="text-sm sm:text-base font-semibold mb-1 sm:mb-0">Total Amount:</span>
+            <span className="text-base sm:text-lg font-semibold">₹ {calculateTotals().rawTotal.toFixed(2)}</span>
+          </div>
+
           <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 rounded-lg px-4 border-2 transition-all duration-300 ${isDarkMode
               ? 'bg-blue-900/20 border-blue-900/50 text-blue-300'
               : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 text-blue-800'
             }`}>
-            <span className="text-base sm:text-lg font-bold mb-1 sm:mb-0">Total Amount:</span>
+            <span className="text-base sm:text-lg font-bold mb-1 sm:mb-0">Grand Total:</span>
             <span className="text-lg sm:text-xl font-bold">₹ {calculateTotals().grandTotal.toFixed(2)}</span>
           </div>
           <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 rounded-lg px-4 border-2 mt-2 transition-all duration-300 ${isDarkMode
@@ -1644,22 +1701,6 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
           </div>
         </div>
       </div>
-
-      {/* Action Buttons - Moved to End */}
-      {/* <div className={`rounded-xl shadow-xl p-4 mb-4 border backdrop-blur-sm ${
-        isDarkMode 
-          ? 'bg-gray-800/90 border-gray-700' 
-          : 'bg-white/90 border-gray-100'
-      }`}>
-        <div className="flex flex-wrap gap-2 w-full animate-slideInRight justify-center">
-          <button className="flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('send')}>
-            <Send className="animate-bounce" size={16} /> Send
-          </button>
-          <button className="flex-1 sm:flex-none bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md flex items-center gap-2 justify-center" onClick={() => handleAction('print')}>
-            <Printer className="hover:animate-spin" size={16} /> Print
-          </button>
-        </div>
-      </div> */}
 
       {/* Preview Modal */}
       {showPreview && createPortal(
@@ -1848,8 +1889,19 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
                           <span>₹{calculateTotals().sgstAmount.toFixed(2)}</span>
                         </div>
                       )}
-                      <div className="flex justify-between py-2 bg-gray-100 px-3 font-bold text-sm md:text-lg border border-black md:border-2">
+                      <div className="flex justify-between text-gray-600 font-semibold mb-2">
                         <span>Total Amount:</span>
+                        <span>₹{calculateTotals().rawTotal.toFixed(2)}</span>
+                      </div>
+                      
+                      {calculateTotals().roundOff !== 0 && (
+                        <div className="flex justify-between text-gray-600 mb-1">
+                          <span>Round Off:</span>
+                          <span>₹{calculateTotals().roundOff > 0 ? '+' : ''}{calculateTotals().roundOff.toFixed(2)}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between py-2 bg-gray-100 px-3 font-bold text-sm md:text-lg border border-black md:border-2">
+                        <span>Grand Total:</span>
                         <div className="flex items-center gap-2">
                           <span>₹{calculateTotals().grandTotal.toFixed(2)}</span>
                           <span className={`text-lg ${paymentStatus === 'Paid' ? 'text-green-600' : paymentStatus === 'Balanced' ? 'text-yellow-600' : 'text-red-600'}`}>

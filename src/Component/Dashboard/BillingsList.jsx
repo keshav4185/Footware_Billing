@@ -98,6 +98,9 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
     const isPaid = bill.balanceAmount === 0 || (bill.paymentStatus || '').toUpperCase() === 'PAID';
     const isPartial = !isPaid && ((bill.advanceAmount || 0) > 0 || (bill.balanceAmount > 0 && bill.balanceAmount < bill.totalAmount));
     
+    const rawTotal = (bill.subTotal || bill.totalAmount) - (bill.totalDiscount || 0) + (bill.cgstAmount || 0) + (bill.sgstAmount || 0);
+    const roundOff = bill.totalAmount - rawTotal;
+
     const calculatedTotals = {
       subtotal: bill.subTotal || bill.totalAmount,
       totalDiscount: bill.totalDiscount || 0,
@@ -105,7 +108,8 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
       cgstAmount: bill.cgstAmount || 0,
       sgstAmount: bill.sgstAmount || 0,
       grandTotal: bill.totalAmount,
-      balanceAmount: bill.balanceAmount
+      balanceAmount: bill.balanceAmount,
+      roundOff: roundOff
     };
 
     const productsHTML = bill.items && bill.items.length > 0
@@ -220,7 +224,9 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
               <div class="amount-row"><span>Discount:</span><span>₹${calculatedTotals.totalDiscount.toFixed(2)}</span></div>
               ${calculatedTotals.cgstAmount > 0 ? `<div class="amount-row"><span>CGST (9%):</span><span>₹${calculatedTotals.cgstAmount.toFixed(2)}</span></div>` : ''}
               ${calculatedTotals.sgstAmount > 0 ? `<div class="amount-row"><span>SGST (9%):</span><span>₹${calculatedTotals.sgstAmount.toFixed(2)}</span></div>` : ''}
-              <div class="amount-row total-amount"><span>Total Amount:</span><span>₹${calculatedTotals.grandTotal.toFixed(2)}</span></div>
+              <div class="amount-row"><span>Total Amount:</span><span>₹${(calculatedTotals.grandTotal - calculatedTotals.roundOff).toFixed(2)}</span></div>
+              ${Math.abs(calculatedTotals.roundOff) > 0.001 ? `<div class="amount-row"><span>Round Off:</span><span>₹${calculatedTotals.roundOff > 0 ? '+' : ''}${calculatedTotals.roundOff.toFixed(2)}</span></div>` : ''}
+              <div class="amount-row total-amount"><span>Grand Total:</span><span>₹${calculatedTotals.grandTotal.toFixed(2)}</span></div>
               <div class="amount-row"><span>Paid Amount:</span><span>₹${(bill.advanceAmount || 0).toFixed(2)}</span></div>
               <div class="amount-row" style="background: #fef3cd; border-top: 2px solid #f59e0b;"><span style="color: #92400e; font-weight: bold;">Balance Amount:</span><span style="color: #92400e; font-weight: bold;">₹${calculatedTotals.balanceAmount.toFixed(2)}</span></div>
             </div>
@@ -607,8 +613,26 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
                           <span>₹{selectedInvoice.sgstAmount.toFixed(2)}</span>
                         </div>
                       )}
+                      {(() => {
+                        const rawT = (selectedInvoice.subTotal || selectedInvoice.totalAmount) - (selectedInvoice.totalDiscount || 0) + (selectedInvoice.cgstAmount || 0) + (selectedInvoice.sgstAmount || 0);
+                        const rOff = selectedInvoice.totalAmount - rawT;
+                        return (
+                          <>
+                            <div className={`flex justify-between py-1 border-b ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+                              <span>Total Amount:</span>
+                              <span>₹{rawT.toFixed(2)}</span>
+                            </div>
+                            {Math.abs(rOff) > 0.001 && (
+                              <div className={`flex justify-between py-1 border-b ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+                                <span>Round Off:</span>
+                                <span>₹{rOff > 0 ? '+' : ''}{rOff.toFixed(2)}</span>
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()}
                       <div className={`flex justify-between py-2 px-3 font-bold text-sm md:text-lg border-2 ${isDarkMode ? 'bg-gray-700 border-gray-500 text-white' : 'bg-gray-100 border-black'}`}>
-                        <span>Total Amount:</span>
+                        <span>Grand Total:</span>
                         <span>₹{selectedInvoice.totalAmount.toFixed(2)}</span>
                       </div>
                       <div className={`flex justify-between py-1 border-b ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}>
