@@ -335,7 +335,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
       `${cgstEnabled ? `CGST (${cgstRate}%): ₹${totals.cgstAmount.toFixed(2)}\n` : ''}` +
       `${sgstEnabled ? `SGST (${sgstRate}%): ₹${totals.sgstAmount.toFixed(2)}\n` : ''}` +
       `*Total Amount: ₹${totals.grandTotal.toFixed(2)}*\n` +
-      `Advance: ₹${advance.toFixed(2)}\n` +
+      `Paid Amount: ₹${advance.toFixed(2)}\n` +
       `*Balance: ₹${totals.balanceAmount.toFixed(2)}*\n\n` +
       ` Salesperson: ${loggedInEmployee}\n` +
       `🏢 ${companyDetails.name}\n` +
@@ -920,20 +920,30 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
   };
 
   const convertToWords = (num) => {
+    if (isNaN(num) || num < 0) return 'INVALID AMOUNT';
     const ones = ['', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 'TEN', 'ELEVEN', 'TWELVE', 'THIRTEEN', 'FOURTEEN', 'FIFTEEN', 'SIXTEEN', 'SEVENTEEN', 'EIGHTEEN', 'NINETEEN'];
     const tens = ['', '', 'TWENTY', 'THIRTY', 'FORTY', 'FIFTY', 'SIXTY', 'SEVENTY', 'EIGHTY', 'NINETY'];
 
-    if (num === 0) return 'ZERO RUPEES ONLY';
+    const convertInteger = (n) => {
+      if (n === 0) return 'ZERO';
+      let words = '';
+      if (n >= 10000000) { words += ones[Math.floor(n / 10000000)] + ' CRORE '; n %= 10000000; }
+      if (n >= 100000) { words += ones[Math.floor(n / 100000)] + ' LAKH '; n %= 100000; }
+      if (n >= 1000) { words += ones[Math.floor(n / 1000)] + ' THOUSAND '; n %= 1000; }
+      if (n >= 100) { words += ones[Math.floor(n / 100)] + ' HUNDRED '; n %= 100; }
+      if (n >= 20) { words += tens[Math.floor(n / 10)] + ' '; n %= 10; }
+      if (n > 0) words += ones[Math.floor(n)] + ' ';
+      return words.trim();
+    };
 
-    let words = '';
-    if (num >= 10000000) { words += ones[Math.floor(num / 10000000)] + ' CRORE '; num %= 10000000; }
-    if (num >= 100000) { words += ones[Math.floor(num / 100000)] + ' LAKH '; num %= 100000; }
-    if (num >= 1000) { words += ones[Math.floor(num / 1000)] + ' THOUSAND '; num %= 1000; }
-    if (num >= 100) { words += ones[Math.floor(num / 100)] + ' HUNDRED '; num %= 100; }
-    if (num >= 20) { words += tens[Math.floor(num / 10)] + ' '; num %= 10; }
-    if (num > 0) words += ones[num] + ' ';
+    const integerPart = Math.floor(num);
+    const decimalPart = Math.round((num - integerPart) * 100);
 
-    return words.trim() + ' RUPEES ONLY';
+    let result = convertInteger(integerPart) + ' RUPEES';
+    if (decimalPart > 0) {
+      result += ' AND ' + convertInteger(decimalPart) + ' PAISE';
+    }
+    return result + ' ONLY';
   };
 
   const openDirectPrintPreview = () => {
@@ -1028,7 +1038,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
                 <tr><td>Invoice Date:</td><td>${new Date(invoiceDate).toLocaleDateString('en-GB')}</td></tr>
                 <tr><td>Salesperson:</td><td><strong>${loggedInEmployee}</strong></td></tr>
                 <tr><td>Payment Method:</td><td><span class="payment-method">Cash</span></td></tr>
-                <tr><td>Payment Status:</td><td><span class="payment-status">${paymentStatus}</span></td></tr>
+                <tr><td>Payment Status:</td><td><span class="payment-status" style="${paymentStatus === 'Paid' ? 'color: #16a34a; background: #dcfce7;' : paymentStatus === 'Balanced' ? 'color: #b45309; background: #fef3c7;' : 'color: #dc2626; background: #fef2f2;'}">${paymentStatus}</span></td></tr>
               </table>
             </div>
           </div>
@@ -1039,7 +1049,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
           <div class="totals-section">
             <div class="words-section">
               <strong>Total in words:</strong><br>
-              <div class="words-text">${convertToWords(Math.round(totals.grandTotal))}</div>
+              <div class="words-text">${convertToWords(totals.grandTotal)}</div>
             </div>
             <div class="amounts-section">
               <div class="amount-row"><span>Taxable Amount:</span><span>₹${totals.taxableAmount.toFixed(2)}</span></div>
@@ -1574,6 +1584,8 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
                   setBalance(grandTotal - advanceValue);
                   if (advanceValue >= grandTotal) {
                     setPaymentStatus('Paid');
+                  } else if (advanceValue > 0) {
+                    setPaymentStatus('Balanced');
                   } else {
                     setPaymentStatus('Unpaid');
                   }
@@ -1738,8 +1750,11 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
                       </div>
                       <div className="flex justify-between">
                         <span className="font-bold">Payment Status:</span>
-                        <span className={`px-2 py-1 rounded text-xs font-bold ${paymentStatus === 'Paid' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
-                          }`}>{paymentStatus || 'Unpaid'}</span>
+                        <span className={`px-2 py-1 rounded text-xs font-bold ${
+                          paymentStatus === 'Paid' ? 'bg-green-100 text-green-600' : 
+                          paymentStatus === 'Balanced' ? 'bg-yellow-100 text-yellow-700' : 
+                          'bg-red-100 text-red-600'
+                        }`}>{paymentStatus || 'Unpaid'}</span>
                       </div>
                     </div>
                   </div>
@@ -1809,7 +1824,7 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <div className="bg-gray-50 p-3 md:p-4 rounded">
                     <strong className="block mb-2">Total in words:</strong>
-                    <div className="font-bold text-gray-700 text-xs md:text-sm">{convertToWords(Math.round(calculateTotals().grandTotal))}</div>
+                    <div className="font-bold text-gray-700 text-xs md:text-sm">{convertToWords(calculateTotals().grandTotal)}</div>
                   </div>
                   <div>
                     <div className="space-y-2 text-xs md:text-sm">
@@ -1837,8 +1852,8 @@ const CreateBill = ({ isDarkMode, editingBill, selectedCustomer }) => {
                         <span>Total Amount:</span>
                         <div className="flex items-center gap-2">
                           <span>₹{calculateTotals().grandTotal.toFixed(2)}</span>
-                          <span className={`text-lg ${paymentStatus === 'Paid' ? 'text-green-600' : 'text-red-600'}`}>
-                            {paymentStatus === 'Paid' ? '✅' : '❌'}
+                          <span className={`text-lg ${paymentStatus === 'Paid' ? 'text-green-600' : paymentStatus === 'Balanced' ? 'text-yellow-600' : 'text-red-600'}`}>
+                            {paymentStatus === 'Paid' ? '✅' : paymentStatus === 'Balanced' ? '⏳' : '❌'}
                           </span>
                         </div>
                       </div>

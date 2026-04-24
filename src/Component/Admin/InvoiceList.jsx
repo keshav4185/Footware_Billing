@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { createPortal } from 'react-dom';
 import axios from "axios";
 import { Eye, Printer, Trash2 } from 'lucide-react';
+import defaultLogo from '../../assets/smart_logo-Jt0au3tU.webp';
 
 const InvoiceList = ({ bills, setBills, isDarkMode }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedInvoice, setSelectedInvoice] = useState(null);
-  const [companyLogo, setCompanyLogo] = useState(null);
+  const [companyLogo, setCompanyLogo] = useState(defaultLogo);
   const [digitalSignature, setDigitalSignature] = useState(null);
 
   // Fetch invoices
@@ -57,17 +58,30 @@ const InvoiceList = ({ bills, setBills, isDarkMode }) => {
   });
 
   const convertToWords = (num) => {
+    if (isNaN(num) || num < 0) return 'INVALID AMOUNT';
     const ones = ['', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 'TEN', 'ELEVEN', 'TWELVE', 'THIRTEEN', 'FOURTEEN', 'FIFTEEN', 'SIXTEEN', 'SEVENTEEN', 'EIGHTEEN', 'NINETEEN'];
     const tens = ['', '', 'TWENTY', 'THIRTY', 'FORTY', 'FIFTY', 'SIXTY', 'SEVENTY', 'EIGHTY', 'NINETY'];
-    if (num === 0) return 'ZERO RUPEES ONLY';
-    let words = '';
-    if (num >= 10000000) { words += ones[Math.floor(num / 10000000)] + ' CRORE '; num %= 10000000; }
-    if (num >= 100000) { words += ones[Math.floor(num / 100000)] + ' LAKH '; num %= 100000; }
-    if (num >= 1000) { words += ones[Math.floor(num / 1000)] + ' THOUSAND '; num %= 1000; }
-    if (num >= 100) { words += ones[Math.floor(num / 100)] + ' HUNDRED '; num %= 100; }
-    if (num >= 20) { words += tens[Math.floor(num / 10)] + ' '; num %= 10; }
-    if (num > 0) words += ones[num] + ' ';
-    return words.trim() + ' RUPEES ONLY';
+
+    const convertInteger = (n) => {
+      if (n === 0) return 'ZERO';
+      let words = '';
+      if (n >= 10000000) { words += ones[Math.floor(n / 10000000)] + ' CRORE '; n %= 10000000; }
+      if (n >= 100000) { words += ones[Math.floor(n / 100000)] + ' LAKH '; n %= 100000; }
+      if (n >= 1000) { words += ones[Math.floor(n / 1000)] + ' THOUSAND '; n %= 1000; }
+      if (n >= 100) { words += ones[Math.floor(n / 100)] + ' HUNDRED '; n %= 100; }
+      if (n >= 20) { words += tens[Math.floor(n / 10)] + ' '; n %= 10; }
+      if (n > 0) words += ones[Math.floor(n)] + ' ';
+      return words.trim();
+    };
+
+    const integerPart = Math.floor(num);
+    const decimalPart = Math.round((num - integerPart) * 100);
+
+    let result = convertInteger(integerPart) + ' RUPEES';
+    if (decimalPart > 0) {
+      result += ' AND ' + convertInteger(decimalPart) + ' PAISE';
+    }
+    return result + ' ONLY';
   };
 
   const calculateRowAmount = (item) => {
@@ -80,6 +94,9 @@ const InvoiceList = ({ bills, setBills, isDarkMode }) => {
   // Print invoice
   const printInvoice = () => {
     const bill = selectedInvoice;
+    const isPaid = bill.balanceAmount === 0 || (bill.paymentStatus || '').toUpperCase() === 'PAID';
+    const isPartial = !isPaid && ((bill.advanceAmount || 0) > 0 || (bill.balanceAmount > 0 && bill.balanceAmount < bill.totalAmount));
+    
     const calculatedTotals = {
       subtotal: bill.subTotal || bill.totalAmount,
       totalDiscount: bill.totalDiscount || 0,
@@ -184,7 +201,7 @@ const InvoiceList = ({ bills, setBills, isDarkMode }) => {
                 <tr><td>Invoice Date:</td><td>${new Date(bill.invoiceDate).toLocaleDateString()}</td></tr>
                 <tr><td>Salesperson:</td><td><span style="font-weight: bold; color: #2563eb;">${bill.salesperson || bill.employee?.name || bill.employeeName || 'Admin'}</span></td></tr>
                 <tr><td>Payment Method:</td><td><span class="payment-method">💵 Cash</span></td></tr>
-                <tr><td>Payment Status:</td><td><span class="payment-status">${bill.paymentStatus || 'Unpaid'}</span></td></tr>
+                <tr><td>Payment Status:</td><td><span class="payment-status" style="${isPaid ? 'color: #16a34a; background: #dcfce7;' : isPartial ? 'color: #b45309; background: #fef3c7;' : 'color: #dc2626; background: #fef2f2;'}">${isPaid ? 'Paid' : isPartial ? 'Balanced' : 'Unpaid'}</span></td></tr>
               </table>
             </div>
           </div>
@@ -195,7 +212,7 @@ const InvoiceList = ({ bills, setBills, isDarkMode }) => {
           <div class="totals-section">
             <div class="words-section">
               <strong>Total in words:</strong><br>
-              <div class="words-text">${convertToWords(Math.round(calculatedTotals.grandTotal))}</div>
+              <div class="words-text">${convertToWords(calculatedTotals.grandTotal)}</div>
             </div>
             <div class="amounts-section">
               <div class="amount-row"><span>Taxable Amount:</span><span>₹${calculatedTotals.taxableAmount.toFixed(2)}</span></div>
@@ -247,11 +264,10 @@ const InvoiceList = ({ bills, setBills, isDarkMode }) => {
               <tr>
                 <th className="px-4 py-3 text-left font-semibold">Invoice No</th>
                 <th className="px-4 py-3 text-left font-semibold">Customer</th>
-                <th className="px-4 py-3 text-left font-semibold">Mobile</th>
-                <th className="px-4 py-3 text-left font-semibold">Company</th>
                 <th className="px-4 py-3 text-left font-semibold">Total</th>
-                <th className="px-4 py-3 text-left font-semibold">Advance</th>
+                <th className="px-4 py-3 text-left font-semibold">Paid</th>
                 <th className="px-4 py-3 text-left font-semibold">Balance</th>
+                <th className="px-4 py-3 text-left font-semibold">Status</th>
                 <th className="px-4 py-3 text-center font-semibold">Actions</th>
               </tr>
             </thead>
@@ -264,10 +280,6 @@ const InvoiceList = ({ bills, setBills, isDarkMode }) => {
                 >
                   <td className={`px-3 py-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{bill.invoiceNumber}</td>
                   <td className={`px-3 py-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{bill.customer?.name}</td>
-                  <td className={`px-3 py-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{bill.customer?.phone}</td>
-                  <td className={`px-3 py-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    {bill.company?.name || "-"}
-                  </td>
                   <td className={`px-3 py-2 font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                     ₹{bill.totalAmount}
                   </td>
@@ -283,6 +295,21 @@ const InvoiceList = ({ bills, setBills, isDarkMode }) => {
                       }`}
                   >
                     ₹{bill.balanceAmount}
+                  </td>
+                  <td className="px-3 py-2">
+                    {(() => {
+                      const isPaid = bill.balanceAmount === 0 || (bill.paymentStatus || '').toUpperCase() === 'PAID';
+                      const isPartial = !isPaid && ((bill.advanceAmount || 0) > 0 || (bill.balanceAmount > 0 && bill.balanceAmount < bill.totalAmount));
+                      return (
+                        <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                          isPaid ? "bg-green-100 text-green-600" :
+                          isPartial ? "bg-yellow-100 text-yellow-700" :
+                          "bg-red-100 text-red-600"
+                        }`}>
+                          {isPaid ? 'Paid' : isPartial ? 'Balanced' : 'Unpaid'}
+                        </span>
+                      );
+                    })()}
                   </td>
                   <td className="px-3 py-2 flex gap-2 justify-center">
                     <button
@@ -336,9 +363,21 @@ const InvoiceList = ({ bills, setBills, isDarkMode }) => {
                   <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                     {bill.customer?.name}
                   </p>
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    {bill.customer?.phone}
-                  </p>
+                  <div className="mt-1">
+                    {(() => {
+                      const isPaid = bill.balanceAmount === 0 || (bill.paymentStatus || '').toUpperCase() === 'PAID';
+                      const isPartial = !isPaid && ((bill.advanceAmount || 0) > 0 || (bill.balanceAmount > 0 && bill.balanceAmount < bill.totalAmount));
+                      return (
+                        <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                          isPaid ? "bg-green-100 text-green-600" :
+                          isPartial ? "bg-yellow-100 text-yellow-700" :
+                          "bg-red-100 text-red-600"
+                        }`}>
+                          {isPaid ? 'Paid' : isPartial ? 'Balanced' : 'Unpaid'}
+                        </span>
+                      );
+                    })()}
+                  </div>
                 </div>
                 <span
                   className={`px-2 py-1 rounded text-xs font-semibold ${bill.balanceAmount === 0
@@ -358,7 +397,7 @@ const InvoiceList = ({ bills, setBills, isDarkMode }) => {
                   <span className={`font-medium ml-1 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>₹{bill.totalAmount}</span>
                 </div>
                 <div>
-                  <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Advance:</span>
+                  <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Paid:</span>
                   <span className={`font-medium ml-1 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>₹{bill.advanceAmount || 0}</span>
                 </div>
               </div>
@@ -480,10 +519,19 @@ const InvoiceList = ({ bills, setBills, isDarkMode }) => {
                       </div>
                       <div className="flex justify-between">
                         <span className="font-bold">Payment Status:</span>
-                        <span className={`px-2 py-1 rounded text-xs font-bold ${(selectedInvoice.paymentStatus || 'Unpaid') === 'PAID'
-                          ? 'bg-green-100 text-green-600'
-                          : 'bg-red-100 text-red-600'
-                          }`}>{selectedInvoice.paymentStatus || 'Unpaid'}</span>
+                        {(() => {
+                          const isPaid = selectedInvoice.balanceAmount === 0 || (selectedInvoice.paymentStatus || '').toUpperCase() === 'PAID';
+                          const isPartial = !isPaid && ((selectedInvoice.advanceAmount || 0) > 0 || (selectedInvoice.balanceAmount > 0 && selectedInvoice.balanceAmount < selectedInvoice.totalAmount));
+                          return (
+                            <span className={`px-2 py-1 rounded text-xs font-bold ${
+                              isPaid ? "bg-green-100 text-green-600" :
+                              isPartial ? "bg-yellow-100 text-yellow-700" :
+                              "bg-red-100 text-red-600"
+                            }`}>
+                              {isPaid ? 'Paid' : isPartial ? 'Balanced' : 'Unpaid'}
+                            </span>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>
@@ -533,7 +581,7 @@ const InvoiceList = ({ bills, setBills, isDarkMode }) => {
                   <div className={`p-3 md:p-4 rounded border ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-300'}`}>
                     <strong className="block mb-2">Total in words:</strong>
                     <div className={`font-bold text-xs md:text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      {convertToWords(Math.round(selectedInvoice.totalAmount))}
+                      {convertToWords(selectedInvoice.totalAmount)}
                     </div>
                   </div>
                   <div>

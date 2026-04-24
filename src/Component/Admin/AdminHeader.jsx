@@ -4,7 +4,17 @@ import { Sun, Moon, LogOut, Menu } from 'lucide-react';
 
 const AdminHeader = ({ isSidebarOpen, setIsSidebarOpen, isDarkMode, setIsDarkMode }) => {
   const navigate = useNavigate();
+  const [adminName, setAdminName] = useState(localStorage.getItem('adminName') || 'Admin');
   const [isTransitioning, setIsTransitioning] = useState(false);
+
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      setAdminName(localStorage.getItem('adminName') || 'Admin');
+    };
+
+    window.addEventListener('adminProfileUpdate', handleProfileUpdate);
+    return () => window.removeEventListener('adminProfileUpdate', handleProfileUpdate);
+  }, []);
 
   const toggleTheme = () => {
     setIsTransitioning(true);
@@ -16,6 +26,7 @@ const AdminHeader = ({ isSidebarOpen, setIsSidebarOpen, isDarkMode, setIsDarkMod
 
   const handleLogout = () => {
     localStorage.removeItem('adminLoggedIn');
+    localStorage.removeItem('adminName');
     navigate('/Account');
   };
 
@@ -58,7 +69,7 @@ const AdminHeader = ({ isSidebarOpen, setIsSidebarOpen, isDarkMode, setIsDarkMod
           {/* User Profile - Top Right */}
           <div className="relative group">
             <div className={`bg-gradient-to-br from-[#B564C3] to-[#3D0448] text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg border-2 border-white/30 shadow-lg cursor-pointer hover:scale-105 transition-all duration-300 ${isTransitioning ? 'animate-bounce' : ''}`}>
-              K
+              {adminName.charAt(0).toUpperCase()}
             </div>
             
             {/* Dropdown */}
@@ -67,7 +78,7 @@ const AdminHeader = ({ isSidebarOpen, setIsSidebarOpen, isDarkMode, setIsDarkMod
             }`}>
               <div className="py-3">
                 <div className={`px-4 py-2 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}>
-                  <p className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Keshav</p>
+                  <p className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{adminName}</p>
                   <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Administrator</p>
                 </div>
                 <button

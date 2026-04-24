@@ -1,22 +1,54 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import api from '../../services/api';
 import { Save } from 'lucide-react';
 import { MdEdit, MdVisibility, MdVisibilityOff } from 'react-icons/md';
 
 const Settings = ({ isDarkMode }) => {
-  const [profileData, setProfileData] = useState({
-    name: 'Keshav',
-    email: 'admin@smartsales.com',
-    phone: '+91 98765 43210',
-    role: 'Administrator',
-    joinDate: '2024-01-01',
-    username: '',
-    password: ''
+  const [profileData, setProfileData] = useState(() => {
+    const saved = localStorage.getItem('adminProfile');
+    return saved ? JSON.parse(saved) : {
+      name: localStorage.getItem('adminName') || 'Admin',
+      email: 'admin@smartsales.com',
+      phone: '+91 98765 43210',
+      role: 'Administrator',
+      joinDate: '2024-01-01',
+      username: '',
+      password: ''
+    };
   });
 
   const [isEditing, setIsEditing] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [oldAuth, setOldAuth] = useState({ oldUser: '', oldPass: '' });
+
+  // Fetch profile data from backend on mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await api.get("/admin/profile");
+        if (response.data) {
+          setProfileData(prev => {
+            const mergedData = {
+              ...prev,
+              name: response.data.name || prev.name,
+              email: response.data.email || prev.email,
+              phone: response.data.phone || prev.phone,
+              joinDate: response.data.joinDate || prev.joinDate,
+              username: response.data.username || prev.username
+            };
+            localStorage.setItem('adminProfile', JSON.stringify(mergedData));
+            localStorage.setItem('adminName', mergedData.name);
+            window.dispatchEvent(new Event('adminProfileUpdate'));
+            return mergedData;
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const handleProfileSave = async () => {
     if (!oldAuth.oldUser || !oldAuth.oldPass) {
@@ -25,26 +57,38 @@ const Settings = ({ isDarkMode }) => {
     }
 
     try {
-      const response = await axios.put(
-        "https://backend-billing-software-ahxt.onrender.com/api/admin/update",
-        {
-          oldUsername: oldAuth.oldUser,
-          oldPassword: oldAuth.oldPass,
-          newUsername: profileData.username,
-          newPassword: profileData.password,
-          name: profileData.name,
-          email: profileData.email,
-          phone: profileData.phone,
-          joinDate: profileData.joinDate,
-        }
-      );
+      let backendSuccess = false;
+      try {
+        const response = await api.put(
+          "/admin/update",
+          {
+            oldUsername: oldAuth.oldUser,
+            oldPassword: oldAuth.oldPass,
+            newUsername: profileData.username,
+            newPassword: profileData.password,
+            name: profileData.name,
+            email: profileData.email,
+            phone: profileData.phone,
+            joinDate: profileData.joinDate,
+          }
+        );
+        backendSuccess = true;
+      } catch (backendError) {
+        console.warn("Backend update failed, saving to local storage only:", backendError);
+      }
 
-      alert(response.data);
+      alert(backendSuccess ? "Profile updated successfully!" : "Profile saved locally (Backend sync failed)");
+      
+      // Sync LocalStorage and notify components
+      localStorage.setItem('adminName', profileData.name);
+      localStorage.setItem('adminProfile', JSON.stringify(profileData));
+      window.dispatchEvent(new Event('adminProfileUpdate'));
+      
       setIsEditing(false);
       setOldAuth({ oldUser: "", oldPass: "" });
     } catch (error) {
-      console.error(error);
-      alert(error.response?.data || "Old username or password is incorrect");
+      console.error("Unexpected error:", error);
+      alert("An unexpected error occurred while saving the profile.");
     }
   };
 
@@ -141,7 +185,7 @@ const Settings = ({ isDarkMode }) => {
                   className={`w-full p-3 border-2 rounded-lg transition-all pr-10 ${
                     isDarkMode 
                       ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500 disabled:bg-gray-800 disabled:text-gray-500' 
-                      : 'bg-white border-gray-200 text-gray-900 focus:border-blue-500 disabled:bg-gray-50'
+                    : 'bg-white border-gray-200 text-gray-900 focus:border-blue-500 disabled:bg-gray-50'
                   }`}
                 />
                 <button
@@ -161,6 +205,20 @@ const Settings = ({ isDarkMode }) => {
                 type="email"
                 value={profileData.email}
                 onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                disabled={!isEditing}
+                className={`w-full p-3 border-2 rounded-lg transition-all ${
+                  isDarkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500 disabled:bg-gray-800 disabled:text-gray-500' 
+                    : 'bg-white border-gray-200 text-gray-900 focus:border-blue-500 disabled:bg-gray-50'
+                }`}
+              />
+            </div>
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Phone Number</label>
+              <input
+                type="tel"
+                value={profileData.phone}
+                onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
                 disabled={!isEditing}
                 className={`w-full p-3 border-2 rounded-lg transition-all ${
                   isDarkMode 

@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
 import axios from "axios";
+import api from '../../services/api';
 import { MdPerson, MdEdit, MdVisibility, MdVisibilityOff } from 'react-icons/md';
 import { Save } from 'lucide-react';
 
 const Profile = ({ isDarkMode }) => {
-  const [profileData, setProfileData] = useState({
-    name: 'Keshav',
-    email: 'admin@smartsales.com',
-    phone: '+91 98765 43210',
-    role: 'Administrator',
-    joinDate: '2024-01-01',
-    username: '',
-    password: ''
+  const [profileData, setProfileData] = useState(() => {
+    const saved = localStorage.getItem('adminProfile');
+    return saved ? JSON.parse(saved) : {
+      name: localStorage.getItem('adminName') || 'Admin',
+      email: 'admin@smartsales.com',
+      phone: '+91 98765 43210',
+      role: 'Administrator',
+      joinDate: '2024-01-01',
+      username: '',
+      password: ''
+    };
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -20,15 +24,52 @@ const Profile = ({ isDarkMode }) => {
   // State for manual entry of old credentials
   const [oldAuth, setOldAuth] = useState({ oldUser: '', oldPass: '' });
 
+  // Fetch profile data from backend on mount
+  React.useEffect(() => {
+    const fetchProfile = async () => {
+      console.log("DEBUG: Fetching profile from server...");
+      try {
+        const response = await api.get("/admin/profile");
+        console.log("DEBUG: Server response (Full):", JSON.stringify(response.data, null, 2));
+        if (response.data) {
+          setProfileData(prev => {
+            const mergedData = {
+              ...prev,
+              name: response.data.name || prev.name,
+              email: response.data.email || prev.email,
+              phone: response.data.phone || prev.phone,
+              joinDate: response.data.joinDate || prev.joinDate,
+              username: response.data.username || prev.username
+            };
+            localStorage.setItem('adminProfile', JSON.stringify(mergedData));
+            return mergedData;
+          });
+          
+          if (response.data.name) {
+            localStorage.setItem('adminName', response.data.name);
+            window.dispatchEvent(new Event('adminProfileUpdate'));
+          }
+        }
+      } catch (error) {
+      console.error(error);
+      const errorMsg = error.response?.data ? JSON.stringify(error.response.data) : "Server error";
+      alert("UPDATE FAILED: " + errorMsg);
+    }
+    };
+
+    fetchProfile();
+  }, []);
+
   const handleSave = async () => {
     if (!oldAuth.oldUser || !oldAuth.oldPass) {
       alert("Please enter old username and password");
       return;
     }
 
+    console.log("DEBUG: Attempting to save profile:", profileData);
     try {
-      const response = await axios.put(
-        "https://backend-billing-software-ahxt.onrender.com/api/admin/update",
+      const response = await api.put(
+        "/admin/update",
         {
           oldUsername: oldAuth.oldUser,
           oldPassword: oldAuth.oldPass,
@@ -43,16 +84,21 @@ const Profile = ({ isDarkMode }) => {
         }
       );
 
+      console.log("DEBUG: Save successful:", response.data);
       alert(response.data); // "Admin credentials updated successfully"
+
+      // Sync with LocalStorage (Complete Profile)
+      localStorage.setItem('adminName', profileData.name);
+      localStorage.setItem('adminProfile', JSON.stringify(profileData));
+      window.dispatchEvent(new Event('adminProfileUpdate'));
 
       setIsEditing(false);
       setOldAuth({ oldUser: "", oldPass: "" });
 
     } catch (error) {
-      console.error(error);
-      alert(
-        error.response?.data || "Old username or password is incorrect"
-      );
+      console.error("DEBUG: Save failed:", error);
+      const errorMsg = error.response?.data ? JSON.stringify(error.response.data) : "Server error";
+      alert("UPDATE FAILED: " + errorMsg);
     }
   };
 

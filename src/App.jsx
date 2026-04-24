@@ -96,7 +96,7 @@ function App() {
   return (
     <div className="app-container relative">
       {/* Global background and interaction containers */}
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           {/* Routes with navbar and footer */}
           <Route path="/" element={<LayoutWithNavbar><HomePage /></LayoutWithNavbar>} />
