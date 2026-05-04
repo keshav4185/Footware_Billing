@@ -1,5 +1,5 @@
 import React from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import {
   UserCheck,
   Plus,
@@ -10,7 +10,7 @@ import {
   X
 } from 'lucide-react';
 
-const API = 'https://backend-billing-software-ahxt.onrender.com/api/employees';
+const API = '/employees';
 
 const EmployeesManagement = ({ isDarkMode }) => {
   const [employees, setEmployees] = React.useState([]);
@@ -26,7 +26,7 @@ const EmployeesManagement = ({ isDarkMode }) => {
   }, []);
 
   const fetchEmployees = async () => {
-    const res = await axios.get(API);
+    const res = await api.get(API);
     setEmployees(res.data);
   };
 
@@ -47,6 +47,7 @@ const EmployeesManagement = ({ isDarkMode }) => {
     });
     setShowAddForm(true);
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -59,10 +60,10 @@ const EmployeesManagement = ({ isDarkMode }) => {
     };
 
     if (editingEmployee) {
-      await axios.put(`${API}/${editingEmployee.id}`, trimmedData);
+      await api.put(`${API}/${editingEmployee.id}`, trimmedData);
       alert('Employee updated successfully!');
     } else {
-      await axios.post(API, {
+      await api.post(API, {
         ...trimmedData,
         empId: trimmedData.empId || generateEmpId(),
         status: 'Active'
@@ -79,7 +80,7 @@ const EmployeesManagement = ({ isDarkMode }) => {
 
   const deleteEmployee = async (id) => {
     if (window.confirm('Are you sure you want to delete this employee?')) {
-      await axios.delete(`${API}/${id}`);
+      await api.delete(`${API}/${id}`);
       fetchEmployees();
       alert('Employee deleted successfully!');
     }

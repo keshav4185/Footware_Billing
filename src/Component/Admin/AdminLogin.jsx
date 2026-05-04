@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 
 const AdminLogin = () => {
   const [credentials, setCredentials] = useState({
@@ -17,23 +18,16 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('https://backend-billing-software-ahxt.onrender.com/api/admin/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(credentials)
-      });
+      const response = await api.post('/admin/login', credentials);
 
-      if (response.ok) {
+      if (response.status === 200) {
         localStorage.setItem('adminLoggedIn', 'true');
         navigate('/admin/dashboard');
       } else {
-        const msg = await response.text();
-        setError(msg || 'Invalid credentials');
+        setError('Invalid credentials');
       }
     } catch (err) {
-      setError('Server not reachable');
+      setError(err.response?.data?.message || 'Server not reachable');
     } finally {
       setLoading(false);
     }

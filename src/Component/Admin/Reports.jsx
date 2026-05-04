@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../services/api";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, Legend, PieChart, Pie, Cell
@@ -23,9 +23,9 @@ const Reports = ({ isDarkMode }) => {
       try {
         setLoading(true);
         const [billsRes, customersRes, productsRes] = await Promise.all([
-          axios.get("https://backend-billing-software-ahxt.onrender.com/api/billing/invoices"),
-          axios.get("https://backend-billing-software-ahxt.onrender.com/api/billing/customers"),
-          axios.get("https://backend-billing-software-ahxt.onrender.com/api/billing/products"),
+          api.get("/billing/invoices"),
+          api.get("/billing/customers"),
+          api.get("/billing/products"),
         ]);
         setBills(billsRes.data);
         

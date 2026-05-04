@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import {
   Users,
   Plus,
@@ -32,9 +32,7 @@ const CustomersManagement = ({ customers, setCustomers, isDarkMode }) => {
 
   const fetchCustomers = async () => {
     try {
-      const res = await axios.get(
-        'https://backend-billing-software-ahxt.onrender.com/api/billing/customers'
-      );
+      const res = await api.get('/billing/customers');
       const allCustomers = res.data || [];
       
       // Deduplicate by phone and filter out invalid entries
@@ -105,10 +103,7 @@ const CustomersManagement = ({ customers, setCustomers, isDarkMode }) => {
     e.preventDefault();
     if (!validateForm()) return;
     try {
-      const res = await axios.post(
-        'https://backend-billing-software-ahxt.onrender.com/api/billing/customer',
-        formData
-      );
+      const res = await api.post('/billing/customer', formData);
       setCustomers([...customers, res.data]);
       setFormData({ name: '', phone: '', gst: '', address: '' });
       setShowAddModal(false);
@@ -138,10 +133,7 @@ const CustomersManagement = ({ customers, setCustomers, isDarkMode }) => {
     e.preventDefault();
     if (!validateForm()) return;
     try {
-      const res = await axios.put(
-        `https://backend-billing-software-ahxt.onrender.com/api/billing/customer/${editingCustomer.id}`,
-        formData
-      );
+      const res = await api.put(`/billing/customer/${editingCustomer.id}`, formData);
       setCustomers(
         customers.map(c =>
           c.id === editingCustomer.id ? res.data : c
@@ -163,18 +155,16 @@ const CustomersManagement = ({ customers, setCustomers, isDarkMode }) => {
 
     try {
       // First, fetch all invoices for this customer
-      const invoicesResponse = await axios.get('https://backend-billing-software-ahxt.onrender.com/api/billing/invoices');
+      const invoicesResponse = await api.get('/billing/invoices');
       const customerInvoices = invoicesResponse.data.filter(inv => inv.customer?.id === customerId);
 
       // Delete all related invoices first
       for (const invoice of customerInvoices) {
-        await axios.delete(`https://backend-billing-software-ahxt.onrender.com/api/billing/invoice/${invoice.id}`);
+        await api.delete(`/billing/invoice/${invoice.id}`);
       }
 
       // Now delete the customer
-      const response = await axios.delete(
-        `https://backend-billing-software-ahxt.onrender.com/api/billing/customer/${customerId}`
-      );
+      const response = await api.delete(`/billing/customer/${customerId}`);
 
       if (response.status === 200 || response.status === 204) {
         setCustomers(customers.filter(c => c.id !== customerId));

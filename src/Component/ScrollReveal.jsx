@@ -22,19 +22,20 @@ const ScrollReveal = ({
   const domRef = useRef();
 
   useEffect(() => {
+    if (!window.IntersectionObserver) {
+      setIsVisible(true);
+      return;
+    }
+
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           setIsVisible(true);
-          // If we only want to trigger once, stop observing
           if (!repeat) {
             observer.unobserve(entry.target);
           }
-        } else {
-          // If repeat is enabled, reset visibility when it leaves the viewport
-          if (repeat) {
-            setIsVisible(false);
-          }
+        } else if (repeat) {
+          setIsVisible(false);
         }
       });
     }, { threshold });
@@ -54,7 +55,7 @@ const ScrollReveal = ({
   return (
     <div
       ref={domRef}
-      className={`${className} ${isVisible ? `reveal-${animation}` : 'opacity-0'}`}
+      className={`${className} transition-opacity duration-500 ${isVisible ? `reveal-${animation}` : 'opacity-0'}`}
       style={{ animationDelay: `${delay}ms` }}
     >
       {children}

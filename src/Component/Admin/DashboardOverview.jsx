@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import {
   PieChart,
   Pie,
@@ -67,9 +67,9 @@ const DashboardOverview = ({ bills: propsBills, customers: propsCustomers, produ
   const fetchDashboardData = async () => {
     try {
       const [invoiceRes, customerRes, productRes] = await Promise.all([
-        axios.get('https://backend-billing-software-ahxt.onrender.com/api/billing/invoices'),
-        axios.get('https://backend-billing-software-ahxt.onrender.com/api/billing/customers'),
-        axios.get('https://backend-billing-software-ahxt.onrender.com/api/billing/products'),
+        api.get('/billing/invoices'),
+        api.get('/billing/customers'),
+        api.get('/billing/products'),
       ]);
 
       const mappedBills = invoiceRes.data.map(inv => {

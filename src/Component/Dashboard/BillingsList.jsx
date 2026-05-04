@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from 'react-dom';
-import axios from "axios";
+import api from "../../services/api";
 import { Eye, Printer, Trash2 } from 'lucide-react';
 import defaultLogo from '../../assets/smart_logo-Jt0au3tU.webp';
 
@@ -15,7 +15,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
   useEffect(() => {
     const fetchInvoices = async () => {
       try {
-        const res = await axios.get("https://backend-billing-software-ahxt.onrender.com/api/billing/invoices");
+        const res = await api.get("/billing/invoices");
         setBills(
           res.data.sort(
             (a, b) => new Date(b.invoiceDate) - new Date(a.invoiceDate)
@@ -39,9 +39,7 @@ const BillingsList = ({ isDarkMode, onEditBill }) => {
     if (!window.confirm("Are you sure you want to delete this invoice?")) return;
 
     try {
-      await axios.delete(
-        `https://backend-billing-software-ahxt.onrender.com/api/billing/invoice/${id}`
-      );
+      await api.delete(`/billing/invoice/${id}`);
       setBills(bills.filter((bill) => bill.id !== id));
       alert("Invoice deleted successfully");
     } catch (err) {

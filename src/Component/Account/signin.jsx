@@ -1,6 +1,6 @@
 // src/Component/Account/signin.jsx
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import {
   User,
   Lock,
@@ -34,8 +34,8 @@ const Signin = () => {
     const password = e.target.password.value.trim();
 
     try {
-      const res = await axios.post(
-        "https://backend-billing-software-ahxt.onrender.com/api/employees/login",
+      const res = await api.post(
+        "/employees/login",
         { empId, email, password }
       );
 

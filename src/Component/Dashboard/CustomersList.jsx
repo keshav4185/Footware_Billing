@@ -1,5 +1,5 @@
 import React from 'react';
-import { customerAPI } from '../../services/api';
+import api, { customerAPI } from '../../services/api';
 import { 
   Users, 
   Search, 
@@ -22,18 +22,8 @@ const CustomersList = ({ isDarkMode, onCreateInvoice }) => {
   const fetchCustomers = async () => {
     setLoading(true);
     try {
-      const response = await fetch('https://backend-billing-software-ahxt.onrender.com/api/billing/customers', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
+      const response = await api.get('/billing/customers');
+      const data = response.data;
       console.log('Fetched customers:', data);
       
       // Handle different response formats
