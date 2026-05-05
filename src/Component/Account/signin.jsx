@@ -117,12 +117,11 @@ const Signin = () => {
         <div className="w-full md:w-[45%] flex flex-col justify-start md:justify-center p-8 pt-10 sm:p-12 md:p-16 relative bg-[#252841] h-[640px] md:h-[650px] z-20">
           <div className="w-full flex flex-col animate-fadeIn mx-auto max-w-sm md:max-w-none">
             <RoleSwitcher />
-
             <div className="mb-8">
               <h1 className="text-4xl font-bold text-white mb-2 tracking-tighter">
                 {loginType === 'user' ? 'Employee Entry' : 'Admin Authority'}
               </h1>
-              <div className={`h-1.5 w-16 bg-${loginType === 'user' ? 'purple' : 'blue'}-500 rounded-none mb-3 shadow-lg shadow-purple-500/20`}></div>
+              <div className={`h-1.5 w-16 rounded-none mb-3 shadow-lg ${loginType === 'user' ? 'bg-purple-500 shadow-purple-500/20' : 'bg-blue-500 shadow-blue-500/20'}`}></div>
               <p className="text-white text-sm font-medium tracking-wide">Enter your details to access the system</p>
             </div>
 
@@ -157,14 +156,14 @@ const Signin = () => {
                   {loginType === 'user' ? 'Corporate Email' : 'Security Username'}
                 </label>
                 <div className="relative group">
-                  <div className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/20 group-focus-within:text-${loginType === 'user' ? 'purple' : 'blue'}-400 transition-colors`}>
+                  <div className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/20 group-focus-within:text-${loginType === 'user' ? 'purple-400' : 'blue-400'} transition-colors`}>
                     {loginType === 'user' ? <Mail size={18} /> : <User size={18} />}
                   </div>
                   <input
                     type={loginType === 'user' ? 'email' : 'text'}
                     name={loginType === 'user' ? 'email' : 'username'}
                     placeholder={loginType === 'user' ? 'name@company.com' : 'admin_user'}
-                    className={`w-full bg-white/5 border border-white/20 rounded-lg py-4 pl-12 pr-4 focus:outline-none focus:ring-1 focus:ring-${loginType === 'user' ? 'purple' : 'blue'}-500/50 focus:border-${loginType === 'user' ? 'purple' : 'blue'}-500/50 transition-all text-white placeholder:text-white/50`}
+                    className={`w-full bg-white/5 border border-white/20 rounded-lg py-4 pl-12 pr-4 focus:outline-none focus:ring-1 ${loginType === 'user' ? 'focus:ring-purple-500/50 focus:border-purple-500/50' : 'focus:ring-blue-500/50 focus:border-blue-500/50'} transition-all text-white placeholder:text-white/50`}
                     required
                   />
                 </div>
@@ -173,14 +172,14 @@ const Signin = () => {
               <div className={`space-y-2 transition-all duration-500 ${loginType === 'user' ? 'translate-y-0' : '-translate-y-20'}`}>
                 <label className="text-[10px] font-bold text-white uppercase tracking-[0.2em] ml-1">Secure Password</label>
                 <div className="relative group">
-                  <div className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/20 group-focus-within:text-${loginType === 'user' ? 'purple' : 'blue'}-400 transition-colors`}>
+                  <div className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/20 group-focus-within:text-${loginType === 'user' ? 'purple-400' : 'blue-400'} transition-colors`}>
                     <Lock size={18} />
                   </div>
                   <input
                     type={showPassword ? 'text' : 'password'}
                     name="password"
                     placeholder="••••••••"
-                    className={`w-full bg-white/5 border border-white/20 rounded-lg py-4 pl-12 pr-12 focus:outline-none focus:ring-1 focus:ring-${loginType === 'user' ? 'purple' : 'blue'}-500/50 focus:border-${loginType === 'user' ? 'purple' : 'blue'}-500/50 transition-all text-white placeholder:text-white/50`}
+                    className={`w-full bg-white/5 border border-white/20 rounded-lg py-4 pl-12 pr-12 focus:outline-none focus:ring-1 ${loginType === 'user' ? 'focus:ring-purple-500/50 focus:border-purple-500/50' : 'focus:ring-blue-500/50 focus:border-blue-500/50'} transition-all text-white placeholder:text-white/50`}
                     required
                   />
                   <button
@@ -192,6 +191,7 @@ const Signin = () => {
                   </button>
                 </div>
               </div>
+            </div>
 
               <div className={`transition-all duration-500 ${loginType === 'user' ? 'translate-y-0' : '-translate-y-20'}`}>
                 <button
