@@ -191,8 +191,7 @@ const Signin = () => {
                   </button>
                 </div>
               </div>
-            </div>
-
+              
               <div className={`transition-all duration-500 ${loginType === 'user' ? 'translate-y-0' : '-translate-y-20'}`}>
                 <button
                   type="submit"
