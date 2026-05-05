@@ -97,18 +97,18 @@ const Signin = () => {
 
       <div className="w-full max-w-[1150px] flex flex-col md:flex-row bg-[#252841] rounded-[1.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10 relative z-10 transition-all duration-500">
 
-        {/* Visual Illustration Section - Increased size for Laptop view */}
+        {/* Visual Illustration Section - Edge-to-edge for Laptop view */}
         <div className="w-full h-[280px] md:h-[720px] md:w-[55%] relative group overflow-hidden bg-[#f1f3f6] shrink-0 border-b md:border-b-0 md:border-r border-white/10">
-          <div className="absolute inset-0 flex items-center justify-center p-8">
+          <div className="absolute inset-0 flex items-center justify-center">
             <img
               src={empLogImage}
               alt="Employee"
-              className={`w-full h-full object-contain transition-all duration-700 ease-in-out ${loginType === 'admin' ? 'opacity-0 scale-90 blur-md' : 'opacity-100 scale-100'}`}
+              className={`w-full h-full object-cover transition-all duration-700 ease-in-out ${loginType === 'admin' ? 'opacity-0 scale-90 blur-md' : 'opacity-100 scale-100'}`}
             />
             <img
               src={adminLogImage}
               alt="Admin"
-              className={`absolute inset-0 w-full h-full object-contain p-8 transition-all duration-700 ease-in-out ${loginType === 'admin' ? 'opacity-100 scale-100' : 'opacity-0 scale-90 blur-md'}`}
+              className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-in-out ${loginType === 'admin' ? 'opacity-100 scale-100' : 'opacity-0 scale-90 blur-md'}`}
             />
           </div>
         </div>
