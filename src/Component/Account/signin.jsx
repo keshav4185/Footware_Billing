@@ -103,12 +103,12 @@ const Signin = () => {
             <img
               src={empLogImage}
               alt="Employee"
-              className={`w-full h-full object-cover transition-all duration-700 ease-in-out ${loginType === 'admin' ? 'opacity-0 scale-90 blur-md' : 'opacity-100 scale-100'}`}
+              className={`w-full h-full object-cover object-top transition-all duration-700 ease-in-out ${loginType === 'admin' ? 'opacity-0 scale-90 blur-md' : 'opacity-100 scale-100'}`}
             />
             <img
               src={adminLogImage}
               alt="Admin"
-              className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-in-out ${loginType === 'admin' ? 'opacity-100 scale-100' : 'opacity-0 scale-90 blur-md'}`}
+              className={`absolute inset-0 w-full h-full object-cover object-top transition-all duration-700 ease-in-out ${loginType === 'admin' ? 'opacity-100 scale-100' : 'opacity-0 scale-90 blur-md'}`}
             />
           </div>
         </div>
