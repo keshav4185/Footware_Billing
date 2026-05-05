@@ -119,7 +119,7 @@ const Signin = () => {
             <RoleSwitcher />
 
             <div className="mb-8">
-              <h1 className="text-4xl font-black text-white mb-2 tracking-tighter">
+              <h1 className="text-4xl font-bold text-white mb-2 tracking-tighter">
                 {loginType === 'user' ? 'Employee Entry' : 'Admin Authority'}
               </h1>
               <div className={`h-1.5 w-16 bg-${loginType === 'user' ? 'purple' : 'blue'}-500 rounded-full mb-3 shadow-lg shadow-purple-500/20`}></div>
