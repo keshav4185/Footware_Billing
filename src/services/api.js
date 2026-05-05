@@ -1,10 +1,8 @@
 import axios from 'axios';
 
 // Get base URL from environment or fallback to local
-let BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
-if (BASE_URL && !BASE_URL.startsWith('http')) {
-  BASE_URL = `https://${BASE_URL}`;
-}
+// Explicitly point to the backend we are deploying to
+const BASE_URL = 'https://billing-backend-d93u.onrender.com';
 const API_BASE_URL = `${BASE_URL}/api`;
 
 // Create axios instance with default config
