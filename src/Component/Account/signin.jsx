@@ -95,10 +95,10 @@ const Signin = () => {
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-900 rounded-full blur-[150px]" />
       </div>
 
-      <div className="w-full max-w-[1000px] flex flex-col md:flex-row bg-[#252841] rounded-[2.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.5)] overflow-hidden border border-white/5 relative z-10">
+      <div className="w-full max-w-[1000px] flex flex-col md:flex-row bg-[#252841] rounded-[1.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10 relative z-10">
 
         {/* Visual Illustration Section - Fixed Cropping and Height */}
-        <div className="w-full h-[280px] md:h-[680px] md:w-[50%] relative group overflow-hidden bg-[#f1f3f6] shrink-0 border-b md:border-b-0 md:border-r border-white/5">
+        <div className="w-full h-[280px] md:h-[680px] md:w-[50%] relative group overflow-hidden bg-[#f1f3f6] shrink-0 border-b md:border-b-0 md:border-r border-white/10">
           <div className="absolute inset-0 flex items-center justify-center p-6">
             <img
               src={empLogImage}
@@ -122,7 +122,7 @@ const Signin = () => {
               <h1 className="text-4xl font-bold text-white mb-2 tracking-tighter">
                 {loginType === 'user' ? 'Employee Entry' : 'Admin Authority'}
               </h1>
-              <div className={`h-1.5 w-16 bg-${loginType === 'user' ? 'purple' : 'blue'}-500 rounded-full mb-3 shadow-lg shadow-purple-500/20`}></div>
+              <div className={`h-1.5 w-16 bg-${loginType === 'user' ? 'purple' : 'blue'}-500 rounded-none mb-3 shadow-lg shadow-purple-500/20`}></div>
               <p className="text-white text-sm font-medium tracking-wide">Enter your details to access the system</p>
             </div>
 
@@ -143,7 +143,7 @@ const Signin = () => {
                         type="text"
                         name="empId"
                         placeholder="e.g. EMP001"
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-all text-white placeholder:text-white/50"
+                        className="w-full bg-white/5 border border-white/20 rounded-lg py-4 pl-12 pr-4 focus:outline-none focus:ring-1 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all text-white placeholder:text-white/50"
                         required={loginType === 'user'}
                       />
                     </div>
@@ -164,7 +164,7 @@ const Signin = () => {
                     type={loginType === 'user' ? 'email' : 'text'}
                     name={loginType === 'user' ? 'email' : 'username'}
                     placeholder={loginType === 'user' ? 'name@company.com' : 'admin_user'}
-                    className={`w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-${loginType === 'user' ? 'purple' : 'blue'}-500/30 focus:border-${loginType === 'user' ? 'purple' : 'blue'}-500/30 transition-all text-white placeholder:text-white/50`}
+                    className={`w-full bg-white/5 border border-white/20 rounded-lg py-4 pl-12 pr-4 focus:outline-none focus:ring-1 focus:ring-${loginType === 'user' ? 'purple' : 'blue'}-500/50 focus:border-${loginType === 'user' ? 'purple' : 'blue'}-500/50 transition-all text-white placeholder:text-white/50`}
                     required
                   />
                 </div>
@@ -180,7 +180,7 @@ const Signin = () => {
                     type={showPassword ? 'text' : 'password'}
                     name="password"
                     placeholder="••••••••"
-                    className={`w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-12 focus:outline-none focus:ring-2 focus:ring-${loginType === 'user' ? 'purple' : 'blue'}-500/30 focus:border-${loginType === 'user' ? 'purple' : 'blue'}-500/30 transition-all text-white placeholder:text-white/50`}
+                    className={`w-full bg-white/5 border border-white/20 rounded-lg py-4 pl-12 pr-12 focus:outline-none focus:ring-1 focus:ring-${loginType === 'user' ? 'purple' : 'blue'}-500/50 focus:border-${loginType === 'user' ? 'purple' : 'blue'}-500/50 transition-all text-white placeholder:text-white/50`}
                     required
                   />
                   <button
@@ -197,7 +197,7 @@ const Signin = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className={`w-full relative group overflow-hidden py-5 rounded-2xl font-black text-white shadow-xl transition-all duration-300 transform active:scale-[0.98] mt-4 flex items-center justify-center gap-3 tracking-[0.2em] text-xs uppercase ${loginType === 'user'
+                  className={`w-full relative group overflow-hidden py-5 rounded-lg font-bold text-white shadow-xl transition-all duration-300 transform active:scale-[0.98] mt-4 flex items-center justify-center gap-3 tracking-[0.2em] text-xs uppercase ${loginType === 'user'
                     ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-purple-500/40'
                     : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-blue-500/40'
                     }`}
