@@ -123,7 +123,7 @@ const Signin = () => {
                 {loginType === 'user' ? 'Employee Entry' : 'Admin Authority'}
               </h1>
               <div className={`h-1.5 w-16 bg-${loginType === 'user' ? 'purple' : 'blue'}-500 rounded-full mb-3 shadow-lg shadow-purple-500/20`}></div>
-              <p className="text-white/40 text-sm font-medium tracking-wide">Enter your details to access the system</p>
+              <p className="text-white text-sm font-medium tracking-wide">Enter your details to access the system</p>
             </div>
 
             <form
@@ -134,7 +134,7 @@ const Signin = () => {
               <div className="relative">
                 <div className={`transition-all duration-500 ease-in-out ${loginType === 'user' ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-white/50 uppercase tracking-[0.2em] ml-1">Employee ID</label>
+                    <label className="text-[10px] font-bold text-white uppercase tracking-[0.2em] ml-1">Employee ID</label>
                     <div className="relative group">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/20 group-focus-within:text-purple-400 transition-colors">
                         <LayoutGrid size={18} />
@@ -143,7 +143,7 @@ const Signin = () => {
                         type="text"
                         name="empId"
                         placeholder="e.g. EMP001"
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-all text-white placeholder:text-white/10"
+                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-all text-white placeholder:text-white/50"
                         required={loginType === 'user'}
                       />
                     </div>
@@ -153,7 +153,7 @@ const Signin = () => {
 
               {/* Email/Username - Positioned to stay stable */}
               <div className={`space-y-2 transition-all duration-500 ${loginType === 'user' ? 'translate-y-0' : '-translate-y-20'}`}>
-                <label className="text-[10px] font-bold text-white/50 uppercase tracking-[0.2em] ml-1">
+                <label className="text-[10px] font-bold text-white uppercase tracking-[0.2em] ml-1">
                   {loginType === 'user' ? 'Corporate Email' : 'Security Username'}
                 </label>
                 <div className="relative group">
@@ -164,14 +164,14 @@ const Signin = () => {
                     type={loginType === 'user' ? 'email' : 'text'}
                     name={loginType === 'user' ? 'email' : 'username'}
                     placeholder={loginType === 'user' ? 'name@company.com' : 'admin_user'}
-                    className={`w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-${loginType === 'user' ? 'purple' : 'blue'}-500/30 focus:border-${loginType === 'user' ? 'purple' : 'blue'}-500/30 transition-all text-white placeholder:text-white/10`}
+                    className={`w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-${loginType === 'user' ? 'purple' : 'blue'}-500/30 focus:border-${loginType === 'user' ? 'purple' : 'blue'}-500/30 transition-all text-white placeholder:text-white/50`}
                     required
                   />
                 </div>
               </div>
 
               <div className={`space-y-2 transition-all duration-500 ${loginType === 'user' ? 'translate-y-0' : '-translate-y-20'}`}>
-                <label className="text-[10px] font-bold text-white/50 uppercase tracking-[0.2em] ml-1">Secure Password</label>
+                <label className="text-[10px] font-bold text-white uppercase tracking-[0.2em] ml-1">Secure Password</label>
                 <div className="relative group">
                   <div className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/20 group-focus-within:text-${loginType === 'user' ? 'purple' : 'blue'}-400 transition-colors`}>
                     <Lock size={18} />
@@ -180,7 +180,7 @@ const Signin = () => {
                     type={showPassword ? 'text' : 'password'}
                     name="password"
                     placeholder="••••••••"
-                    className={`w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-12 focus:outline-none focus:ring-2 focus:ring-${loginType === 'user' ? 'purple' : 'blue'}-500/30 focus:border-${loginType === 'user' ? 'purple' : 'blue'}-500/30 transition-all text-white placeholder:text-white/10`}
+                    className={`w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-12 focus:outline-none focus:ring-2 focus:ring-${loginType === 'user' ? 'purple' : 'blue'}-500/30 focus:border-${loginType === 'user' ? 'purple' : 'blue'}-500/30 transition-all text-white placeholder:text-white/50`}
                     required
                   />
                   <button
