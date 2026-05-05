@@ -1,6 +1,11 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+// Get base URL from environment or fallback to local
+let BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+if (BASE_URL && !BASE_URL.startsWith('http')) {
+  BASE_URL = `https://${BASE_URL}`;
+}
+const API_BASE_URL = `${BASE_URL}/api`;
 
 // Create axios instance with default config
 const api = axios.create({
@@ -58,7 +63,6 @@ export const productAPI = {
 // Invoice API
 export const invoiceAPI = {
   create: (invoice) => api.post('/billing/invoice', invoice),
-  getById: (id) => api.get(`/billing/invoice/${id}`),
   getAll: () => api.get('/billing/invoices'),
   update: (id, invoice) => api.put(`/billing/invoice/${id}`, invoice),
   delete: (id) => api.delete(`/billing/invoices/${id}`),
