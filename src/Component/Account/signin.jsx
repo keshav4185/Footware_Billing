@@ -88,42 +88,41 @@ const Signin = () => {
   );
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center p-4 sm:p-8 relative overflow-hidden font-inter bg-[#0f172a]">
-      {/* Background decoration for consistency */}
-      <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-600 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-600 rounded-full blur-[120px]" />
+    <div className="w-full min-h-screen flex items-center justify-center p-4 sm:p-8 relative overflow-hidden font-inter bg-[#1a1c2e]">
+      {/* Background decoration */}
+      <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-900 rounded-full blur-[150px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-900 rounded-full blur-[150px]" />
       </div>
 
-      <div className="w-full max-w-[1000px] flex flex-col md:flex-row bg-white/10 backdrop-blur-3xl rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-hidden border border-white/20 relative z-10">
+      <div className="w-full max-w-[1000px] flex flex-col md:flex-row bg-[#252841] rounded-[2.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.5)] overflow-hidden border border-white/5 relative z-10">
 
-        {/* Visual Illustration Section - Optimized for all screens */}
-        <div className="w-full h-56 md:h-[650px] md:w-[50%] relative group overflow-hidden border-b md:border-b-0 md:border-r border-white/10 shrink-0">
-          <div className="absolute inset-0 transition-all duration-1000">
+        {/* Visual Illustration Section - Fixed Cropping and Height */}
+        <div className="w-full h-[280px] md:h-[680px] md:w-[50%] relative group overflow-hidden bg-[#f1f3f6] shrink-0 border-b md:border-b-0 md:border-r border-white/5">
+          <div className="absolute inset-0 flex items-center justify-center p-6">
             <img
               src={empLogImage}
               alt="Employee"
-              className={`absolute inset-0 w-full h-full object-cover md:object-center transition-opacity duration-[1000ms] ease-out ${loginType === 'admin' ? 'opacity-0' : 'opacity-90'}`}
+              className={`w-full h-full object-contain transition-all duration-700 ease-in-out ${loginType === 'admin' ? 'opacity-0 scale-90 blur-md' : 'opacity-100 scale-100'}`}
             />
             <img
               src={adminLogImage}
               alt="Admin"
-              className={`absolute inset-0 w-full h-full object-cover md:object-center transition-opacity duration-[1000ms] ease-out ${loginType === 'admin' ? 'opacity-90' : 'opacity-0'}`}
+              className={`absolute inset-0 w-full h-full object-contain p-6 transition-all duration-700 ease-in-out ${loginType === 'admin' ? 'opacity-100 scale-100' : 'opacity-0 scale-90 blur-md'}`}
             />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent md:hidden" />
         </div>
 
-        {/* Form Container */}
-        <div className="w-full md:w-[50%] flex flex-col justify-center p-8 sm:p-12 relative bg-black/20 backdrop-blur-sm overflow-y-auto">
+        {/* Form Container - Rigid Height to prevent any jumping */}
+        <div className="w-full md:w-[50%] flex flex-col justify-center p-8 sm:p-12 relative bg-[#252841] h-[550px] md:h-[680px]">
           <div className="w-full flex flex-col animate-fadeIn mx-auto max-w-sm md:max-w-none">
             <RoleSwitcher />
 
             <div className="mb-8">
-              <h1 className="text-3xl sm:text-4xl font-black text-white mb-2 tracking-tighter">
+              <h1 className="text-4xl font-black text-white mb-2 tracking-tighter">
                 {loginType === 'user' ? 'Employee Entry' : 'Admin Authority'}
               </h1>
-              <div className={`h-1.5 w-16 bg-${loginType === 'user' ? 'purple' : 'blue'}-500 rounded-full mb-3 shadow-[0_0_15px_rgba(168,85,247,0.5)]`}></div>
+              <div className={`h-1.5 w-16 bg-${loginType === 'user' ? 'purple' : 'blue'}-500 rounded-full mb-3 shadow-lg shadow-purple-500/20`}></div>
               <p className="text-white/40 text-sm font-medium tracking-wide">Enter your details to access the system</p>
             </div>
 
@@ -131,25 +130,29 @@ const Signin = () => {
               onSubmit={loginType === 'user' ? handleUserLogin : handleAdminLogin}
               className="space-y-6"
             >
-              {loginType === 'user' && (
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-white/50 uppercase tracking-[0.2em] ml-1">Employee ID</label>
-                  <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/20 group-focus-within:text-purple-400 transition-colors">
-                      <LayoutGrid size={18} />
+              {/* Layout-preserving visibility for the Employee ID field */}
+              <div className="relative">
+                <div className={`transition-all duration-500 ease-in-out ${loginType === 'user' ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-white/50 uppercase tracking-[0.2em] ml-1">Employee ID</label>
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/20 group-focus-within:text-purple-400 transition-colors">
+                        <LayoutGrid size={18} />
+                      </div>
+                      <input
+                        type="text"
+                        name="empId"
+                        placeholder="e.g. EMP001"
+                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-all text-white placeholder:text-white/10"
+                        required={loginType === 'user'}
+                      />
                     </div>
-                    <input
-                      type="text"
-                      name="empId"
-                      placeholder="e.g. EMP001"
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-all text-white placeholder:text-white/10"
-                      required
-                    />
                   </div>
                 </div>
-              )}
+              </div>
 
-              <div className="space-y-2">
+              {/* Email/Username - Positioned to stay stable */}
+              <div className={`space-y-2 transition-all duration-500 ${loginType === 'user' ? 'translate-y-0' : '-translate-y-20'}`}>
                 <label className="text-[10px] font-bold text-white/50 uppercase tracking-[0.2em] ml-1">
                   {loginType === 'user' ? 'Corporate Email' : 'Security Username'}
                 </label>
@@ -167,7 +170,7 @@ const Signin = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className={`space-y-2 transition-all duration-500 ${loginType === 'user' ? 'translate-y-0' : '-translate-y-20'}`}>
                 <label className="text-[10px] font-bold text-white/50 uppercase tracking-[0.2em] ml-1">Secure Password</label>
                 <div className="relative group">
                   <div className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/20 group-focus-within:text-${loginType === 'user' ? 'purple' : 'blue'}-400 transition-colors`}>
@@ -190,26 +193,28 @@ const Signin = () => {
                 </div>
               </div>
 
-              <button
-                type="submit"
-                disabled={isLoading}
-                className={`w-full relative group overflow-hidden py-5 rounded-2xl font-black text-white shadow-xl transition-all duration-300 transform active:scale-[0.98] mt-4 flex items-center justify-center gap-3 tracking-[0.2em] text-xs uppercase ${loginType === 'user'
-                  ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-purple-500/40'
-                  : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-blue-500/40'
-                  }`}
-              >
-                <div className="absolute inset-0 w-full h-full bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                <span className="relative flex items-center gap-2">
-                  {isLoading ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  ) : (
-                    <>
-                      Enter Workspace
-                      <ArrowRight size={16} />
-                    </>
-                  )}
-                </span>
-              </button>
+              <div className={`transition-all duration-500 ${loginType === 'user' ? 'translate-y-0' : '-translate-y-20'}`}>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className={`w-full relative group overflow-hidden py-5 rounded-2xl font-black text-white shadow-xl transition-all duration-300 transform active:scale-[0.98] mt-4 flex items-center justify-center gap-3 tracking-[0.2em] text-xs uppercase ${loginType === 'user'
+                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-purple-500/40'
+                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-blue-500/40'
+                    }`}
+                >
+                  <div className="absolute inset-0 w-full h-full bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                  <span className="relative flex items-center gap-2">
+                    {isLoading ? (
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    ) : (
+                      <>
+                        Enter Workspace
+                        <ArrowRight size={16} />
+                      </>
+                    )}
+                  </span>
+                </button>
+              </div>
             </form>
           </div>
         </div>
