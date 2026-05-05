@@ -114,7 +114,7 @@ const Signin = () => {
         </div>
 
         {/* Form Container - Rigid Height to prevent any jumping */}
-        <div className="w-full md:w-[50%] flex flex-col justify-center p-8 sm:p-12 relative bg-[#252841] h-[550px] md:h-[680px]">
+        <div className="w-full md:w-[50%] flex flex-col justify-start md:justify-center p-8 pt-12 sm:p-12 relative bg-[#252841] h-[550px] md:h-[680px] z-20">
           <div className="w-full flex flex-col animate-fadeIn mx-auto max-w-sm md:max-w-none">
             <RoleSwitcher />
 
