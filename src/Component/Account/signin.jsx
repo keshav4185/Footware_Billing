@@ -95,11 +95,11 @@ const Signin = () => {
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-900 rounded-full blur-[150px]" />
       </div>
 
-      <div className="w-full max-w-[1000px] flex flex-col md:flex-row bg-[#252841] rounded-[1.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10 relative z-10">
+      <div className="w-full max-w-[1150px] flex flex-col md:flex-row bg-[#252841] rounded-[1.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10 relative z-10 transition-all duration-500">
 
-        {/* Visual Illustration Section - Fixed Cropping and Height */}
-        <div className="w-full h-[280px] md:h-[680px] md:w-[50%] relative group overflow-hidden bg-[#f1f3f6] shrink-0 border-b md:border-b-0 md:border-r border-white/10">
-          <div className="absolute inset-0 flex items-center justify-center p-6">
+        {/* Visual Illustration Section - Increased size for Laptop view */}
+        <div className="w-full h-[280px] md:h-[720px] md:w-[55%] relative group overflow-hidden bg-[#f1f3f6] shrink-0 border-b md:border-b-0 md:border-r border-white/10">
+          <div className="absolute inset-0 flex items-center justify-center p-8">
             <img
               src={empLogImage}
               alt="Employee"
@@ -108,13 +108,13 @@ const Signin = () => {
             <img
               src={adminLogImage}
               alt="Admin"
-              className={`absolute inset-0 w-full h-full object-contain p-6 transition-all duration-700 ease-in-out ${loginType === 'admin' ? 'opacity-100 scale-100' : 'opacity-0 scale-90 blur-md'}`}
+              className={`absolute inset-0 w-full h-full object-contain p-8 transition-all duration-700 ease-in-out ${loginType === 'admin' ? 'opacity-100 scale-100' : 'opacity-0 scale-90 blur-md'}`}
             />
           </div>
         </div>
 
-        {/* Form Container - Rigid Height to prevent any jumping */}
-        <div className="w-full md:w-[50%] flex flex-col justify-start md:justify-center p-8 pt-10 sm:p-12 relative bg-[#252841] h-[640px] md:h-[680px] z-20">
+        {/* Form Container - Rigid Height and adjusted width */}
+        <div className="w-full md:w-[45%] flex flex-col justify-start md:justify-center p-8 pt-10 sm:p-12 md:p-16 relative bg-[#252841] h-[640px] md:h-[720px] z-20">
           <div className="w-full flex flex-col animate-fadeIn mx-auto max-w-sm md:max-w-none">
             <RoleSwitcher />
 
