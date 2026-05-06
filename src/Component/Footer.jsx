@@ -49,8 +49,8 @@ const Footer = () => {
                         <Link to="/" className="flex items-center space-x-3 group/logo">
                             <img src={logo_icon_transparent} alt="Smart Billing Solutions" className="h-11 sm:h-13 w-auto object-contain transition-transform duration-300 group-hover/logo:scale-105" />
                             <div className="flex flex-col justify-center gap-0.5">
-                                <span className="font-black text-sm sm:text-base tracking-tight leading-none text-gray-900">SMART BILLING</span>
-                                <span className="text-[9px] font-black tracking-[0.2em] uppercase leading-none text-purple-600">Solutions</span>
+                                <span className="font-black text-sm sm:text-base tracking-tight leading-none bg-gradient-to-r from-[#4A4B4D] via-[#B564C3] to-[#3D0448] bg-clip-text text-transparent inline-block">SMART BILLING</span>
+                                <span className="text-[9px] font-black tracking-[0.2em] uppercase leading-none bg-gradient-to-r from-[#4A4B4D] via-[#B564C3] to-[#3D0448] bg-clip-text text-transparent inline-block">Solutions</span>
                             </div>
                         </Link>
                         <p className="text-gray-500 leading-relaxed text-sm">

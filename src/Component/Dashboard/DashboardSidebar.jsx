@@ -54,8 +54,8 @@ const DashboardSidebar = ({ activeSection, setActiveSection, sidebarOpen, setSid
         <div className="px-2 py-5 border-b border-gray-100 dark:border-gray-700/50 flex items-center justify-center gap-3">
           <img src={logo_icon_transparent} alt="Smart Billing Solutions" className="h-10 w-auto object-contain transition-transform duration-300 hover:scale-105" />
           <div className="flex flex-col justify-center gap-0.5">
-            <span className={`font-black text-sm tracking-tight leading-none ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>SMART BILLING</span>
-            <span className={`text-[9px] font-black tracking-[0.2em] uppercase leading-none ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>Solutions</span>
+            <span className="font-black text-sm tracking-tight leading-none bg-gradient-to-r from-[#4A4B4D] via-[#B564C3] to-[#3D0448] bg-clip-text text-transparent inline-block">SMART BILLING</span>
+            <span className="text-[9px] font-black tracking-[0.2em] uppercase leading-none bg-gradient-to-r from-[#4A4B4D] via-[#B564C3] to-[#3D0448] bg-clip-text text-transparent inline-block">Solutions</span>
           </div>
         </div>
 
