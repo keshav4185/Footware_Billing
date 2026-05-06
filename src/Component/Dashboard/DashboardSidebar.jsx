@@ -50,19 +50,17 @@ const DashboardSidebar = ({ activeSection, setActiveSection, sidebarOpen, setSid
           : 'bg-white border-gray-200 text-gray-800 shadow-xl shadow-blue-100/50'
         }
       `}>
-        <div className="mb-0">
-          <div className="flex items-center gap-3 font-bold text-xl px-2 py-6">
-            <div className={`p-2 rounded-xl shadow-md rotate-3 group-hover:rotate-0 transition-transform ${isDarkMode ? 'bg-blue-500 text-white' : 'bg-blue-600 text-white'
+          <div className="flex items-center gap-3 px-2 py-6">
+            <div className={`p-2.5 rounded-xl shadow-md flex items-center justify-center transition-transform hover:scale-105 ${isDarkMode ? 'bg-blue-500 text-white' : 'bg-blue-600 text-white'
               }`}>
-              <LayoutDashboard size={24} />
+              <LayoutDashboard size={20} />
             </div>
-            <div className="flex flex-col">
-              <span className={`tracking-tight ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>SMART BILLING</span>
-              <span className={`text-[10px] font-medium tracking-widest uppercase ${isDarkMode ? 'text-blue-400' : 'text-blue-600'
+            <div className="flex flex-col justify-center gap-1">
+              <span className={`font-black text-base tracking-tight leading-none ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>SMART BILLING</span>
+              <span className={`text-[9px] font-black tracking-widest uppercase leading-none ${isDarkMode ? 'text-blue-400' : 'text-blue-600'
                 }`}>Billing Pro</span>
             </div>
           </div>
-        </div>
 
         <nav className="flex-1 mt-4 space-y-2">
           {menuItems.map(item => (
