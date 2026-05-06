@@ -74,7 +74,7 @@ const Navbar = () => {
                     {/* Logo and Desktop Navigation */}
                     <div className="flex items-center space-x-12"> 
                         <Link to="/" className="flex items-center space-x-3 group/logo">
-                            <img src={logo_transparent} alt="Smart Billing Solutions" className="h-16 sm:h-20 object-contain transition-transform duration-300 group-hover/logo:scale-105" />
+                            <img src={logo_transparent} alt="Smart Billing Solutions" className="h-20 sm:h-24 md:h-28 object-contain transition-transform duration-300 group-hover/logo:scale-105" />
                         </Link>
 
                         {/* Desktop Menu */}

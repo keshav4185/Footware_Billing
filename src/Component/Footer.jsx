@@ -47,7 +47,7 @@ const Footer = () => {
                     {/* Brand Column */}
                     <div className="space-y-4">
                         <Link to="/" className="flex items-center space-x-3 group/logo">
-                            <img src={logo_transparent} alt="Smart Billing Solutions" className="h-16 sm:h-20 object-contain transition-transform duration-300 group-hover/logo:scale-105" />
+                            <img src={logo_transparent} alt="Smart Billing Solutions" className="h-20 sm:h-24 md:h-28 object-contain transition-transform duration-300 group-hover/logo:scale-105" />
                         </Link>
                         <p className="text-gray-500 leading-relaxed text-sm">
                             Smart is a suite of open source business apps that cover all your company needs: CRM, eCommerce, accounting, inventory, point of sale, project management, etc.

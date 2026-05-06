@@ -52,7 +52,7 @@ const DashboardSidebar = ({ activeSection, setActiveSection, sidebarOpen, setSid
         }
       `}>
           <div className="px-2 py-4 border-b border-gray-100 dark:border-gray-700/50 flex justify-center items-center">
-            <img src={logo_transparent} alt="Smart Billing Solutions" className="h-20 object-contain transition-transform duration-300 hover:scale-105" />
+            <img src={logo_transparent} alt="Smart Billing Solutions" className="h-28 object-contain transition-transform duration-300 hover:scale-105" />
           </div>
 
         <nav className="flex-1 mt-4 space-y-2">
