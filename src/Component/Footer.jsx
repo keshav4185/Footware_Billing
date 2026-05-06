@@ -15,7 +15,7 @@ import {
     FaLinkedin,
     FaGithub
 } from 'react-icons/fa';
-import Logo from '../assets/logo.jpg';
+import logo_transparent from '../assets/logo_transparent.png';
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
@@ -47,13 +47,7 @@ const Footer = () => {
                     {/* Brand Column */}
                     <div className="space-y-4">
                         <Link to="/" className="flex items-center space-x-3 group/logo">
-                            <div className="flex items-center justify-center transition-transform duration-300 group-hover/logo:scale-105">
-                                <LayoutDashboard size={28} className="text-[#3D0448]" />
-                            </div>
-                            <div className="flex flex-col justify-center gap-0.5">
-                                <span className="font-black text-sm sm:text-base tracking-tight leading-none text-gray-900">SMART BILLING</span>
-                                <span className="text-[9px] font-black tracking-widest uppercase leading-none text-[#B564C3]">Billing Pro</span>
-                            </div>
+                            <img src={logo_transparent} alt="Smart Billing Solutions" className="h-16 sm:h-20 object-contain transition-transform duration-300 group-hover/logo:scale-105" />
                         </Link>
                         <p className="text-gray-500 leading-relaxed text-sm">
                             Smart is a suite of open source business apps that cover all your company needs: CRM, eCommerce, accounting, inventory, point of sale, project management, etc.

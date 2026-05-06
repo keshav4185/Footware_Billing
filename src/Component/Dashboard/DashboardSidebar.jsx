@@ -8,6 +8,7 @@ import {
   Package,
   LogOut
 } from 'lucide-react';
+import logo_transparent from '../../assets/logo_transparent.png';
 
 const DashboardSidebar = ({ activeSection, setActiveSection, sidebarOpen, setSidebarOpen, isDarkMode }) => {
   const navigate = useNavigate();
@@ -50,15 +51,8 @@ const DashboardSidebar = ({ activeSection, setActiveSection, sidebarOpen, setSid
           : 'bg-white border-gray-200 text-gray-800 shadow-xl shadow-blue-100/50'
         }
       `}>
-          <div className="flex items-center gap-3 px-2 py-6">
-            <div className="flex items-center justify-center transition-transform hover:scale-105">
-              <LayoutDashboard size={28} className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} />
-            </div>
-            <div className="flex flex-col justify-center gap-1">
-              <span className={`font-black text-base tracking-tight leading-none ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>SMART BILLING</span>
-              <span className={`text-[9px] font-black tracking-widest uppercase leading-none ${isDarkMode ? 'text-blue-400' : 'text-blue-600'
-                }`}>Billing Pro</span>
-            </div>
+          <div className="px-2 py-4 border-b border-gray-100 dark:border-gray-700/50 flex justify-center items-center">
+            <img src={logo_transparent} alt="Smart Billing Solutions" className="h-20 object-contain transition-transform duration-300 hover:scale-105" />
           </div>
 
         <nav className="flex-1 mt-4 space-y-2">
