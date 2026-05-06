@@ -88,16 +88,17 @@ const Signin = () => {
   );
 
   return (
-    <div className="w-full min-h-screen md:h-screen flex items-center justify-center p-4 sm:p-8 relative overflow-hidden md:overflow-hidden font-inter bg-[#1a1c2e]">
+    <div className="relative w-full min-h-screen md:fixed md:inset-0 flex items-center justify-center p-4 sm:p-8 md:p-4 overflow-y-auto md:overflow-hidden overflow-x-hidden font-inter bg-[#1a1c2e]">
+
       {/* Background decoration */}
-      <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
+      <div className="absolute inset-0 opacity-20 pointer-events-none overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-900 rounded-full blur-[150px]" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-900 rounded-full blur-[150px]" />
       </div>
 
-      <div className="w-full max-w-[1000px] md:w-[1000px] flex flex-col md:flex-row bg-[#252841] rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10 relative z-10">
+      <div className="w-full max-w-[1000px] flex flex-col md:flex-row bg-[#252841] rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10 relative z-10 md:h-[650px] md:max-h-[95vh] md:-mt-16">
 
-        {/* Visual Illustration Section */}
+        {/* Visual Illustration Section - Fixed 280px on mobile, flex on desktop */}
         <div className="w-full h-[280px] md:h-auto md:w-[50%] relative group overflow-hidden bg-[#f1f3f6] shrink-0 border-b md:border-b-0 md:border-r border-white/10">
           <div className="absolute inset-0 flex items-center justify-center">
             <img
@@ -113,8 +114,8 @@ const Signin = () => {
           </div>
         </div>
 
-        {/* Form Container - auto height with min height */}
-        <div className="w-full md:w-[50%] flex flex-col justify-start md:justify-center p-8 pt-10 sm:p-12 md:p-12 relative bg-[#252841] h-[640px] md:h-auto md:min-h-[580px] z-20">
+        {/* Form Container */}
+        <div className="w-full md:w-[50%] flex flex-col justify-start px-6 py-10 sm:px-8 md:px-12 md:pt-12 md:pb-0 relative bg-[#252841] h-auto md:h-full z-20 overflow-y-auto md:overflow-visible">
           <div className="w-full flex flex-col animate-fadeIn mx-auto max-w-sm md:max-w-none">
             <RoleSwitcher />
             <div className="mb-6">
@@ -127,7 +128,7 @@ const Signin = () => {
 
             <form
               onSubmit={loginType === 'user' ? handleUserLogin : handleAdminLogin}
-              className="space-y-5"
+              className="space-y-6"
             >
               {/* Layout-preserving visibility for the Employee ID field */}
               <div className="relative">
@@ -142,7 +143,7 @@ const Signin = () => {
                         type="text"
                         name="empId"
                         placeholder="e.g. EMP001"
-                        className="w-full bg-white/5 border border-white/20 rounded-lg py-3.5 pl-11 pr-4 focus:outline-none focus:ring-1 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all text-white placeholder:text-white/50 text-sm"
+                        className="w-full bg-white/5 border border-white/20 rounded-lg py-4 pl-11 pr-4 focus:outline-none focus:ring-1 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all text-white placeholder:text-white/50 text-sm"
                         required={loginType === 'user'}
                       />
                     </div>
@@ -163,7 +164,7 @@ const Signin = () => {
                     type={loginType === 'user' ? 'email' : 'text'}
                     name={loginType === 'user' ? 'email' : 'username'}
                     placeholder={loginType === 'user' ? 'name@company.com' : 'admin_user'}
-                    className={`w-full bg-white/5 border border-white/20 rounded-lg py-3.5 pl-11 pr-4 focus:outline-none focus:ring-1 ${loginType === 'user' ? 'focus:ring-purple-500/50 focus:border-purple-500/50' : 'focus:ring-blue-500/50 focus:border-blue-500/50'} transition-all text-white placeholder:text-white/50 text-sm`}
+                    className={`w-full bg-white/5 border border-white/20 rounded-lg py-4 pl-11 pr-4 focus:outline-none focus:ring-1 ${loginType === 'user' ? 'focus:ring-purple-500/50 focus:border-purple-500/50' : 'focus:ring-blue-500/50 focus:border-blue-500/50'} transition-all text-white placeholder:text-white/50 text-sm`}
                     required
                   />
                 </div>
@@ -179,7 +180,7 @@ const Signin = () => {
                     type={showPassword ? 'text' : 'password'}
                     name="password"
                     placeholder="••••••••"
-                    className={`w-full bg-white/5 border border-white/20 rounded-lg py-3.5 pl-11 pr-10 focus:outline-none focus:ring-1 ${loginType === 'user' ? 'focus:ring-purple-500/50 focus:border-purple-500/50' : 'focus:ring-blue-500/50 focus:border-blue-500/50'} transition-all text-white placeholder:text-white/50 text-sm`}
+                    className={`w-full bg-white/5 border border-white/20 rounded-lg py-4 pl-11 pr-10 focus:outline-none focus:ring-1 ${loginType === 'user' ? 'focus:ring-purple-500/50 focus:border-purple-500/50' : 'focus:ring-blue-500/50 focus:border-blue-500/50'} transition-all text-white placeholder:text-white/50 text-sm`}
                     required
                   />
                   <button
