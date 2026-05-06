@@ -117,7 +117,7 @@ const Signin = () => {
         </div>
 
         {/* Form Container */}
-        <div className="w-full md:w-[50%] flex flex-col justify-start px-6 py-10 sm:px-8 md:px-12 md:py-8 relative bg-[#252841] h-auto md:h-full z-20 overflow-y-auto md:overflow-visible">
+        <div className="w-full md:w-[50%] flex flex-col justify-start px-6 py-10 sm:px-8 md:px-12 md:py-8 relative bg-[#252841] h-auto md:h-full z-20 overflow-y-auto overflow-x-hidden md:overflow-hidden">
           <div className="w-full flex flex-col animate-fadeIn mx-auto max-w-sm md:max-w-none">
             <RoleSwitcher />
             <div className="mb-4">
