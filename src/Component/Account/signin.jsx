@@ -98,7 +98,7 @@ const Signin = () => {
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-900 rounded-full blur-[150px]" />
       </div>
 
-      <div className="w-full max-w-[1000px] flex flex-col md:flex-row bg-[#252841] rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10 relative z-10 md:h-[570px] md:max-h-[95vh] md:-mt-16">
+      <div className="w-full max-w-[1000px] flex flex-col md:flex-row bg-[#252841] rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10 relative z-10 md:h-[520px] md:max-h-[95vh] md:-mt-16">
 
         {/* Visual Illustration Section - Fixed 280px on mobile, flex on desktop */}
         <div className="w-full h-[280px] md:h-auto md:w-[50%] relative group overflow-hidden bg-[#f1f3f6] shrink-0 border-b md:border-b-0 md:border-r border-white/10">
@@ -117,10 +117,10 @@ const Signin = () => {
         </div>
 
         {/* Form Container */}
-        <div className="w-full md:w-[50%] flex flex-col justify-start px-6 py-10 sm:px-8 md:px-12 md:pt-12 md:pb-0 relative bg-[#252841] h-auto md:h-full z-20 overflow-y-auto md:overflow-visible">
+        <div className="w-full md:w-[50%] flex flex-col justify-start px-6 py-10 sm:px-8 md:px-12 md:py-8 relative bg-[#252841] h-auto md:h-full z-20 overflow-y-auto md:overflow-visible">
           <div className="w-full flex flex-col animate-fadeIn mx-auto max-w-sm md:max-w-none">
             <RoleSwitcher />
-            <div className="mb-6">
+            <div className="mb-4">
               <h1 className="text-3xl font-bold text-white mb-2 tracking-tighter">
                 {loginType === 'user' ? 'Employee Entry' : 'Admin Authority'}
               </h1>
@@ -130,7 +130,7 @@ const Signin = () => {
 
             <form
               onSubmit={loginType === 'user' ? handleUserLogin : handleAdminLogin}
-              className="space-y-6"
+              className="space-y-4"
             >
               {/* Layout-preserving visibility for the Employee ID field */}
               <div className="relative">
