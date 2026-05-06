@@ -131,31 +131,29 @@ const Signin = () => {
               onSubmit={loginType === 'user' ? handleUserLogin : handleAdminLogin}
               className="space-y-4"
             >
-              {/* Layout-preserving visibility for the Employee ID field */}
-              <div className="relative">
-                <div className={`transition-all duration-500 ease-in-out ${loginType === 'user' ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-white uppercase tracking-[0.2em] ml-1">Employee ID</label>
-                    <div className="relative group">
-                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/20 group-focus-within:text-purple-400 transition-colors">
-                        <LayoutGrid size={18} />
-                      </div>
-                      <input
-                        type="text"
-                        name="empId"
-                        placeholder="e.g. EMP001"
-                        className="w-full bg-white/5 border border-white/20 rounded-lg py-4 pl-11 pr-4 focus:outline-none focus:ring-1 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all text-white placeholder:text-white/50 text-sm"
-                        required={loginType === 'user'}
-                      />
+              {/* Employee ID field - Conditionally rendered to eliminate blank space */}
+              {loginType === 'user' && (
+                <div className="space-y-2 animate-fadeIn">
+                  <label className="text-[10px] font-bold text-white uppercase tracking-[0.2em] ml-1">Employee ID</label>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/20 group-focus-within:text-purple-400 transition-colors">
+                      <LayoutGrid size={18} />
                     </div>
+                    <input
+                      type="text"
+                      name="empId"
+                      placeholder="e.g. EMP001"
+                      className="w-full bg-white/5 border border-white/20 rounded-lg py-4 pl-11 pr-4 focus:outline-none focus:ring-1 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all text-white placeholder:text-white/50 text-sm"
+                      required={loginType === 'user'}
+                    />
                   </div>
                 </div>
-              </div>
+              )}
 
               {/* Email/Username - Positioned to stay stable */}
-              <div className={`space-y-2 transition-all duration-500 ${loginType === 'user' ? 'translate-y-0' : '-translate-y-20'}`}>
+              <div className="space-y-2">
                 <label className="text-[10px] font-bold text-white uppercase tracking-[0.2em] ml-1">
-                  {loginType === 'user' ? 'Corporate Email' : 'Security Username'}
+                  {loginType === 'user' ? 'Corporate Email' : 'Security User'}
                 </label>
                 <div className="relative group">
                   <div className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/20 group-focus-within:text-${loginType === 'user' ? 'purple-400' : 'blue-400'} transition-colors`}>
@@ -171,7 +169,7 @@ const Signin = () => {
                 </div>
               </div>
 
-              <div className={`space-y-2 transition-all duration-500 ${loginType === 'user' ? 'translate-y-0' : '-translate-y-20'}`}>
+              <div className="space-y-2">
                 <label className="text-[10px] font-bold text-white uppercase tracking-[0.2em] ml-1">Secure Password</label>
                 <div className="relative group">
                   <div className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/20 group-focus-within:text-${loginType === 'user' ? 'purple-400' : 'blue-400'} transition-colors`}>
@@ -194,7 +192,7 @@ const Signin = () => {
                 </div>
               </div>
 
-              <div className={`transition-all duration-500 ${loginType === 'user' ? 'translate-y-0' : '-translate-y-20'}`}>
+              <div>
                 <button
                   type="submit"
                   disabled={isLoading}
