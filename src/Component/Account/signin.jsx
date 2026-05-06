@@ -64,41 +64,41 @@ const Signin = () => {
   };
 
   const RoleSwitcher = () => (
-    <div className="flex items-center p-1.5 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 w-full mb-10 overflow-hidden relative">
+    <div className="flex items-center p-1.5 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 w-full mb-6 overflow-hidden relative">
       <div
-        className={`absolute top-1.5 bottom-1.5 left-1.5 right-1/2 bg-gradient-to-r from-purple-600 to-indigo-700 rounded-xl transition-all duration-500 ease-out z-0 transform-gpu ${loginType === 'admin' ? 'translate-x-[100%]' : 'translate-x-0'}`}
+        className={`absolute top-1.5 bottom-1.5 left-1.5 right-1/2 bg-gradient-to-r from-purple-600 to-indigo-700 rounded-lg transition-all duration-500 ease-out z-0 transform-gpu ${loginType === 'admin' ? 'translate-x-[100%]' : 'translate-x-0'}`}
       ></div>
       <button
         type="button"
         onClick={() => setLoginType('user')}
-        className={`flex-1 flex items-center justify-center gap-2 py-3.5 z-10 font-black text-xs uppercase tracking-widest transition-colors duration-300 ${loginType === 'user' ? 'text-white' : 'text-white/30 hover:text-white/50'}`}
+        className={`flex-1 flex items-center justify-center gap-2 py-2.5 z-10 font-black text-[10px] uppercase tracking-widest transition-colors duration-300 ${loginType === 'user' ? 'text-white' : 'text-white/30 hover:text-white/50'}`}
       >
-        <Users size={16} />
+        <Users size={14} />
         Employee
       </button>
       <button
         type="button"
         onClick={() => setLoginType('admin')}
-        className={`flex-1 flex items-center justify-center gap-2 py-3.5 z-10 font-black text-xs uppercase tracking-widest transition-colors duration-300 ${loginType === 'admin' ? 'text-white' : 'text-white/30 hover:text-white/50'}`}
+        className={`flex-1 flex items-center justify-center gap-2 py-2.5 z-10 font-black text-[10px] uppercase tracking-widest transition-colors duration-300 ${loginType === 'admin' ? 'text-white' : 'text-white/30 hover:text-white/50'}`}
       >
-        <ShieldCheck size={16} />
+        <ShieldCheck size={14} />
         Admin
       </button>
     </div>
   );
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center p-4 sm:p-8 relative overflow-hidden font-inter bg-[#1a1c2e]">
+    <div className="fixed inset-0 flex items-center justify-center p-2 sm:p-4 overflow-hidden font-inter bg-[#1a1c2e]">
       {/* Background decoration */}
-      <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
+      <div className="absolute inset-0 opacity-20 pointer-events-none overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-900 rounded-full blur-[150px]" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-900 rounded-full blur-[150px]" />
       </div>
 
-      <div className="w-full max-w-[1150px] md:w-[1150px] flex flex-col md:flex-row bg-[#252841] rounded-[1.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10 relative z-10">
+      <div className="w-full max-w-[1000px] md:w-[1000px] flex flex-col md:flex-row bg-[#252841] rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10 relative z-10">
 
-        {/* Visual Illustration Section - Edge-to-edge for Laptop view */}
-        <div className="w-full h-[280px] md:h-[650px] md:min-h-[650px] md:w-[55%] relative group overflow-hidden bg-[#f1f3f6] shrink-0 border-b md:border-b-0 md:border-r border-white/10">
+        {/* Visual Illustration Section */}
+        <div className="w-full h-[150px] md:h-auto md:w-[50%] relative group overflow-hidden bg-[#f1f3f6] shrink-0 border-b md:border-b-0 md:border-r border-white/10">
           <div className="absolute inset-0 flex items-center justify-center">
             <img
               src={empLogImage}
@@ -113,12 +113,12 @@ const Signin = () => {
           </div>
         </div>
 
-        {/* Form Container - Rigid Height and adjusted width */}
-        <div className="w-full md:w-[45%] flex flex-col justify-start md:justify-center p-8 pt-10 sm:p-12 md:p-16 relative bg-[#252841] h-[640px] md:h-[650px] md:min-h-[650px] z-20">
+        {/* Form Container - auto height with min height */}
+        <div className="w-full md:w-[50%] flex flex-col justify-start md:justify-center p-6 sm:p-8 md:p-12 relative bg-[#252841] h-auto md:min-h-[580px] z-20">
           <div className="w-full flex flex-col animate-fadeIn mx-auto max-w-sm md:max-w-none">
             <RoleSwitcher />
-            <div className="mb-8">
-              <h1 className="text-4xl font-bold text-white mb-2 tracking-tighter">
+            <div className="mb-6">
+              <h1 className="text-3xl font-bold text-white mb-2 tracking-tighter">
                 {loginType === 'user' ? 'Employee Entry' : 'Admin Authority'}
               </h1>
               <div className={`h-1.5 w-16 rounded-none mb-3 shadow-lg ${loginType === 'user' ? 'bg-purple-500 shadow-purple-500/20' : 'bg-blue-500 shadow-blue-500/20'}`}></div>
@@ -127,7 +127,7 @@ const Signin = () => {
 
             <form
               onSubmit={loginType === 'user' ? handleUserLogin : handleAdminLogin}
-              className="space-y-6"
+              className="space-y-5"
             >
               {/* Layout-preserving visibility for the Employee ID field */}
               <div className="relative">
@@ -142,7 +142,7 @@ const Signin = () => {
                         type="text"
                         name="empId"
                         placeholder="e.g. EMP001"
-                        className="w-full bg-white/5 border border-white/20 rounded-lg py-4 pl-12 pr-4 focus:outline-none focus:ring-1 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all text-white placeholder:text-white/50"
+                        className="w-full bg-white/5 border border-white/20 rounded-lg py-3.5 pl-11 pr-4 focus:outline-none focus:ring-1 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all text-white placeholder:text-white/50 text-sm"
                         required={loginType === 'user'}
                       />
                     </div>
@@ -163,7 +163,7 @@ const Signin = () => {
                     type={loginType === 'user' ? 'email' : 'text'}
                     name={loginType === 'user' ? 'email' : 'username'}
                     placeholder={loginType === 'user' ? 'name@company.com' : 'admin_user'}
-                    className={`w-full bg-white/5 border border-white/20 rounded-lg py-4 pl-12 pr-4 focus:outline-none focus:ring-1 ${loginType === 'user' ? 'focus:ring-purple-500/50 focus:border-purple-500/50' : 'focus:ring-blue-500/50 focus:border-blue-500/50'} transition-all text-white placeholder:text-white/50`}
+                    className={`w-full bg-white/5 border border-white/20 rounded-lg py-3.5 pl-11 pr-4 focus:outline-none focus:ring-1 ${loginType === 'user' ? 'focus:ring-purple-500/50 focus:border-purple-500/50' : 'focus:ring-blue-500/50 focus:border-blue-500/50'} transition-all text-white placeholder:text-white/50 text-sm`}
                     required
                   />
                 </div>
@@ -179,7 +179,7 @@ const Signin = () => {
                     type={showPassword ? 'text' : 'password'}
                     name="password"
                     placeholder="••••••••"
-                    className={`w-full bg-white/5 border border-white/20 rounded-lg py-4 pl-12 pr-12 focus:outline-none focus:ring-1 ${loginType === 'user' ? 'focus:ring-purple-500/50 focus:border-purple-500/50' : 'focus:ring-blue-500/50 focus:border-blue-500/50'} transition-all text-white placeholder:text-white/50`}
+                    className={`w-full bg-white/5 border border-white/20 rounded-lg py-3.5 pl-11 pr-10 focus:outline-none focus:ring-1 ${loginType === 'user' ? 'focus:ring-purple-500/50 focus:border-purple-500/50' : 'focus:ring-blue-500/50 focus:border-blue-500/50'} transition-all text-white placeholder:text-white/50 text-sm`}
                     required
                   />
                   <button
@@ -191,12 +191,12 @@ const Signin = () => {
                   </button>
                 </div>
               </div>
-              
+
               <div className={`transition-all duration-500 ${loginType === 'user' ? 'translate-y-0' : '-translate-y-20'}`}>
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className={`w-full relative group overflow-hidden py-5 rounded-lg font-bold text-white shadow-xl transition-all duration-300 transform active:scale-[0.98] mt-4 flex items-center justify-center gap-3 tracking-[0.2em] text-xs uppercase ${loginType === 'user'
+                  className={`w-full relative group overflow-hidden py-4 rounded-lg font-bold text-white shadow-xl transition-all duration-300 transform active:scale-[0.98] mt-4 flex items-center justify-center gap-3 tracking-[0.2em] text-xs uppercase ${loginType === 'user'
                     ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-purple-500/40'
                     : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-blue-500/40'
                     }`}
