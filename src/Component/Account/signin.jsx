@@ -90,7 +90,7 @@ const Signin = () => {
   );
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 font-inter bg-[#1a1c2e]">
+    <div className="w-full flex items-center justify-center p-4 sm:p-6 md:p-8 font-inter">
 
       <div className="w-full max-w-[1000px] flex flex-col md:flex-row bg-[#252841] rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10 relative z-10 md:h-[500px]">
 
