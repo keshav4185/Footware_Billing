@@ -88,9 +88,9 @@ const Signin = () => {
   );
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-2 sm:p-4 overflow-hidden font-inter bg-[#1a1c2e]">
+    <div className="w-full min-h-screen md:h-screen flex items-center justify-center p-4 sm:p-8 relative overflow-hidden md:overflow-hidden font-inter bg-[#1a1c2e]">
       {/* Background decoration */}
-      <div className="absolute inset-0 opacity-20 pointer-events-none overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-900 rounded-full blur-[150px]" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-900 rounded-full blur-[150px]" />
       </div>
@@ -98,7 +98,7 @@ const Signin = () => {
       <div className="w-full max-w-[1000px] md:w-[1000px] flex flex-col md:flex-row bg-[#252841] rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10 relative z-10">
 
         {/* Visual Illustration Section */}
-        <div className="w-full h-[150px] md:h-auto md:w-[50%] relative group overflow-hidden bg-[#f1f3f6] shrink-0 border-b md:border-b-0 md:border-r border-white/10">
+        <div className="w-full h-[280px] md:h-auto md:w-[50%] relative group overflow-hidden bg-[#f1f3f6] shrink-0 border-b md:border-b-0 md:border-r border-white/10">
           <div className="absolute inset-0 flex items-center justify-center">
             <img
               src={empLogImage}
@@ -114,7 +114,7 @@ const Signin = () => {
         </div>
 
         {/* Form Container - auto height with min height */}
-        <div className="w-full md:w-[50%] flex flex-col justify-start md:justify-center p-6 sm:p-8 md:p-12 relative bg-[#252841] h-auto md:min-h-[580px] z-20">
+        <div className="w-full md:w-[50%] flex flex-col justify-start md:justify-center p-8 pt-10 sm:p-12 md:p-12 relative bg-[#252841] h-[640px] md:h-auto md:min-h-[580px] z-20">
           <div className="w-full flex flex-col animate-fadeIn mx-auto max-w-sm md:max-w-none">
             <RoleSwitcher />
             <div className="mb-6">
