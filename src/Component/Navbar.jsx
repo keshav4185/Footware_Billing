@@ -7,10 +7,10 @@ import logo_icon_transparent from '../assets/logo_icon_transparent.png';
 // Reusing your Button component structure
 const Button = ({ children, primary = false, outline = false, className = '', ...props }) => {
     const baseClasses = 'px-4 py-2 font-semibold rounded-lg transition duration-200 cursor-pointer text-sm';
-    
+
     let styleClasses = 'text-gray-600 hover:text-gray-800';
     if (primary) {
-        styleClasses = 'bg-purple-main text-white hover:bg-[#4a3249] shadow'; 
+        styleClasses = 'bg-purple-main text-white hover:bg-[#4a3249] shadow';
     } else if (outline) {
         styleClasses = 'bg-white  text-gray-800 border border-gray-300 hover:bg-[#7A4B6D]  hover:text-white';
     }
@@ -35,13 +35,13 @@ const Navbar = () => {
     const [userName, setUserName] = useState('Keshav');
     const [showDropdown, setShowDropdown] = useState(false);
     const navigate = useNavigate();
-    
+
     // Check if user is signed in (you can use localStorage or other state management)
     React.useEffect(() => {
         // Clear sign in state for testing
         localStorage.removeItem('isSignedIn');
         localStorage.removeItem('userEmail');
-        
+
         const signedIn = localStorage.getItem('isSignedIn');
         if (signedIn === 'true') {
             setIsSignedIn(true);
@@ -49,7 +49,7 @@ const Navbar = () => {
             setIsSignedIn(false);
         }
     }, []);
-    
+
     const closeMenu = () => setIsMenuOpen(false);
 
     const handleSignOut = () => {
@@ -68,15 +68,15 @@ const Navbar = () => {
                     <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-l from-purple-100 to-transparent rounded-full opacity-30 animate-pulse-slow"></div>
                     <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-r from-blue-100 to-transparent rounded-full opacity-20 animate-float"></div>
                 </div>
-                
+
                 <div className="flex justify-between items-center relative z-10">
-                    
+
                     {/* Logo and Desktop Navigation */}
-                    <div className="flex items-center space-x-12"> 
+                    <div className="flex items-center space-x-12">
                         <Link to="/" className="flex items-center space-x-3 group/logo">
                             <img src={logo_icon_transparent} alt="Smart Billing Solutions" className="h-11 sm:h-13 w-auto object-contain transition-transform duration-300 group-hover/logo:scale-105" />
                             <div className="flex flex-col justify-center gap-0.5">
-                                <span className="font-black text-sm sm:text-base tracking-tight leading-none text-gray-900">SMART BILLING</span>
+                                <span className="font-black text-sm sm:text-base tracking-tight leading-none text-[#BB67C9]">SMART BILLING</span>
                                 <span className="text-[9px] font-black tracking-[0.2em] uppercase leading-none text-purple-600">Solutions</span>
                             </div>
                         </Link>
@@ -88,7 +88,7 @@ const Navbar = () => {
                                     key={item.name}
                                     to={item.path}
                                     className="text-gray-600 hover:text-gray-800 transition font-medium transform hover:scale-110 hover:text-purple-600 relative group animate-slideInDown"
-                                    style={{animationDelay: `${index * 0.1}s`}}
+                                    style={{ animationDelay: `${index * 0.1}s` }}
                                 >
                                     {item.name}
                                     <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-purple-600 transition-all duration-300 group-hover:w-full"></span>
@@ -103,7 +103,7 @@ const Navbar = () => {
                             {isSignedIn ? (
                                 <>
                                     <div className="relative">
-                                        <div 
+                                        <div
                                             className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 cursor-pointer transform hover:scale-105 transition-all duration-300 group"
                                             onClick={() => setShowDropdown(!showDropdown)}
                                         >
@@ -120,7 +120,7 @@ const Navbar = () => {
                                                 <Link to="/myaccountpage" className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-lg transition-all duration-300 transform hover:scale-105">
                                                     My Account
                                                 </Link>
-                                                <button 
+                                                <button
                                                     onClick={handleSignOut}
                                                     className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all duration-300 transform hover:scale-105"
                                                 >
@@ -133,23 +133,23 @@ const Navbar = () => {
                                 </>
                             ) : (
                                 <>
-                                    <Link to="/Account">  <Button outline className="w-full hover:bg-indigo-400 transform hover:scale-105 transition-all duration-300 hover:shadow-lg" >Start-Now</Button></Link> 
+                                    <Link to="/Account">  <Button outline className="w-full hover:bg-indigo-400 transform hover:scale-105 transition-all duration-300 hover:shadow-lg" >Start-Now</Button></Link>
                                 </>
                             )}
                         </div>
 
                         {/* Hamburger */}
-                        <button 
+                        <button
                             className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transform hover:scale-110 transition-all duration-300 hover:text-purple-600 group"
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                         >
                             <svg className="w-6 h-6 group-hover:animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 {isMenuOpen ? (
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                          d="M6 18L18 6M6 6l12 12" />
+                                        d="M6 18L18 6M6 6l12 12" />
                                 ) : (
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                          d="M4 6h16M4 12h16M4 18h16" />
+                                        d="M4 6h16M4 12h16M4 18h16" />
                                 )}
                             </svg>
                         </button>
@@ -167,7 +167,7 @@ const Navbar = () => {
                             onClick={closeMenu}
                             className="block px-3 py-2 rounded-md text-base font-medium
                                        text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all duration-300 transform hover:scale-105 animate-slideInLeft"
-                            style={{animationDelay: `${index * 0.1}s`}}
+                            style={{ animationDelay: `${index * 0.1}s` }}
                         >
                             {item.name}
                         </Link>
@@ -186,7 +186,7 @@ const Navbar = () => {
                             </>
                         ) : (
                             <>
-                                <Link to="/Account" className="block w-full">  <Button outline className="w-full transform hover:scale-105 transition-all duration-300 hover:shadow-lg" >Sign in</Button></Link> 
+                                <Link to="/Account" className="block w-full">  <Button outline className="w-full transform hover:scale-105 transition-all duration-300 hover:shadow-lg" >Sign in</Button></Link>
                                 <Link to="/Account" className="block w-full mt-2">  <Button outline className="w-full try transform hover:scale-105 transition-all duration-300 hover:shadow-lg">Start Billing</Button></Link>
                             </>
                         )}
