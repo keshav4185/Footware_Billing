@@ -125,7 +125,6 @@ const Signin = () => {
                 {loginType === 'user' ? 'Employee Entry' : 'Admin Authority'}
               </h1>
               <div className={`h-1.5 w-16 rounded-none mb-3 shadow-lg ${loginType === 'user' ? 'bg-purple-500 shadow-purple-500/20' : 'bg-blue-500 shadow-blue-500/20'}`}></div>
-              <p className="text-white text-sm font-medium tracking-wide">Enter your details to access the system</p>
             </div>
 
             <form
