@@ -8,7 +8,7 @@ import {
   Package,
   LogOut
 } from 'lucide-react';
-import logo_transparent from '../../assets/logo_transparent.png';
+import logo_icon_transparent from '../../assets/logo_icon_transparent.png';
 
 const DashboardSidebar = ({ activeSection, setActiveSection, sidebarOpen, setSidebarOpen, isDarkMode }) => {
   const navigate = useNavigate();
@@ -51,8 +51,12 @@ const DashboardSidebar = ({ activeSection, setActiveSection, sidebarOpen, setSid
           : 'bg-white border-gray-200 text-gray-800 shadow-xl shadow-blue-100/50'
         }
       `}>
-          <div className="px-2 py-4 border-b border-gray-100 dark:border-gray-700/50 flex justify-center items-center">
-            <img src={logo_transparent} alt="Smart Billing Solutions" className="h-28 object-contain transition-transform duration-300 hover:scale-105" />
+          <div className="px-2 py-5 border-b border-gray-100 dark:border-gray-700/50 flex items-center justify-center gap-3">
+            <img src={logo_icon_transparent} alt="Smart Billing Solutions" className="h-10 w-auto object-contain transition-transform duration-300 hover:scale-105" />
+            <div className="flex flex-col justify-center gap-0.5">
+              <span className={`font-black text-sm tracking-tight leading-none ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>SMART BILLING</span>
+              <span className={`text-[9px] font-black tracking-[0.2em] uppercase leading-none ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>Solutions</span>
+            </div>
           </div>
 
         <nav className="flex-1 mt-4 space-y-2">
