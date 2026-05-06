@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Logo from '../assets/logo.jpg';
+import { LayoutDashboard } from 'lucide-react';
+
 // Reusing your Button component structure
 const Button = ({ children, primary = false, outline = false, className = '', ...props }) => {
     const baseClasses = 'px-4 py-2 font-semibold rounded-lg transition duration-200 cursor-pointer text-sm';
@@ -70,9 +71,15 @@ const Navbar = () => {
                 <div className="flex justify-between items-center relative z-10">
                     
                     {/* Logo and Desktop Navigation */}
-                    <div className="flex items-center space-x-12 group"> 
-                        <Link to="/" className="flex items-center space-x-2">
-                           <img src={Logo} alt="Logo" className='h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 object-contain -my-2'/>
+                    <div className="flex items-center space-x-12"> 
+                        <Link to="/" className="flex items-center space-x-3 group/logo">
+                            <div className="flex items-center justify-center transition-transform duration-300 group-hover/logo:scale-105">
+                                <LayoutDashboard size={28} className="text-purple-600" />
+                            </div>
+                            <div className="flex flex-col justify-center gap-0.5">
+                                <span className="font-black text-sm sm:text-base tracking-tight leading-none text-gray-900">SMART BILLING</span>
+                                <span className="text-[9px] font-black tracking-widest uppercase leading-none text-purple-600">Billing Pro</span>
+                            </div>
                         </Link>
 
                         {/* Desktop Menu */}

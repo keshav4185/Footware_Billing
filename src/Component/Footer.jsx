@@ -5,7 +5,8 @@ import {
     Shield,
     CreditCard,
     BarChart3,
-    Box
+    Box,
+    LayoutDashboard
 } from 'lucide-react';
 import {
     FaFacebook,
@@ -45,13 +46,14 @@ const Footer = () => {
 
                     {/* Brand Column */}
                     <div className="space-y-4">
-                        <Link to="/" className="flex items-center space-x-3 group">
-                            <div className="p-2 bg-gray-50 rounded-xl shadow-sm">
-                                <img src={Logo} alt="Smart Billing" className="h-10 w-10 object-contain" />
+                        <Link to="/" className="flex items-center space-x-3 group/logo">
+                            <div className="flex items-center justify-center transition-transform duration-300 group-hover/logo:scale-105">
+                                <LayoutDashboard size={28} className="text-[#3D0448]" />
                             </div>
-                            <span className="text-2xl font-bold bg-gradient-to-r from-[#3D0448] to-[#B564C3] bg-clip-text text-transparent">
-                                Smart Billing
-                            </span>
+                            <div className="flex flex-col justify-center gap-0.5">
+                                <span className="font-black text-sm sm:text-base tracking-tight leading-none text-gray-900">SMART BILLING</span>
+                                <span className="text-[9px] font-black tracking-widest uppercase leading-none text-[#B564C3]">Billing Pro</span>
+                            </div>
                         </Link>
                         <p className="text-gray-500 leading-relaxed text-sm">
                             Smart is a suite of open source business apps that cover all your company needs: CRM, eCommerce, accounting, inventory, point of sale, project management, etc.
