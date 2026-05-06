@@ -98,7 +98,7 @@ const Signin = () => {
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-900 rounded-full blur-[150px]" />
       </div>
 
-      <div className="w-full max-w-[1000px] flex flex-col md:flex-row bg-[#252841] rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10 relative z-10 md:h-[650px] md:max-h-[95vh] md:-mt-16">
+      <div className="w-full max-w-[1000px] flex flex-col md:flex-row bg-[#252841] rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10 relative z-10 md:h-[570px] md:max-h-[95vh] md:-mt-16">
 
         {/* Visual Illustration Section - Fixed 280px on mobile, flex on desktop */}
         <div className="w-full h-[280px] md:h-auto md:w-[50%] relative group overflow-hidden bg-[#f1f3f6] shrink-0 border-b md:border-b-0 md:border-r border-white/10">
