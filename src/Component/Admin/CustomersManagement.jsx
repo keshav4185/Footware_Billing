@@ -83,9 +83,16 @@ const CustomersManagement = ({ customers, setCustomers, isDarkMode }) => {
     }
 
     // Check for duplicate phone number
-    const isDuplicate = customers.some(c => c.phone === formData.phone && c.id !== editingCustomer?.id);
-    if (isDuplicate) {
+    const isDuplicatePhone = customers.some(c => c.phone === formData.phone && c.id !== editingCustomer?.id);
+    if (isDuplicatePhone) {
       alert("❌ A customer with this phone number already exists! Please search and use the existing customer.");
+      return false;
+    }
+
+    // Check for duplicate name
+    const isDuplicateName = customers.some(c => c.name.trim().toLowerCase() === formData.name.trim().toLowerCase() && c.id !== editingCustomer?.id);
+    if (isDuplicateName) {
+      alert("❌ A customer with this exact name already exists!");
       return false;
     }
 
@@ -107,8 +114,17 @@ const CustomersManagement = ({ customers, setCustomers, isDarkMode }) => {
       setCustomers([...customers, res.data]);
       setFormData({ name: '', phone: '', gst: '', address: '' });
       setShowAddModal(false);
+      alert('Customer added successfully!');
     } catch (error) {
       console.error('Error adding customer:', error);
+      let errMsg = 'A customer with this name or details may already exist.';
+      if (error.response?.data) {
+        if (typeof error.response.data === 'string') errMsg = error.response.data;
+        else if (error.response.data.message) errMsg = error.response.data.message;
+        else if (error.response.data.error) errMsg = error.response.data.error;
+        else errMsg = JSON.stringify(error.response.data);
+      }
+      alert('❌ Failed to add customer: \n' + errMsg);
     }
   };
 
@@ -142,8 +158,17 @@ const CustomersManagement = ({ customers, setCustomers, isDarkMode }) => {
       setEditingCustomer(null);
       setShowAddModal(false);
       setFormData({ name: '', phone: '', gst: '', address: '' });
+      alert('Customer updated successfully!');
     } catch (error) {
       console.error('Error updating customer:', error);
+      let errMsg = 'A customer with these details may already exist.';
+      if (error.response?.data) {
+        if (typeof error.response.data === 'string') errMsg = error.response.data;
+        else if (error.response.data.message) errMsg = error.response.data.message;
+        else if (error.response.data.error) errMsg = error.response.data.error;
+        else errMsg = JSON.stringify(error.response.data);
+      }
+      alert('❌ Failed to update customer: \n' + errMsg);
     }
   };
 

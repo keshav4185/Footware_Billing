@@ -59,22 +59,53 @@ const EmployeesManagement = ({ isDarkMode }) => {
       empId: formData.empId.trim()
     };
 
-    if (editingEmployee) {
-      await api.put(`${API}/${editingEmployee.id}`, trimmedData);
-      alert('Employee updated successfully!');
-    } else {
-      await api.post(API, {
-        ...trimmedData,
-        empId: trimmedData.empId || generateEmpId(),
-        status: 'Active'
-      });
-      alert('Employee added successfully!');
+    // Client-side duplicate validation
+    const duplicateEmail = employees.find(e => e.email.toLowerCase() === trimmedData.email.toLowerCase() && e.id !== editingEmployee?.id);
+    if (duplicateEmail) {
+      alert("❌ An employee with this email already exists!");
+      return;
     }
 
-    fetchEmployees();
-    setFormData({ name: '', phone: '', email: '', password: '', empId: '' });
-    setEditingEmployee(null);
-    setShowAddForm(false);
+    const duplicatePhone = employees.find(e => e.phone === trimmedData.phone && e.id !== editingEmployee?.id);
+    if (duplicatePhone) {
+      alert("❌ An employee with this phone number already exists!");
+      return;
+    }
+
+    const duplicateName = employees.find(e => e.name.toLowerCase() === trimmedData.name.toLowerCase() && e.id !== editingEmployee?.id);
+    if (duplicateName) {
+      alert("❌ An employee with this exact name already exists!");
+      return;
+    }
+
+    try {
+      if (editingEmployee) {
+        await api.put(`${API}/${editingEmployee.id}`, trimmedData);
+        alert('Employee updated successfully!');
+      } else {
+        await api.post(API, {
+          ...trimmedData,
+          empId: trimmedData.empId || generateEmpId(),
+          status: 'Active'
+        });
+        alert('Employee added successfully!');
+      }
+
+      fetchEmployees();
+      setFormData({ name: '', phone: '', email: '', password: '', empId: '' });
+      setEditingEmployee(null);
+      setShowAddForm(false);
+    } catch (error) {
+      console.error('Error saving employee:', error);
+      let errMsg = 'Employee with this name or email may already exist.';
+      if (error.response?.data) {
+        if (typeof error.response.data === 'string') errMsg = error.response.data;
+        else if (error.response.data.message) errMsg = error.response.data.message;
+        else if (error.response.data.error) errMsg = error.response.data.error;
+        else errMsg = JSON.stringify(error.response.data);
+      }
+      alert('❌ Failed to save employee: \n' + errMsg);
+    }
   };
 
 

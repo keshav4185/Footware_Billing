@@ -45,6 +45,7 @@ const Signin = () => {
     } catch (error) {
       console.error("Login error:", error);
       alert(error.response?.data?.message || "Invalid employee credentials");
+      e.target.reset(); // Clear the form fields
     } finally {
       setIsLoading(false);
     }
@@ -60,6 +61,7 @@ const Signin = () => {
       window.location.href = '/admin/dashboard';
     } else {
       alert('Invalid admin credentials');
+      e.target.reset(); // Clear the form fields
     }
   };
 
