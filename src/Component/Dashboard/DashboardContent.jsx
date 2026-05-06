@@ -186,13 +186,13 @@ const DashboardContent = ({ activeSection, sidebarOpen, setSidebarOpen, setActiv
       <header className="hidden md:flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-8 gap-4 p-4 md:p-8 relative z-10">
         <div className="flex items-center gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <h1 className={`text-2xl md:text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+            <div className="flex items-center gap-3 mb-1">
+              <h1 className={`text-2xl md:text-3xl font-bold leading-tight ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
                 Employee Dashboard
               </h1>
               <button
                 onClick={() => setIsDarkMode(!isDarkMode)}
-                className={`p-2 rounded-full transition-all duration-300 hover:scale-110 flex items-center justify-center ${isDarkMode ? 'bg-yellow-500 hover:bg-yellow-400' : 'bg-gray-800 hover:bg-gray-700'
+                className={`p-2 rounded-full transition-all duration-300 hover:scale-110 flex items-center justify-center translate-y-[2px] md:translate-y-[3px] ${isDarkMode ? 'bg-yellow-500 hover:bg-yellow-400' : 'bg-gray-800 hover:bg-gray-700'
                   }`}
               >
                 {isDarkMode ? <Sun size={18} className="text-gray-300" /> : <Moon size={18} className="text-gray-300" />}
