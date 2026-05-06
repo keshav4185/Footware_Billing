@@ -72,7 +72,7 @@ const Navbar = () => {
                     {/* Logo and Desktop Navigation */}
                     <div className="flex items-center space-x-12 group"> 
                         <Link to="/" className="flex items-center space-x-2">
-                           <img src={Logo} alt="Logo" className='h-14 w-14 sm:h-16 sm:w-16 md:h-20 md:w-20 lg:h-24 lg:w-24 object-contain -my-4'/>
+                           <img src={Logo} alt="Logo" className='h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 object-contain -my-2'/>
                         </Link>
 
                         {/* Desktop Menu */}
