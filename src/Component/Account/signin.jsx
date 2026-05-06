@@ -90,15 +90,9 @@ const Signin = () => {
   );
 
   return (
-    <div className="relative w-full min-h-screen md:fixed md:inset-0 flex items-center justify-center p-4 sm:p-8 md:p-4 overflow-y-auto md:overflow-hidden overflow-x-hidden font-inter bg-[#1a1c2e]">
+    <div className="w-full flex items-center justify-center p-4 sm:p-6 md:p-8 font-inter">
 
-      {/* Background decoration */}
-      <div className="absolute inset-0 opacity-20 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-900 rounded-full blur-[150px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-900 rounded-full blur-[150px]" />
-      </div>
-
-      <div className="w-full max-w-[1000px] flex flex-col md:flex-row bg-[#252841] rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10 relative z-10 md:h-[520px] md:max-h-[95vh] md:-mt-16">
+      <div className="w-full max-w-[1000px] flex flex-col md:flex-row bg-[#252841] rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10 relative z-10 md:h-[500px]">
 
         {/* Visual Illustration Section - Fixed 280px on mobile, flex on desktop */}
         <div className="w-full h-[280px] md:h-auto md:w-[50%] relative group overflow-hidden bg-[#f1f3f6] shrink-0 border-b md:border-b-0 md:border-r border-white/10">
@@ -129,11 +123,11 @@ const Signin = () => {
 
             <form
               onSubmit={loginType === 'user' ? handleUserLogin : handleAdminLogin}
-              className="space-y-4"
+              className="space-y-3"
             >
               {/* Employee ID field - Conditionally rendered to eliminate blank space */}
               {loginType === 'user' && (
-                <div className="space-y-2 animate-fadeIn">
+                <div className="space-y-1 animate-fadeIn">
                   <label className="text-[10px] font-bold text-white uppercase tracking-[0.2em] ml-1">Employee ID</label>
                   <div className="relative group">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/20 group-focus-within:text-purple-400 transition-colors">
@@ -143,7 +137,7 @@ const Signin = () => {
                       type="text"
                       name="empId"
                       placeholder="e.g. EMP001"
-                      className="w-full bg-white/5 border border-white/20 rounded-lg py-4 pl-11 pr-4 focus:outline-none focus:ring-1 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all text-white placeholder:text-white/50 text-sm"
+                      className="w-full bg-white/5 border border-white/20 rounded-lg py-3 pl-11 pr-4 focus:outline-none focus:ring-1 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all text-white placeholder:text-white/50 text-sm"
                       required={loginType === 'user'}
                     />
                   </div>
@@ -151,7 +145,7 @@ const Signin = () => {
               )}
 
               {/* Email/Username - Positioned to stay stable */}
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label className="text-[10px] font-bold text-white uppercase tracking-[0.2em] ml-1">
                   {loginType === 'user' ? 'Corporate Email' : 'Security User'}
                 </label>
@@ -163,13 +157,13 @@ const Signin = () => {
                     type={loginType === 'user' ? 'email' : 'text'}
                     name={loginType === 'user' ? 'email' : 'username'}
                     placeholder={loginType === 'user' ? 'name@company.com' : 'admin_user'}
-                    className={`w-full bg-white/5 border border-white/20 rounded-lg py-4 pl-11 pr-4 focus:outline-none focus:ring-1 ${loginType === 'user' ? 'focus:ring-purple-500/50 focus:border-purple-500/50' : 'focus:ring-blue-500/50 focus:border-blue-500/50'} transition-all text-white placeholder:text-white/50 text-sm`}
+                    className={`w-full bg-white/5 border border-white/20 rounded-lg py-3 pl-11 pr-4 focus:outline-none focus:ring-1 ${loginType === 'user' ? 'focus:ring-purple-500/50 focus:border-purple-500/50' : 'focus:ring-blue-500/50 focus:border-blue-500/50'} transition-all text-white placeholder:text-white/50 text-sm`}
                     required
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label className="text-[10px] font-bold text-white uppercase tracking-[0.2em] ml-1">Secure Password</label>
                 <div className="relative group">
                   <div className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/20 group-focus-within:text-${loginType === 'user' ? 'purple-400' : 'blue-400'} transition-colors`}>
@@ -179,7 +173,7 @@ const Signin = () => {
                     type={showPassword ? 'text' : 'password'}
                     name="password"
                     placeholder="••••••••"
-                    className={`w-full bg-white/5 border border-white/20 rounded-lg py-4 pl-11 pr-10 focus:outline-none focus:ring-1 ${loginType === 'user' ? 'focus:ring-purple-500/50 focus:border-purple-500/50' : 'focus:ring-blue-500/50 focus:border-blue-500/50'} transition-all text-white placeholder:text-white/50 text-sm`}
+                    className={`w-full bg-white/5 border border-white/20 rounded-lg py-3 pl-11 pr-10 focus:outline-none focus:ring-1 ${loginType === 'user' ? 'focus:ring-purple-500/50 focus:border-purple-500/50' : 'focus:ring-blue-500/50 focus:border-blue-500/50'} transition-all text-white placeholder:text-white/50 text-sm`}
                     required
                   />
                   <button
@@ -196,7 +190,7 @@ const Signin = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className={`w-full relative group overflow-hidden py-4 rounded-lg font-bold text-white shadow-xl transition-all duration-300 transform active:scale-[0.98] mt-4 flex items-center justify-center gap-3 tracking-[0.2em] text-xs uppercase ${loginType === 'user'
+                  className={`w-full relative group overflow-hidden py-3 rounded-lg font-bold text-white shadow-xl transition-all duration-300 transform active:scale-[0.98] mt-4 flex items-center justify-center gap-3 tracking-[0.2em] text-xs uppercase ${loginType === 'user'
                     ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-purple-500/40'
                     : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-blue-500/40'
                     }`}
